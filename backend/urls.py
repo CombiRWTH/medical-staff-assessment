@@ -1,4 +1,4 @@
-# backend/urls.py
+"""This file contains the URL patterns for the API."""
 
 from django.urls import path
 from . import views

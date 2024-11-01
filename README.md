@@ -13,6 +13,7 @@ python manage.py runserver
 
 ## Docker
 Before running the following commands, install [Docker](https://www.docker.com/).
+Also create the .env file (see sample.env for required fields).
 ```
 docker-compose build
 docker-compose up
@@ -20,7 +21,7 @@ docker-compose up
 
 ## Linting
 
-We use flake for linting. Run it with 
+We use flake for linting. Run it with
 
 ```
 flake8 .

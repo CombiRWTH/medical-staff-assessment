@@ -1,0 +1,14 @@
+[
+    {
+        "model": "backend.CareServices",
+        "pk": 1,
+        "fields": {
+            "care_service_name": "A1-Körperpflege",
+            "care_service_category": "A",
+            "care_service_task": "Körperpflege",
+            "care_service_range": 1,
+            "care_service_option": 1,
+            "care_service_description": "Alle Patienten, die nicht A2, A3 oder A4 zugeordnet werden."
+        }
+    }
+]
