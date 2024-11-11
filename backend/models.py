@@ -7,7 +7,7 @@ class CareServices(models.Model):
 
     care_service_name = models.CharField(max_length=200, primary_key=True)
     care_service_category = models.CharField(max_length=1)  # For example A for 'Allgemeine Pflege'
-    care_service_task = models.CharField(max_length=50)  # For example 'Körperpflege'
+    care_service_task = models.CharField(max_length=200)  # For example 'Körperpflege'
     care_service_range = models.IntegerField()  # 1-4
     care_service_option = models.IntegerField()  # Index of the questions
     care_service_description = models.TextField()  # Content of the question
