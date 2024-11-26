@@ -110,8 +110,8 @@ class PatientTransfers(models.Model):
     transfer_date = models.DateTimeField()
     admission_date = models.DateTimeField()  # Date and time patient arrived at hospital
     discharge_date = models.DateField()  # Date patient will be released from hospital
-    station_old = models.ForeignKey('Station', on_delete=models.CASCADE, related_name='station_old') # Station patient came from
-    station_new = models.ForeignKey('Station', on_delete=models.CASCADE, related_name='station_new') # Station patient was transferred to
+    station_old = models.CharField(max_length=100)  # Station patient came from
+    station_new = models.CharField(max_length=100)  # Station patient went to
     transferred_to_external = models.BooleanField()  # True if patient was transferred to different hospital
 
     def __str__(self):
