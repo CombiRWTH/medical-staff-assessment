@@ -1,8 +1,11 @@
 """Provide questions for the frontend to display and handle the submission of answers."""
 import json
-from django.http import JsonResponse
-from ..models import CareServiceOption, Patient, DailyClassification, IsCareServiceUsed
 from datetime import date, timedelta
+
+from django.http import JsonResponse
+
+from ..models import (CareServiceOption, DailyClassification,
+                      IsCareServiceUsed, Patient, Station)
 from .handle_calculations import calculate_care_minutes
 
 
@@ -23,8 +26,8 @@ def add_selected_attribute(care_service_options: list, patient_id: int) -> list:
     # Get the ID of the previous classification
     previous_date = date.today() - timedelta(days=1)
     previous_classification = list(DailyClassification.objects.filter(
-        patient_id=patient_id,
-        classification_date=previous_date,
+        patient=patient_id,
+        date=previous_date,
     ).values('id'))
 
     # If no previous classification exists, return the questions without the attribute
@@ -33,13 +36,13 @@ def add_selected_attribute(care_service_options: list, patient_id: int) -> list:
 
     # Get all previous selected care services
     previous_selected_services = list(IsCareServiceUsed.objects.filter(
-        classification_id=previous_classification[0]['id'],
-    ).values('care_service_id'))
+        classification=previous_classification[0]['id'],
+    ).values('care_service_option'))
 
     # Add the attribute if the care service was previously selected or not
     for option in care_service_options:
         option['selected'] = any(
-            previous_service['care_service_id'] == option['id']
+            previous_service['care_service_option'] == option['id']
             for previous_service in previous_selected_services
         )
 
@@ -57,11 +60,11 @@ def get_questions(patient_id: int) -> list:
     """
     # Get the questions with the corresponding information
     care_service_options = list(
-        CareServiceOption.objects.select_related('field_id', 'category_id').values(
+        CareServiceOption.objects.select_related('field', 'category').values(
             'id',
-            'field_id__name',
-            'field_id__short',
-            'category_id__name',
+            'field__name',
+            'field__short',
+            'category__name',
             'name',
             'severity',
             'description',
@@ -105,13 +108,14 @@ def submit_selected_options(patient_id: int, body: dict) -> JsonResponse:
     # Create the classification entry
     patient = Patient.objects.get(id=patient_id)
     minutes_to_take_care = calculate_care_minutes(body)
+    station = Station.objects.get(id=body['station'])
     classification = DailyClassification.objects.create(
-        patient_id=patient,
-        classification_date=date.today(),
+        patient=patient,
+        date=date.today(),
         is_in_isolation=body['is_in_isolation'],
         data_accepted=body['data_accepted'],
         result_minutes=minutes_to_take_care,
-        station_id=body['station'],
+        station=station,
         room_name=body['room_name'],
         bed_number=body['bed_number'],
     )
@@ -120,8 +124,8 @@ def submit_selected_options(patient_id: int, body: dict) -> JsonResponse:
     for care_service in body['selected_care_services']:
         care_service = CareServiceOption.objects.get(id=care_service['id'])
         IsCareServiceUsed.objects.create(
-            care_service=care_service,
             classification=classification,
+            care_service_option=care_service,
         )
 
     return JsonResponse({'message': 'Successfully saved the selected care services.'}, status=200)

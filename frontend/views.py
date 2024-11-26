@@ -15,7 +15,7 @@ def stations(request):
     # all_stations = Station.objects.all()  # Retrieve all stations from the database
     all_stations = [
         Station(id=i, name=f'Station {i}', is_intensive_care=False, is_child_care_unit=False,
-                patients_per_caregiver_ratio=1.5 + i * 0.1)
+                max_patients_per_caregiver=1.5 + i * 0.1)
         for i in range(1, 11)
     ]
 

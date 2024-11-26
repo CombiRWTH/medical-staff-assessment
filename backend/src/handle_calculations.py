@@ -17,9 +17,9 @@ def group_and_count_data(data: list) -> dict:
     """
     data_groups = {'A': {}, 'S': {}, 'A_Value': 0, 'S_Value': 0}
     for entry in data:
-        category = entry['field_id__short']
+        category = entry['field__short']
         range = entry['severity']
-        task = entry['category_id__name']
+        task = entry['category__name']
 
         # Add keys if not already in data_groups
         if range not in data_groups[category]:

@@ -5,29 +5,24 @@ FROM python:3.10-slim
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-# Set the working directory
+# Set working directory
 WORKDIR /app
 
-# Copy requirements.txt first to install dependencies before copying the rest of the app
+# Install dependencies from requirements.txt
 COPY requirements.txt .
-
-# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install additional packages
+# Install packages for database check
 RUN apt-get update && apt-get install -y dos2unix netcat-openbsd postgresql-client
 
-# Copy the Django project files
+# Copy Django project files into working directory of container
 COPY . .
 
 # Expose the port the app runs on
 EXPOSE $WEB_PORT
 
-# Create a startup script
+# Create startup script and set it as enrtypoint
 COPY start.sh /start.sh
 RUN dos2unix /start.sh
 RUN chmod +x /start.sh
-
-# Set the startup script as the entry point
 ENTRYPOINT ["/start.sh"]
-
