@@ -30,73 +30,102 @@
 </header>
 <style>
     .container {
-    width: 100%;
-    margin: 0 auto;
-    padding: 20px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 20px;
     }
     .table-container {
-    overflow-x: unset;
+        overflow-x: unset;
     }
     .table {
-    width: 100%;
-    border-collapse: collapse;
+        width: 100%;
+        border-collapse: collapse;
     }
     .table th, .table td {
-    padding: 10px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-    position: relative;
-    height: auto;
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        position: relative;
+        height: auto;
     }
     .toggle-btn {
-    background-color: transparent;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
+        background-color: transparent;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
     }
     .checkboxes-container {
-    position: relative;
-    background-color: transparent;
-    padding: 10px;
-    border: 1px solid #ddd;
-    z-index: 1;
-    display: none;
+        position: relative;
+        background-color: transparent;
+        padding: 10px;
+        border: 1px solid #ddd;
+        z-index: 1;
+        display: none;
     }
     .checkboxes-container label {
-    display: block;
-    margin-bottom: 5px;
+        display: block;
+        margin-bottom: 5px;
     }
     .checkbox-selected {
-    background-color: #ffcccc;
+        background-color: #ffcccc;
     }
     .submit-container {
-    margin-top: 20px;
-    text-align: center;
+        margin-top: 20px;
+        text-align: center;
     }
     .close-btn {
-    padding: 10px 20px;
-    background-color: #f44336;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 8px;
+        padding: 10px 20px;
+        background-color: #f44336;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 8px;
     }
     .submit-btn {
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    cursor: pointer;
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    border-radius: 8px;
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        border-radius: 8px;
     }
     .table-hidden {
-    display: none;
+        display: none;
     }
     .unsaved-changes {
-    background-color: #ffcccc;
+        background-color: #ffcccc;
+    }
+    .toggle-btn.selected-checkbox {
+        background-color: #f0f0f0;
+        color: #333;
+        border: 1px solid #ccc;
+        padding: 5px;
+        border-radius: 4px;
+    }
+    .selected-display {
+        display: inline-block;
+        margin-left: 10px;
+        color: #555;
+        white-space: pre-line;
+        line-height: 1.2;
+    }
+    .show-all-btn {
+        margin: 10px 0;
+        padding: 8px 16px;
+        background-color: #4a90e2;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .show-all-btn:hover {
+        background-color: #357abd;
+    }
+    .show-all-btn.active {
+        background-color: #e24a4a;
     }
 </style>
 {% endblock %}
@@ -141,6 +170,7 @@
 
     <div class="container">
         <h2><button class="toggle-btn" data-table="general-table">Allgemeine Pflege</button></h2>
+        <button class="show-all-btn" data-table="general-table">Modus wechseln</button>
         <div class="table-container" id="general-table-container">
             <table class="table" id="general-table">
                 <thead>
@@ -169,6 +199,7 @@
                             <button class="submit-btn">Submit</button>
                         </div>
                         <button class="toggle-btn">+</button>
+                        <span class="selected-display"></span>
                     </td>
                     <td>
                         <div class="checkboxes-container">
@@ -184,6 +215,7 @@
                             <button class="submit-btn">Submit</button>
                         </div>
                         <button class="toggle-btn">+</button>
+                        <span class="selected-display"></span>
                     </td>
                     <td>
                         <div class="checkboxes-container">
@@ -199,6 +231,7 @@
                             <button class="submit-btn">Submit</button>
                         </div>
                         <button class="toggle-btn">+</button>
+                        <span class="selected-display"></span>
                     </td>
                     <td>
                         <div class="checkboxes-container">
@@ -214,12 +247,14 @@
                             <button class="submit-btn">Submit</button>
                         </div>
                         <button class="toggle-btn">+</button>
+                        <span class="selected-display"></span>
                     </td>
                 </tr>
                 </tbody>
             </table>
         </div>
         <h2><button class="toggle-btn" data-table="special-table">Spezielle Pflege</button></h2>
+        <button class="show-all-btn" data-table="special-table">Modus wechseln</button>
         <div class="table-container" id="special-table-container">
             <table class="table" id="special-table">
                 <thead>
@@ -248,6 +283,7 @@
                             <button class="submit-btn">Submit</button>
                         </div>
                         <button class="toggle-btn">+</button>
+                        <span class="selected-display"></span>
                     </td>
                     <td>
                         <div class="checkboxes-container">
@@ -263,6 +299,7 @@
                             <button class="submit-btn">Submit</button>
                         </div>
                         <button class="toggle-btn">+</button>
+                        <span class="selected-display"></span>
                     </td>
                     <td>
                         <div class="checkboxes-container">
@@ -278,6 +315,7 @@
                             <button class="submit-btn">Submit</button>
                         </div>
                         <button class="toggle-btn">+</button>
+                        <span class="selected-display"></span>
                     </td>
                     <td>
                         <div class="checkboxes-container">
@@ -293,6 +331,7 @@
                             <button class="submit-btn">Submit</button>
                         </div>
                         <button class="toggle-btn">+</button>
+                        <span class="selected-display"></span>
                     </td>
                 </tr>
                 </tbody>
