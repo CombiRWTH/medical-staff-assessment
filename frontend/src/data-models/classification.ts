@@ -1,27 +1,12 @@
-export type CareServiceFieldClassification = {
-  id: string,
-  name: string,
-  short: string,
-  categories: CareServiceCategoryClassification[]
-}
-
-export type CareServiceCategoryClassification = {
-  id: string,
-  name: string,
-  severities: CareServiceSeverityClassification[]
-}
-
-export type CareServiceSeverityClassification = {
-  severity: number,
-  options: CareServiceOptionClassification[]
-}
-
-export type CareServiceOptionClassification = {
-  id: string,
-  index: number,
+export type DailyClassificationOption = {
+  id: number,
+  field__name: string,
+  field__short: string,
+  category__name: string,
   name: string,
   description: string,
-  selected: boolean
+  selected: boolean,
+  severity: number
 }
 
 export type DailyClassification = {
@@ -31,7 +16,7 @@ export type DailyClassification = {
   isInIsolation: boolean,
   isDayOfAdmission: boolean,
   isDayOfDischarge: boolean,
-  classificationValues: CareServiceFieldClassification[],
+  options: DailyClassificationOption[],
   result: DailyClassificationResult
 }
 

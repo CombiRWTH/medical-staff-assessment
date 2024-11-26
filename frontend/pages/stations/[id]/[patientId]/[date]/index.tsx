@@ -1,413 +1,18 @@
 import { useRouter } from 'next/router'
 import { ArrowLeft, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { addDays, subDays } from 'date-fns'
 import { Header } from '@/layout/Header'
 import { Page } from '@/layout/Page'
 import { useStationsAPI } from '@/api/stations'
 import { usePatientsAPI } from '@/api/patients'
 import { Sidebar } from '@/layout/Sidebar'
-import type { DailyClassification } from '@/data-models/classification'
 import { formatDate } from '@/util/formatDate'
 import { parseDateString } from '@/util/parseDateString'
 import { noop } from '@/util/noop'
-import { ClassificationFieldCard } from '@/components/ClassificationFieldCard'
-
-const dummyDate: DailyClassification = {
-  id: 'daily-classification-001',
-  patientId: 'patient-12345',
-  date: new Date('2024-11-25'),
-  isInIsolation: false,
-  isDayOfAdmission: true,
-  isDayOfDischarge: false,
-  classificationValues: [
-    {
-      id: 'field-001',
-      name: 'Allgemeine Pflege',
-      short: 'A',
-      categories: [
-        {
-          id: 'category-001',
-          name: 'Hygene',
-          severities: [
-            {
-              severity: 1,
-              options: [
-                {
-                  id: 'option-001',
-                  index: 0,
-                  name: 'Option 1',
-                  description: 'Description of Option 1',
-                  selected: true,
-                },
-                {
-                  id: 'option-002',
-                  index: 1,
-                  name: 'Option 2',
-                  description: 'Description of Option 2',
-                  selected: false,
-                },
-              ],
-            },
-            {
-              severity: 2,
-              options: [
-                {
-                  id: 'option-003',
-                  index: 0,
-                  name: 'Option 3',
-                  description: 'Description of Option 3',
-                  selected: true,
-                },
-              ],
-            },
-            {
-              severity: 3,
-              options: [
-                {
-                  id: 'option-003',
-                  index: 0,
-                  name: 'Option 3',
-                  description: 'Description of Option 3',
-                  selected: false,
-                },
-              ],
-            },
-            {
-              severity: 4,
-              options: [
-                {
-                  id: 'option-003',
-                  index: 0,
-                  name: 'Option 3',
-                  description: 'Description of Option 3',
-                  selected: false,
-                },
-              ],
-            },
-          ],
-        },
-        {
-          id: 'category-002',
-          name: 'Körperpflege',
-          severities: [
-            {
-              severity: 1,
-              options: [
-                {
-                  id: 'option-001',
-                  index: 0,
-                  name: 'Option 1',
-                  description: 'Description of Option 1',
-                  selected: true,
-                },
-                {
-                  id: 'option-002',
-                  index: 1,
-                  name: 'Option 2',
-                  description: 'Description of Option 2',
-                  selected: false,
-                },
-              ],
-            },
-            {
-              severity: 2,
-              options: [
-                {
-                  id: 'option-003',
-                  index: 0,
-                  name: 'Option 3',
-                  description: 'Description of Option 3',
-                  selected: true,
-                },
-              ],
-            },
-            {
-              severity: 3,
-              options: [
-                {
-                  id: 'option-003',
-                  index: 0,
-                  name: 'Option 3',
-                  description: 'Description of Option 3',
-                  selected: false,
-                },
-              ],
-            },
-            {
-              severity: 4,
-              options: [
-                {
-                  id: 'option-003',
-                  index: 0,
-                  name: 'Option 3',
-                  description: 'Description of Option 3',
-                  selected: false,
-                },
-              ],
-            },
-          ],
-        },
-        {
-          id: 'category-003',
-          name: 'Mobilisation',
-          severities: [
-            {
-              severity: 1,
-              options: [
-                {
-                  id: 'option-001',
-                  index: 0,
-                  name: 'Option 1',
-                  description: 'Description of Option 1',
-                  selected: true,
-                },
-                {
-                  id: 'option-002',
-                  index: 1,
-                  name: 'Option 2',
-                  description: 'Description of Option 2',
-                  selected: false,
-                },
-              ],
-            },
-            {
-              severity: 2,
-              options: [
-                {
-                  id: 'option-003',
-                  index: 0,
-                  name: 'Option 3',
-                  description: 'Description of Option 3',
-                  selected: true,
-                },
-              ],
-            },
-            {
-              severity: 3,
-              options: [
-                {
-                  id: 'option-003',
-                  index: 0,
-                  name: 'Option 3',
-                  description: 'Description of Option 3',
-                  selected: false,
-                },
-              ],
-            },
-            {
-              severity: 4,
-              options: [
-                {
-                  id: 'option-003',
-                  index: 0,
-                  name: 'Option 3',
-                  description: 'Description of Option 3',
-                  selected: false,
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'field-002',
-      name: 'Spezielle Pflege',
-      short: 'S',
-      categories: [
-        {
-          id: 'category-001',
-          name: 'Hygene',
-          severities: [
-            {
-              severity: 1,
-              options: [
-                {
-                  id: 'option-001',
-                  index: 0,
-                  name: 'Option 1',
-                  description: 'Description of Option 1',
-                  selected: true,
-                },
-                {
-                  id: 'option-002',
-                  index: 1,
-                  name: 'Option 2',
-                  description: 'Description of Option 2',
-                  selected: false,
-                },
-              ],
-            },
-            {
-              severity: 2,
-              options: [
-                {
-                  id: 'option-003',
-                  index: 0,
-                  name: 'Option 3',
-                  description: 'Description of Option 3',
-                  selected: true,
-                },
-              ],
-            },
-            {
-              severity: 3,
-              options: [
-                {
-                  id: 'option-003',
-                  index: 0,
-                  name: 'Option 3',
-                  description: 'Description of Option 3',
-                  selected: false,
-                },
-              ],
-            },
-            {
-              severity: 4,
-              options: [
-                {
-                  id: 'option-003',
-                  index: 0,
-                  name: 'Option 3',
-                  description: 'Description of Option 3',
-                  selected: false,
-                },
-              ],
-            },
-          ],
-        },
-        {
-          id: 'category-002',
-          name: 'Körperpflege',
-          severities: [
-            {
-              severity: 1,
-              options: [
-                {
-                  id: 'option-001',
-                  index: 0,
-                  name: 'Option 1',
-                  description: 'Description of Option 1',
-                  selected: true,
-                },
-                {
-                  id: 'option-002',
-                  index: 1,
-                  name: 'Option 2',
-                  description: 'Description of Option 2',
-                  selected: false,
-                },
-              ],
-            },
-            {
-              severity: 2,
-              options: [
-                {
-                  id: 'option-003',
-                  index: 0,
-                  name: 'Option 3',
-                  description: 'Description of Option 3',
-                  selected: true,
-                },
-              ],
-            },
-            {
-              severity: 3,
-              options: [
-                {
-                  id: 'option-003',
-                  index: 0,
-                  name: 'Option 3',
-                  description: 'Description of Option 3',
-                  selected: false,
-                },
-              ],
-            },
-            {
-              severity: 4,
-              options: [
-                {
-                  id: 'option-003',
-                  index: 0,
-                  name: 'Option 3',
-                  description: 'Description of Option 3',
-                  selected: false,
-                },
-              ],
-            },
-          ],
-        },
-        {
-          id: 'category-003',
-          name: 'Mobilisation',
-          severities: [
-            {
-              severity: 1,
-              options: [
-                {
-                  id: 'option-001',
-                  index: 0,
-                  name: 'Option 1',
-                  description: 'Description of Option 1',
-                  selected: true,
-                },
-                {
-                  id: 'option-002',
-                  index: 1,
-                  name: 'Option 2',
-                  description: 'Description of Option 2',
-                  selected: false,
-                },
-              ],
-            },
-            {
-              severity: 2,
-              options: [
-                {
-                  id: 'option-003',
-                  index: 0,
-                  name: 'Option 3',
-                  description: 'Description of Option 3',
-                  selected: true,
-                },
-              ],
-            },
-            {
-              severity: 3,
-              options: [
-                {
-                  id: 'option-003',
-                  index: 0,
-                  name: 'Option 3',
-                  description: 'Description of Option 3',
-                  selected: false,
-                },
-              ],
-            },
-            {
-              severity: 4,
-              options: [
-                {
-                  id: 'option-003',
-                  index: 0,
-                  name: 'Option 3',
-                  description: 'Description of Option 3',
-                  selected: false,
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-  ],
-  result: {
-    category1: 'A1',
-    category2: 'S2',
-    minutes: 120,
-  },
-}
+import { ClassificationCard } from '@/components/ClassificationCard'
+import { usePatientClassification } from '@/api/classification'
+import { subsetByAttribute } from '@/util/subsetByAttribute'
 
 export const PatientClassification = () => {
   const router = useRouter()
@@ -419,7 +24,7 @@ export const PatientClassification = () => {
   const currentStation = stations.find(value => value.id === id)
   const { patients } = usePatientsAPI(currentStation?.id)
   const currentPatient = patients.find(value => value.id === patientId)
-  const [classification] = useState<DailyClassification>(dummyDate)
+  const { classification } = usePatientClassification(patientId)
   const currentPatientIndex = patients.findIndex(value => value.id === currentPatient?.id)
   const nextPatientIndex = currentPatientIndex !== -1 ? (currentPatientIndex + 1) % patients.length : undefined
   const nextPatient = nextPatientIndex !== undefined ? patients[nextPatientIndex] : undefined
@@ -458,15 +63,15 @@ export const PatientClassification = () => {
             <h2 className="font-bold text-xl">Tagesdaten</h2>
             <div className="flex flex-col gap-y-2">
               <label className="flex flex-row gap-x-1">
-                <input type="checkbox" checked={classification.isDayOfAdmission}/>
+                <input type="checkbox" checked={classification.isDayOfAdmission} readOnly={true}/>
                 Tag der Aufnahme
               </label>
               <label className="flex flex-row gap-x-1">
-                <input type="checkbox" checked={classification.isDayOfDischarge}/>
+                <input type="checkbox" checked={classification.isDayOfDischarge} readOnly={true}/>
                 Tag der Entlassung
               </label>
               <label className="flex flex-row gap-x-1">
-                <input type="checkbox" checked={classification.isInIsolation}/>
+                <input type="checkbox" checked={classification.isInIsolation} readOnly={true}/>
                 In Isolation
               </label>
             </div>
@@ -487,9 +92,9 @@ export const PatientClassification = () => {
         </Sidebar>
       )}
     >
-      <div className="flex flex-col p-8 gap-y-6 w-full">
-        {classification.classificationValues.map(field => (
-          <ClassificationFieldCard key={field.id} field={field}/>
+      <div className="flex flex-col p-8 gap-y-6 w-full h-full overflow-auto">
+        {subsetByAttribute(classification.options, value => value.field__short).map((list, index) => (
+          <ClassificationCard key={index} options={list}/>
         ))}
       </div>
     </Page>
