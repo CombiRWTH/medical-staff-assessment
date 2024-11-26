@@ -55,6 +55,50 @@ def classification(request, id, patient_id, date):
     # Example patient name - replace with actual database query when possible
     patient_name = "Max Mustermann"
     next_patient_id = int(patient_id) + 1
+
+    checkbox_data = [
+        {
+            "id": 1,
+            "field_id__name": "Allgemeine Pflege",
+            "field_id__short": "A",
+            "category_id__name": "Körperpflege",
+            "name": "A-koerperpflege-1-1",
+            "severity": 1,
+            "description": "Alle Patienten, die nicht A2, A3 oder A4 zugeordnet werden.",
+            "is_true": False
+        },
+        {
+            "id": 2,
+            "field_id__name": "Allgemeine Pflege",
+            "field_id__short": "A",
+            "category_id__name": "Körperpflege",
+            "name": "A-koerperpflege-2-1",
+            "severity": 2,
+            "description": "Patient benötigt überwiegend selbständige Hilfe.",
+            "is_true": True
+        },
+        {
+            "id": 3,
+            "field_id__name": "Spezielle Pflege",
+            "field_id__short": "S",
+            "category_id__name": "Körperpflege",
+            "name": "S-koerperpflege-3-1",
+            "severity": 3,
+            "description": "Hilfe durch Pflegekräfte notwendig.",
+            "is_true": False
+        },
+        {
+            "id": 4,
+            "field_id__name": "Spezielle Pflege",
+            "field_id__short": "S",
+            "category_id__name": "Körperpflege",
+            "name": "S-koerperpflege-4-1",
+            "severity": 4,
+            "description": "Vollständige Hilfe durch Pflegekraft erforderlich.",
+            "is_true": True
+        }
+    ]
+
     context = {
         'id': id,
         'patient_id': patient_id,
@@ -68,8 +112,12 @@ def classification(request, id, patient_id, date):
         'minutes': 163,
         'isInIsolation': True,
         'isDayOfDischarge': True,
-        'isDayOfAdmission': True
+        'isDayOfAdmission': True,
+        'assessmentData': checkbox_data
     }
+
+    
+
     return render(request, 'frontend/classification.html', context)
 
 

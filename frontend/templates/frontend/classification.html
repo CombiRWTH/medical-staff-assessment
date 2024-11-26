@@ -28,6 +28,77 @@
         </a>
     </div>
 </header>
+<style>
+    .container {
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    }
+    .table-container {
+    overflow-x: unset;
+    }
+    .table {
+    width: 100%;
+    border-collapse: collapse;
+    }
+    .table th, .table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    position: relative;
+    height: auto;
+    }
+    .toggle-btn {
+    background-color: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    }
+    .checkboxes-container {
+    position: relative;
+    background-color: transparent;
+    padding: 10px;
+    border: 1px solid #ddd;
+    z-index: 1;
+    display: none;
+    }
+    .checkboxes-container label {
+    display: block;
+    margin-bottom: 5px;
+    }
+    .checkbox-selected {
+    background-color: #ffcccc;
+    }
+    .submit-container {
+    margin-top: 20px;
+    text-align: center;
+    }
+    .close-btn {
+    padding: 10px 20px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    }
+    .submit-btn {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    border-radius: 8px;
+    }
+    .table-hidden {
+    display: none;
+    }
+    .unsaved-changes {
+    background-color: #ffcccc;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -65,6 +136,170 @@
         <div class="card" style="margin: 6px 12px">
             <h1>Welcome to the Station Classification for id {{ id }}, patient_id {{ patient_id }}, date {{ date }}!</h1>
             <p>This is a sample template for the frontend app.</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2><button class="toggle-btn" data-table="general-table">Allgemeine Pflege</button></h2>
+        <div class="table-container" id="general-table-container">
+            <table class="table" id="general-table">
+                <thead>
+                <tr>
+                    <th>Bereich</th>
+                    <th>A1</th>
+                    <th>A2</th>
+                    <th>A3</th>
+                    <th>A4</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Körperpflege</td>
+                    <td>
+                        <div class="checkboxes-container">
+                            {% for item in assessmentData %}
+                            {% if item.field_id__name == "Allgemeine Pflege" and item.category_id__name == "Körperpflege" and item.severity == 1 %}
+                            <label>
+                                <input type="checkbox" value="{{ item.name }}" {% if item.is_true %}checked{% endif %}>
+                                {{ item.description }}
+                            </label>
+                            {% endif %}
+                            {% endfor %}
+                            <button class="close-btn">Schließen</button>
+                            <button class="submit-btn">Submit</button>
+                        </div>
+                        <button class="toggle-btn">+</button>
+                    </td>
+                    <td>
+                        <div class="checkboxes-container">
+                            {% for item in assessmentData %}
+                            {% if item.field_id__name == "Allgemeine Pflege" and item.category_id__name == "Körperpflege" and item.severity == 2 %}
+                            <label>
+                                <input type="checkbox" value="{{ item.name }}" {% if item.is_true %}checked{% endif %}>
+                                {{ item.description }}
+                            </label>
+                            {% endif %}
+                            {% endfor %}
+                            <button class="close-btn">Schließen</button>
+                            <button class="submit-btn">Submit</button>
+                        </div>
+                        <button class="toggle-btn">+</button>
+                    </td>
+                    <td>
+                        <div class="checkboxes-container">
+                            {% for item in assessmentData %}
+                            {% if item.field_id__name == "Allgemeine Pflege" and item.category_id__name != "Körperpflege" and item.severity == 3 %}
+                            <label>
+                                <input type="checkbox" value="{{ item.name }}" {% if item.is_true %}checked{% endif %}>
+                                {{ item.description }}
+                            </label>
+                            {% endif %}
+                            {% endfor %}
+                            <button class="close-btn">Schließen</button>
+                            <button class="submit-btn">Submit</button>
+                        </div>
+                        <button class="toggle-btn">+</button>
+                    </td>
+                    <td>
+                        <div class="checkboxes-container">
+                            {% for item in assessmentData %}
+                            {% if item.field_id__name == "Allgemeine Pflege" and item.category_id__name != "Körperpflege" and item.severity == 4 %}
+                            <label>
+                                <input type="checkbox" value="{{ item.name }}" {% if item.is_true %}checked{% endif %}>
+                                {{ item.description }}
+                            </label>
+                            {% endif %}
+                            {% endfor %}
+                            <button class="close-btn">Schließen</button>
+                            <button class="submit-btn">Submit</button>
+                        </div>
+                        <button class="toggle-btn">+</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <h2><button class="toggle-btn" data-table="special-table">Spezielle Pflege</button></h2>
+        <div class="table-container" id="special-table-container">
+            <table class="table" id="special-table">
+                <thead>
+                <tr>
+                    <th>Bereich</th>
+                    <th>S1</th>
+                    <th>S2</th>
+                    <th>S3</th>
+                    <th>S4</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Körperpflege</td>
+                    <td>
+                        <div class="checkboxes-container">
+                            {% for item in assessmentData %}
+                            {% if item.field_id__name == "Spezielle Pflege" and item.category_id__name == "Körperpflege" and item.severity == 1 %}
+                            <label>
+                                <input type="checkbox" value="{{ item.name }}" {% if item.is_true %}checked{% endif %}>
+                                {{ item.description }}
+                            </label>
+                            {% endif %}
+                            {% endfor %}
+                            <button class="close-btn">Schließen</button>
+                            <button class="submit-btn">Submit</button>
+                        </div>
+                        <button class="toggle-btn">+</button>
+                    </td>
+                    <td>
+                        <div class="checkboxes-container">
+                            {% for item in assessmentData %}
+                            {% if item.field_id__name == "Spezielle Pflege" and item.category_id__name == "Körperpflege" and item.severity == 2 %}
+                            <label>
+                                <input type="checkbox" value="{{ item.name }}" {% if item.is_true %}checked{% endif %}>
+                                {{ item.description }}
+                            </label>
+                            {% endif %}
+                            {% endfor %}
+                            <button class="close-btn">Schließen</button>
+                            <button class="submit-btn">Submit</button>
+                        </div>
+                        <button class="toggle-btn">+</button>
+                    </td>
+                    <td>
+                        <div class="checkboxes-container">
+                            {% for item in assessmentData %}
+                            {% if item.field_id__name == "Spezielle Pflege" and item.category_id__name == "Körperpflege" and item.severity == 3 %}
+                            <label>
+                                <input type="checkbox" value="{{ item.name }}" {% if item.is_true %}checked{% endif %}>
+                                {{ item.description }}
+                            </label>
+                            {% endif %}
+                            {% endfor %}
+                            <button class="close-btn">Schließen</button>
+                            <button class="submit-btn">Submit</button>
+                        </div>
+                        <button class="toggle-btn">+</button>
+                    </td>
+                    <td>
+                        <div class="checkboxes-container">
+                            {% for item in assessmentData %}
+                            {% if item.field_id__name == "Spezielle Pflege" and item.category_id__name == "Körperpflege" and item.severity == 4 %}
+                            <label>
+                                <input type="checkbox" value="{{ item.name }}" {% if item.is_true %}checked{% endif %}>
+                                {{ item.description }}
+                            </label>
+                            {% endif %}
+                            {% endfor %}
+                            <button class="close-btn">Schließen</button>
+                            <button class="submit-btn">Submit</button>
+                        </div>
+                        <button class="toggle-btn">+</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="submit-container">
+            <button class="submit-btn">Submit</button>
         </div>
     </div>
 </main>
