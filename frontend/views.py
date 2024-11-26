@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from backend.models import Station
-from datetime import datetime, timedelta,date
+from datetime import datetime, timedelta, date
 
 
 def home(request):
@@ -45,7 +45,6 @@ def station_patient_list(request, id):
         'patients': hardcoded_patients,  # Pass the hardcoded patients to the template
         'date': date.today().__str__(),
     }
-    print(context)
     return render(request, 'frontend/station_patient_list.html', context)
 
 
