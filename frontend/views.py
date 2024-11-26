@@ -116,8 +116,6 @@ def classification(request, id, patient_id, date):
         'assessmentData': checkbox_data
     }
 
-    
-
     return render(request, 'frontend/classification.html', context)
 
 
