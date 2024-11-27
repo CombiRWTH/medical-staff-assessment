@@ -33,9 +33,10 @@
                     {% endif %}
                 </td>
                 <td style="padding: 8px;">
-                    <form action="" method="get">
-                        <button onclick="window.location.href = '/stations/{{ id }}/{{ patient.id }}/'" class="btn btn-primary" style="margin: 0 auto;">Auswählen →</button>
+                    <form action="/stations/{{ id }}/{{ patient.patinet_id }}/{{ date }}" method="get">
+                        <button type="submit" class="btn btn-primary" style="margin: 0 auto;">Auswählen →</button>
                     </form>
+                    
                 </td>
             </tr>
             {% endif %}
