@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+  background: #EEEEEE;
+  color: #111111;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+.base-screen {
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  justify-content: flex-start;
+  align-items: flex-start;
+  display: inline-flex;
+}
