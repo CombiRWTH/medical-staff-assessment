@@ -2,7 +2,7 @@
 from django.contrib import admin
 
 from .models import CareServiceCategory, CareServiceField, CareServiceOption, IsCareServiceUsed, DailyClassification, \
-    Patient, Station
+    Patient, Station, PatientTransfers, StationOccupancy, StationWorkloadDaily, StationWorkloadMonthly
 
 admin.site.register(CareServiceCategory)
 admin.site.register(CareServiceField)
@@ -11,3 +11,7 @@ admin.site.register(IsCareServiceUsed)
 admin.site.register(DailyClassification)
 admin.site.register(Patient)
 admin.site.register(Station)
+admin.site.register(PatientTransfers)
+admin.site.register(StationOccupancy)
+admin.site.register(StationWorkloadDaily)
+admin.site.register(StationWorkloadMonthly)
