@@ -54,7 +54,6 @@ export const StationPatientList = () => {
           </div>
         )}/>
       )}
-      className="justify-center"
     >
       <div className="flex flex-col gap-10 p-10 content-start max-w-[1200px] w-full">
         <Card>

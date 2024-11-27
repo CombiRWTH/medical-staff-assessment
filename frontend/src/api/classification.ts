@@ -21,8 +21,12 @@ export const usePatientClassification = (patientId: string) => {
   patientId = '1' // TODO this is should be your patient id
 
   const load = useCallback(async () => {
-    const options: DailyClassificationOption[] = await (await fetch(`${baseURL}/questions/${patientId}`)).json()
-    setClassification(prevState => ({ ...prevState, options }))
+    try {
+      const options: DailyClassificationOption[] = await (await fetch(`${baseURL}/questions/${patientId}`)).json()
+      setClassification(prevState => ({ ...prevState, options }))
+    } catch (e) {
+      console.error(e)
+    }
   }, [patientId])
 
   useEffect(() => {
