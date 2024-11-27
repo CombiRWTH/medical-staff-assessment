@@ -4,7 +4,15 @@ from django.urls import path
 from .src import handle_calculations, handle_questions, handle_patients
 
 urlpatterns = [
-    path('questions/<int:patient_id>/<str:date>/', handle_questions.handle_questions, name='handle_questions'),
-    path('calculate/', handle_calculations.handle_calculations, name='handle_calculations'),
+    path(
+        'questions/<int:station_id>/<int:patient_id>/<str:date>/',
+        handle_questions.handle_questions,
+        name='handle_questions'
+    ),
+    path(
+        'calculate/<int:station_id>/<int:patient_id>/<str:date>/',
+        handle_calculations.handle_calculations,
+        name='handle_calculations'
+    ),
     path('stations/<int:station_id>/', handle_patients.handle_patients, name='handle_patients'),
 ]

@@ -1,6 +1,10 @@
 """Calculate the minutes each patient should receive care services."""
-import json
+from datetime import date
 from django.http import JsonResponse
+
+from .handle_questions import get_questions
+from ..models import (DailyClassification,
+                      Patient, Station)
 
 
 def group_and_count_data(data: list) -> dict:
@@ -166,7 +170,7 @@ def calculate_care_minutes(body_data: dict) -> int:
         int: The severity of the specific care group.
     """
     # Sort data to iterate over it
-    data_groups = group_and_count_data(body_data['selected_care_services'])
+    data_groups = group_and_count_data(body_data['care_service_options'])
 
     # Calculate service category's severity
     a_index = choose_general_care_group(
@@ -181,18 +185,62 @@ def calculate_care_minutes(body_data: dict) -> int:
     return sum_minutes(a_index, s_index, body_data), a_index, s_index
 
 
-def handle_calculations(request):
+def calculate_result(station_id, patient_id: int, date: date) -> dict:
+    """Calculate the minutes a caregiver has time for caring for a patient.
+
+    Args:
+        station_id (int): The ID of the station.
+        patient_id (int): The ID of the patient.
+        date (date): The date of the classification.
+
+    Returns:
+        dict: The response containing the calculated minutes, the general and the specific care group.
+    """
+    patient = Patient.objects.get(id=patient_id)
+    station = Station.objects.get(id=station_id)
+
+    # Find the classification of the patient for the specified date
+    classification = DailyClassification.objects.filter(
+        patient=patient,
+        station=station,
+        date=date,
+    ).first()
+    print(classification)
+    if classification is None:
+        return {'error': 'No classification found for the specified date.'}
+
+    # Get all selected care services
+    entries = get_questions(station_id, patient_id, date)
+    entries['care_service_options'] = [
+        option for option in entries['care_service_options']
+        if option['selected']
+    ]
+
+    # Calculate the minutes accordingly
+    minutes_to_take_care, a_index, s_index = calculate_care_minutes(entries)
+
+    # Update the classification with the new minutes
+    classification.result_minutes = minutes_to_take_care
+    classification.a_index = a_index
+    classification.s_index = s_index
+    classification.save()
+
+    return {'minutes': minutes_to_take_care, 'category1': a_index, 'category2': s_index}
+
+
+def handle_calculations(request, station_id, patient_id: int, date: date):
     """Endpoint to calculate the minutes a caregiver has time for caring for a patient.
 
     Args:
         request (HttpRequest): The request object.
+        station_id (int): The ID of the station.
+        patient_id (int): The ID of the patient.
+        date (str): The date of the classification ('YYYY-MM-DD').
 
     Returns:
         JsonResponse: The response containing the calculated minutes.
     """
-    if request.method == 'POST':
-        body_data = json.loads(request.body)
-        result_minutes, a_index, s_index = calculate_care_minutes(body_data)
-        return JsonResponse({'minutes': result_minutes, 'a_index': a_index, 's_index': s_index}, status=200)
+    if request.method == 'GET':
+        return JsonResponse(calculate_result(station_id, patient_id, date), status=200)
     else:
         return JsonResponse({'message': 'Method not allowed.'}, status=405)

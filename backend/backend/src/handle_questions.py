@@ -6,7 +6,6 @@ from django.http import JsonResponse
 
 from ..models import (CareServiceOption, DailyClassification,
                       IsCareServiceUsed, Patient, Station)
-from .handle_calculations import calculate_care_minutes
 
 
 def add_selected_attribute(care_service_options: list, classification: dict) -> list:
@@ -38,10 +37,11 @@ def add_selected_attribute(care_service_options: list, classification: dict) -> 
     return care_service_options
 
 
-def get_questions(patient_id: int, date: date) -> list:
-    """Get the questions from the database.
+def get_questions(station_id: int, patient_id: int, date: date) -> list:
+    """Get the questions and genereal information about the classification from the database.
 
     Args:
+        station_id (int): The ID of the station.
         patient_id (int): The ID of the patient.
         date (date): The date of the classification.
 
@@ -65,6 +65,7 @@ def get_questions(patient_id: int, date: date) -> list:
     classification = DailyClassification.objects.filter(
         patient=patient_id,
         date=date,
+        station=station_id,
     ).values().first()
 
     # Add the attribute if the care service was selected or not on that date
@@ -76,75 +77,144 @@ def get_questions(patient_id: int, date: date) -> list:
         'is_in_isolation': classification['is_in_isolation'] if classification else False,
         'a_index': classification['a_index'] if classification else 0,
         's_index': classification['s_index'] if classification else 0,
+        'barthel_index': classification['barthel_index'] if classification else 0,
+        'expanded_barthel_index': classification['expanded_barthel_index'] if classification else 0,
+        'mini_mental_status': classification['mini_mental_status'] if classification else 0,
     }
 
 
-def has_missing_data(body: dict) -> bool:
-    """Check if the body of the request contains all necessary information.
+def group_questions(questions: list) -> list:
+    """Group the questions by field, category and severity.
 
     Args:
-        body (dict): The body of the request.
+        questions (list): The questions to group.
 
     Returns:
-        bool: True if the body is missing information, False otherwise.
+        list: The questions grouped by field, category and severity.
     """
-    return ('is_in_isolation' not in body
-            or 'data_accepted' not in body
-            or 'station' not in body
-            or 'room_name' not in body
-            or 'bed_number' not in body
-            or 'barthel_index' not in body
-            or 'expanded_barthel_index' not in body
-            or 'mini_mental_status' not in body
-            or 'selected_care_services' not in body)
+    grouped_questions = []
+    for question in questions:
+        field = question['field__name']
+        field_short = question['field__short']
+        category = question['category__name']
+        severity = question['severity']
+
+        # Check if an entry with same name as field already exists
+        matches = [field == group['name'] for group in grouped_questions]
+        if True not in matches:
+            grouped_questions.append({"name": field, "short": field_short, "categories": []})
+            field_index = 0
+        else:
+            field_index = matches.index(True)
+
+        # Check if an entry with same name as category already exists
+        matches = [category == group['name'] for group in grouped_questions[field_index]['categories']]
+        if True not in matches:
+            grouped_questions[field_index]['categories'].append({"name": category, "severities": []})
+            category_index = 0
+        else:
+            category_index = matches.index(True)
+
+        # Check if an entry with same severity already exists
+        matches = [
+            severity == group['severity']
+            for group in grouped_questions[field_index]['categories'][category_index]['severities']
+        ]
+        if True not in matches:
+            grouped_questions[field_index]['categories'][category_index]['severities'].append(
+                {"severity": severity, "questions": []}
+            )
+            severity_index = 0
+        else:
+            severity_index = matches.index(True)
+
+        # Add the question to the corresponding severity
+        grouped_questions[field_index]['categories'][category_index]['severities'][severity_index]['questions'].append(
+            question
+        )
+
+    return grouped_questions
 
 
-def submit_selected_options(patient_id: int, body: dict) -> JsonResponse:
+def get_grouped_data(station_id: int, patient_id: int, date: date) -> dict:
+    """Get the questions grouped by field, category, severity and general information about the classification.
+
+    Args:
+        station_id (int): The ID of the station.
+        patient_id (int): The ID of the patient.
+        date (date): The date of the classification.
+
+    Returns:
+        dict: The questions grouped by field, category, severity.
+    """
+    classification_information = get_questions(station_id, patient_id, date)
+    questions = classification_information['care_service_options']
+    grouped_questions = group_questions(questions)
+    classification_information['care_service_options'] = grouped_questions
+    return classification_information
+
+
+def submit_selected_options(station_id: int, patient_id: int, date: str, body: dict) -> JsonResponse:
     """Save the questions to the database.
 
     Args:
+        station_id (int): The ID of the station.
         patient_id (int): The ID of the patient.
+        date (str): The date of the classification ('YYYY-MM-DD').
         body (dict): The body of the request containing the selected care services and more information.
     Returns:
         JsonResponse: The response containing the calculated minutes, the general and the specific care group.
     """
-    # Check if the body contains all necessary information
-    if has_missing_data(body):
-        return JsonResponse({'message': 'Missing information in the request.'}, status=400)
-
-    # Create the classification entry
+    # Create the classification entry if it does not exist
     patient = Patient.objects.get(id=patient_id)
-    minutes_to_take_care, a_index, s_index = calculate_care_minutes(body)
-    station = Station.objects.get(id=body['station'])
-    classification = DailyClassification.objects.create(
+    station = Station.objects.get(id=station_id)
+
+    # Check if the classification already exists
+    classification = DailyClassification.objects.filter(
         patient=patient,
         date=date.today(),
-        is_in_isolation=body['is_in_isolation'],
-        data_accepted=body['data_accepted'],
-        result_minutes=minutes_to_take_care,
-        a_index=a_index,
-        s_index=s_index,
-        station=station,
-        room_name=body['room_name'],
-        bed_number=body['bed_number'],
-    )
+    ).first()
 
-    # Save the selected care services
-    for care_service in body['selected_care_services']:
-        care_service = CareServiceOption.objects.get(id=care_service['id'])
-        IsCareServiceUsed.objects.create(
+    if classification is None:
+        classification = DailyClassification.objects.create(
+            patient=patient,
+            date=date,
+            is_in_isolation=False,
+            result_minutes=0,
+            a_index=0,
+            s_index=0,
+            station=station,
+            room_name='Test Raum',
+            bed_number=1,
+            barthel_index=0,
+            expanded_barthel_index=0,
+            mini_mental_status=0,
+        )
+
+    # Update the selected care services
+    care_service = CareServiceOption.objects.get(id=body['id'])
+    if care_service is None:
+        return JsonResponse({'error': 'Care service option not found.'}, status=404)
+    if body['selected']:
+        IsCareServiceUsed.objects.get_or_create(
             classification=classification,
             care_service_option=care_service,
         )
+    else:
+        IsCareServiceUsed.objects.filter(
+            classification=classification,
+            care_service_option=care_service,
+        ).delete()
 
-    return JsonResponse({'minutes': minutes_to_take_care, 'a_index': a_index, 's_index': s_index}, status=200)
+    return get_grouped_data(station_id, patient_id, date)
 
 
-def handle_questions(request, patient_id: int, date: str) -> JsonResponse:
+def handle_questions(request, station_id: int, patient_id: int, date: str) -> JsonResponse:
     """Endpoint to handle the submission and pulling of questions.
 
     Args:
         request (Request): The request
+        station_id (int): The ID of the station.
         patient_id (int): The ID of the patient.
         date (str): The date of the classification ('YYYY-MM-DD').
 
@@ -155,10 +225,10 @@ def handle_questions(request, patient_id: int, date: str) -> JsonResponse:
         date = datetime.strptime(date, '%Y-%m-%d').date()
     except ValueError:
         return JsonResponse({'error': 'Invalid date format. Use YYYY-MM-DD.'}, status=400)
-    if request.method == 'POST':
-        # Handle the submission of questions
+    if request.method == 'PUT':
+        # Handle the updating of questions
         body_data = json.loads(request.body)
-        return submit_selected_options(patient_id, body_data)
+        return JsonResponse(submit_selected_options(station_id, patient_id, date, body_data), safe=False)
     elif request.method == 'GET':
         # Handle the pulling of questions for a patient
-        return JsonResponse(get_questions(patient_id, date), safe=False)
+        return JsonResponse(get_grouped_data(station_id, patient_id, date), safe=False)
