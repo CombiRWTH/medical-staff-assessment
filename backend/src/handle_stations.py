@@ -4,7 +4,7 @@ from datetime import date
 from django.db.models import Subquery, OuterRef, Count, Value
 from django.db.models.functions import Coalesce
 from django.http import JsonResponse
-from ..models import Station, Patient, PatientTransfers
+from ..models import Station, PatientTransfers
 
 
 def get_all_stations() -> list:
