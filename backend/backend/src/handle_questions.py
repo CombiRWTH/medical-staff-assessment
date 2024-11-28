@@ -49,30 +49,6 @@ def add_selected_attribute(care_service_options: list, patient_id: int) -> list:
     return care_service_options
 
 
-# def get_questions(patient_id: int) -> list:
-#     """Get the questions from the database.
-
-#     Args:
-#         patient_id (int): The ID of the patient.
-
-#     Returns:
-#         list: The questions from the database and the attribute if they were previously selected or not.
-#     """
-#     # Get the questions with the corresponding information
-#     care_service_options = list(
-#         CareServiceOption.objects.select_related('field', 'category').values(
-#             'id',
-#             'field__name',
-#             'field__short',
-#             'category__name',
-#             'name',
-#             'severity',
-#             'description',
-#         )
-#     )
-
-#     return add_selected_attribute(care_service_options, patient_id)
-
 def get_questions(patient_id: int) -> dict:
     """Get the questions and patient-specific details from the database.
 
@@ -80,7 +56,7 @@ def get_questions(patient_id: int) -> dict:
         patient_id (int): The ID of the patient.
 
     Returns:
-        dict: The questions from the database and patient-specific information.
+        dict: The questions, admission date, discharge date, and visit type.
     """
     # Get the questions with the corresponding information
     care_service_options = list(
@@ -102,11 +78,11 @@ def get_questions(patient_id: int) -> dict:
         patient = PatientTransfers.objects.get(id=patient_id)
         admission_date = patient.admission_date
         discharge_date = patient.discharge_date
-    except Patient.DoesNotExist:
+    except PatientTransfers.DoesNotExist:
         admission_date = None
         discharge_date = None
 
-    # Add visit_type to the response if classification exists
+    # Get today's classification and visit type if available
     try:
         today_classification = DailyClassification.objects.get(
             patient=patient_id,
@@ -116,10 +92,14 @@ def get_questions(patient_id: int) -> dict:
     except DailyClassification.DoesNotExist:
         visit_type = None
 
-    return { "questions": options_with_selection,
-    "admission_date": admission_date,   "discharge_date": discharge_date,
+    # Return the response
+    return {
+        "questions": options_with_selection,
+        "admission_date": admission_date,
+        "discharge_date": discharge_date,
         "visit_type": visit_type,
     }
+
 
 def has_missing_data(body: dict) -> bool:
     """Check if the body of the request contains all necessary information.

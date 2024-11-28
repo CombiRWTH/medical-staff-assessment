@@ -6,7 +6,7 @@ class CareServiceField(models.Model):
     """General fields of care services, abbreviated with e.g. A or S."""
 
     id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=128)  # Field name, e.g. 'Allgemeine Pflege'
+    name = models.CharField(max_length=128)  # Field name, 'Allgemeine Pflege'
     short = models.CharField(max_length=8)  # E.g. 'A'
 
     def __str__(self):
@@ -17,7 +17,8 @@ class CareServiceCategory(models.Model):
     """Categories of care services like hygiene, nutrition or mobilisation."""
 
     id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=200)  # Category name, e.g. 'Körperpflege'
+     # Category name, e.g. 'Körperpflege'
+    name = models.CharField(max_length=200) 
 
     def __str__(self):
         return self.name
