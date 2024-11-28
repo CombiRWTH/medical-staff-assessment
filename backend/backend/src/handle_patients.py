@@ -46,7 +46,7 @@ def get_patients_per_station(station_id: int) -> list:
                 station=station_id
             ).values("bed_number")
         )
-    ).values('id', 'lastClassification', "currentBed",   name=Concat(F('first_name'), Value(' '), F('last_name')))
+    ).values('id', 'lastClassification', "currentBed", name=Concat(F('first_name'), Value(' '), F('last_name')))
 
     return list(patients)
 
