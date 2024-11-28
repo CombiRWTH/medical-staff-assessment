@@ -39,10 +39,6 @@ DJANGO_SUPERUSER_PASSWORD=password
 DJANGO_SUPERUSER_USERNAME =admin
 DJANGO_SUPERUSER_EMAIL=''
 
-# API Config
-# Set to False for Production
-CORS_ALLOW_ALL_ORIGINS=True
-
 # Database credentials
 DB_NAME=medical-staff-assessment
 DB_USER=postgres
@@ -164,4 +160,4 @@ To maintain a high standard of code quality in this project, we adhere to the fo
 
 We model our database to be easily adaptable for new standards of the PBBV. Therefore, the following data model is drafted:
 
-![datamodel](./documentation/media/DB-Model-PBBV-13-11-2024.svg)
+![datamodel](../documentation/media/DB-Model-PBBV-13-11-2024.svg)
