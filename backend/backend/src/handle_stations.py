@@ -26,8 +26,8 @@ def get_all_stations() -> list:
 
     # Annotate each station with the number of patients
     stations = Station.objects.annotate(
-        current_number_patients=Coalesce(Subquery(patients_count_subquery), Value(0))
-    ).values()
+        patientCount=Coalesce(Subquery(patients_count_subquery), Value(0))
+    ).values("id", "name", "patientCount")
 
     return list(stations)
 
