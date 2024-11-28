@@ -40,6 +40,13 @@ class CareServiceOption(models.Model):
 
 class DailyClassification(models.Model):
     """Daily classification of patients according to the PPBV."""
+    
+    """Daily workload for caregivers in all stations."""
+    class VisitType(models.TextChoices):
+        STATIONAER = 'stationär'
+        AMBULANT = 'ambulant'
+        TEILSTATIONAER = 'teilstationär'
+        WIEDERKEHREND = 'wiederkehrend'
 
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE)
     date = models.DateField()
@@ -49,6 +56,11 @@ class DailyClassification(models.Model):
     station = models.ForeignKey('Station', on_delete=models.CASCADE)
     room_name = models.CharField(max_length=100)
     bed_number = models.CharField(max_length=100)
+    visit_type = models.CharField(
+        max_length=20,
+        choices=VisitType.choices,
+        default=VisitType.STATIONAER
+    )
 
     class Meta:
         unique_together = ('patient', 'date')
@@ -148,7 +160,7 @@ class StationOccupancy(models.Model):
 
 
 class StationWorkloadDaily(models.Model):
-    """Daily workload for caregivers in all stations."""
+   
 
     id = models.IntegerField(primary_key=True)
     station = models.ForeignKey('Station', on_delete=models.CASCADE)

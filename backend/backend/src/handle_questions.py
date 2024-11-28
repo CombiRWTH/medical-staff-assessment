@@ -5,7 +5,7 @@ from datetime import date, timedelta
 from django.http import JsonResponse
 
 from ..models import (CareServiceOption, DailyClassification,
-                      IsCareServiceUsed, Patient, Station)
+                      IsCareServiceUsed, Patient, Station,PatientTransfers)
 from .handle_calculations import calculate_care_minutes
 
 
@@ -49,14 +49,38 @@ def add_selected_attribute(care_service_options: list, patient_id: int) -> list:
     return care_service_options
 
 
-def get_questions(patient_id: int) -> list:
-    """Get the questions from the database.
+# def get_questions(patient_id: int) -> list:
+#     """Get the questions from the database.
+
+#     Args:
+#         patient_id (int): The ID of the patient.
+
+#     Returns:
+#         list: The questions from the database and the attribute if they were previously selected or not.
+#     """
+#     # Get the questions with the corresponding information
+#     care_service_options = list(
+#         CareServiceOption.objects.select_related('field', 'category').values(
+#             'id',
+#             'field__name',
+#             'field__short',
+#             'category__name',
+#             'name',
+#             'severity',
+#             'description',
+#         )
+#     )
+
+#     return add_selected_attribute(care_service_options, patient_id)
+
+def get_questions(patient_id: int) -> dict:
+    """Get the questions and patient-specific details from the database.
 
     Args:
         patient_id (int): The ID of the patient.
 
     Returns:
-        list: The questions from the database and the attribute if they were previously selected or not.
+        dict: The questions from the database and patient-specific information.
     """
     # Get the questions with the corresponding information
     care_service_options = list(
@@ -70,9 +94,32 @@ def get_questions(patient_id: int) -> list:
             'description',
         )
     )
+    # Add the selected attribute for each care service option
+    options_with_selection = add_selected_attribute(care_service_options, patient_id)
 
-    return add_selected_attribute(care_service_options, patient_id)
+    # Get the patient's admission and discharge dates
+    try:
+        patient = PatientTransfers.objects.get(id=patient_id)
+        admission_date = patient.admission_date
+        discharge_date = patient.discharge_date
+    except Patient.DoesNotExist:
+        admission_date = None
+        discharge_date = None
 
+    # Add visit_type to the response if classification exists
+    try:
+        today_classification = DailyClassification.objects.get(
+            patient=patient_id,
+            date=date.today()
+        )
+        visit_type = today_classification.visit_type
+    except DailyClassification.DoesNotExist:
+        visit_type = None
+
+    return { "questions": options_with_selection,
+    "admission_date": admission_date,   "discharge_date": discharge_date,
+        "visit_type": visit_type,
+    }
 
 def has_missing_data(body: dict) -> bool:
     """Check if the body of the request contains all necessary information.
@@ -91,7 +138,8 @@ def has_missing_data(body: dict) -> bool:
             or 'barthel_index' not in body
             or 'expanded_barthel_index' not in body
             or 'mini_mental_status' not in body
-            or 'selected_care_services' not in body)
+            or 'selected_care_services' not in body
+            or 'visit_type' not in body)
 
 
 def submit_selected_options(patient_id: int, body: dict) -> JsonResponse:
@@ -118,6 +166,7 @@ def submit_selected_options(patient_id: int, body: dict) -> JsonResponse:
         station=station,
         room_name=body['room_name'],
         bed_number=body['bed_number'],
+        visit_type=body ['visit_type']
     )
 
     # Save the selected care services
@@ -131,7 +180,7 @@ def submit_selected_options(patient_id: int, body: dict) -> JsonResponse:
     return JsonResponse({'message': 'Successfully saved the selected care services.'}, status=200)
 
 
-def handle_questions(request, patient_id: int) -> JsonResponse:
+def handle_questions(request, patient_id: int) -> JsonResponse: # type: ignore
     """Endpoint to handle the submission and pulling of questions.
 
     Args:
