@@ -4,8 +4,7 @@ from datetime import date, timedelta
 
 from django.http import JsonResponse
 
-from ..models import (CareServiceOption, DailyClassification,
-                      IsCareServiceUsed, Patient, Station,PatientTransfers)
+from ..models import (CareServiceOption, DailyClassification, IsCareServiceUsed, Patient, Station, PatientTransfers)
 from .handle_calculations import calculate_care_minutes
 
 
@@ -146,8 +145,7 @@ def submit_selected_options(patient_id: int, body: dict) -> JsonResponse:
         station=station,
         room_name=body['room_name'],
         bed_number=body['bed_number'],
-        visit_type=body ['visit_type']
-    )
+        visit_type=body['visit_type'])
 
     # Save the selected care services
     for care_service in body['selected_care_services']:
@@ -160,15 +158,15 @@ def submit_selected_options(patient_id: int, body: dict) -> JsonResponse:
     return JsonResponse({'message': 'Successfully saved the selected care services.'}, status=200)
 
 
-def handle_questions(request, patient_id: int) -> JsonResponse: # type: ignore
+def handle_questions(request, patient_id: int) -> JsonResponse:
     """Endpoint to handle the submission and pulling of questions.
 
     Args:
-        request (Request): The request
+        request (Request): The request object.
         patient_id (int): The ID of the patient.
 
     Returns:
-        JsonResponse: The response send back to the client depending on the type of request
+        JsonResponse: The response sent back to the client depending on the type of request.
     """
     if request.method == 'POST':
         # Handle the submission of questions
@@ -177,3 +175,6 @@ def handle_questions(request, patient_id: int) -> JsonResponse: # type: ignore
     elif request.method == 'GET':
         # Handle the pulling of questions for a patient
         return JsonResponse(get_questions(patient_id), safe=False)
+    else:
+        # Handle unsupported HTTP methods
+        return JsonResponse({'error': 'Method not allowed'}, status=405)

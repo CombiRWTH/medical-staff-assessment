@@ -1,4 +1,4 @@
-"""This file contains the all models for the database."""
+"""This file contains all models for the database."""
 from django.db import models
 
 
@@ -14,25 +14,24 @@ class CareServiceField(models.Model):
 
 
 class CareServiceCategory(models.Model):
-    """Categories of care services like hygiene, nutrition or mobilisation."""
+    """Categories of care services like hygiene, nutrition, or mobilisation."""
 
     id = models.IntegerField(primary_key=True)
-     # Category name, e.g. 'Körperpflege'
-    name = models.CharField(max_length=200) 
+    name = models.CharField(max_length=200)  # Category name, e.g. 'Körperpflege'
 
     def __str__(self):
         return self.name
 
 
 class CareServiceOption(models.Model):
-    """Care questions across all fields, categories, severities and index according to the PPBV."""
+    """Care questions across all fields, categories, severities, and index according to the PPBV."""
 
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=200)  # Concatenation of all columns, e.g. 'A-koerperpflege-1-1'
     field = models.ForeignKey('CareServiceField', on_delete=models.CASCADE)
     category = models.ForeignKey('CareServiceCategory', on_delete=models.CASCADE)
     severity = models.IntegerField()  # Degree of needed help, increasing from 1 to 4
-    list_index = models.IntegerField()  # Index of question within single field, category and severity
+    list_index = models.IntegerField()  # Index of question within a single field, category, and severity
     description = models.TextField()  # Content of question
 
     def __str__(self):
@@ -41,8 +40,7 @@ class CareServiceOption(models.Model):
 
 class DailyClassification(models.Model):
     """Daily classification of patients according to the PPBV."""
-    
-    """Daily workload for caregivers in all stations."""
+
     class VisitType(models.TextChoices):
         STATIONAER = 'stationär'
         AMBULANT = 'ambulant'
@@ -71,8 +69,7 @@ class DailyClassification(models.Model):
 
 
 class IsCareServiceUsed(models.Model):
-    """Care service options used for a patient's daily classification on a specific date.
-    Any entry here means that the service is used"""
+    """Care service options used for a patient's daily classification on a specific date."""
 
     classification = models.ForeignKey('DailyClassification', on_delete=models.CASCADE)
     care_service_option = models.ForeignKey('CareServiceOption', on_delete=models.CASCADE)
@@ -107,7 +104,7 @@ class Patient(models.Model):
     date_of_birth = models.DateField()
     weight = models.FloatField()
     height = models.FloatField()
-    deceased_date = models.DateField()  # Date patient passed away
+    deceased_date = models.DateField(null=True, blank=True)  # Date patient passed away
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
@@ -125,16 +122,16 @@ class PatientTransfers(models.Model):
         'Station',
         on_delete=models.CASCADE,
         related_name='station_old'
-    )  # Station patient came from
+    )
     station_new = models.ForeignKey(
         'Station',
         on_delete=models.CASCADE,
         related_name='station_new'
-    )  # Station patient was transferred to
-    transferred_to_external = models.BooleanField()  # True if patient was transferred to different hospital
+    )
+    transferred_to_external = models.BooleanField()  # True if transferred to a different hospital
 
     def __str__(self):
-        return f"{self.patient} {self.station_old} {self.station_new}"
+        return f"{self.patient} {self.station_old} -> {self.station_new}"
 
 
 class StationOccupancy(models.Model):
@@ -143,15 +140,15 @@ class StationOccupancy(models.Model):
     id = models.IntegerField(primary_key=True)
     station = models.ForeignKey('Station', on_delete=models.CASCADE)
     date = models.DateField()
-    patients_in_total = models.IntegerField()  # total patients incoming today
-    patients_in_external = models.IntegerField()  # patients with admission_date == today
-    patients_in_internal = models.IntegerField()  # patientTransfers today with station_id_new == station_id
-    patients_out_total = models.IntegerField()  # total patients outgoing today
-    patients_out_leave = models.IntegerField()  # patients with discharge_date == today
-    patients_out_external = models.IntegerField()  # patientTransfers today with transferred_to_external == True
-    patients_out_internal = models.IntegerField()  # patientTransfers today with station_id_old == station_id
-    patients_out_deceased = models.IntegerField()  # patients with deceased_date == today
-    patients_total = models.IntegerField()  # patients_in_total - patients_out_total
+    patients_in_total = models.IntegerField()
+    patients_in_external = models.IntegerField()
+    patients_in_internal = models.IntegerField()
+    patients_out_total = models.IntegerField()
+    patients_out_leave = models.IntegerField()
+    patients_out_external = models.IntegerField()
+    patients_out_internal = models.IntegerField()
+    patients_out_deceased = models.IntegerField()
+    patients_total = models.IntegerField()
 
     class Meta:
         unique_together = ('station', 'date')
@@ -161,23 +158,23 @@ class StationOccupancy(models.Model):
 
 
 class StationWorkloadDaily(models.Model):
-   
+    """Daily workload for caregivers in all stations."""
 
     id = models.IntegerField(primary_key=True)
     station = models.ForeignKey('Station', on_delete=models.CASCADE)
     date = models.DateField()
     shift = models.CharField(max_length=100)  # Day or night shift
-    patients_total = models.IntegerField()  # Patients_total of station and date
-    caregivers_total = models.IntegerField()  # Imported via shift plan
-    patients_per_caregiver = models.FloatField()  # patients_total / caregivers_total
-    minutes_total = models.IntegerField()  # Sum of result_minutes of station and date
-    minutes_per_caregiver = models.FloatField()  # minutes_total / caregivers_total
+    patients_total = models.IntegerField()
+    caregivers_total = models.IntegerField()
+    patients_per_caregiver = models.FloatField()
+    minutes_total = models.IntegerField()
+    minutes_per_caregiver = models.FloatField()
 
     class Meta:
         unique_together = ('station', 'date', 'shift')
 
     def __str__(self):
-        return f"{self.station} {self.date} {self.shift} {self.patients_per_caregiver}"
+        return f"{self.station} {self.date} {self.shift}"
 
 
 class StationWorkloadMonthly(models.Model):
@@ -185,14 +182,14 @@ class StationWorkloadMonthly(models.Model):
 
     id = models.IntegerField(primary_key=True)
     station = models.ForeignKey('Station', on_delete=models.CASCADE)
-    month = models.DateField()  # Use first day to represent month
+    month = models.DateField()  # Use first day to represent the month
     shift = models.CharField(max_length=100)  # Day or night shift
-    patients_avg = models.FloatField()  # Average daily patients; currently same for day and night
-    caregivers_avg = models.FloatField()  # Average daily caregivers
-    patients_per_caregiver_avg = models.FloatField()  # Average daily patients per caregiver
+    patients_avg = models.FloatField()
+    caregivers_avg = models.FloatField()
+    patients_per_caregiver_avg = models.FloatField()
 
     class Meta:
         unique_together = ('station', 'month', 'shift')
 
     def __str__(self):
-        return f"{self.station} {self.month} {self.shift} {self.patients_per_caregiver_avg}"
+        return f"{self.station} {self.month} {self.shift}"
