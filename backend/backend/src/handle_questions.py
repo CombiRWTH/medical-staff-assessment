@@ -80,6 +80,8 @@ def get_questions(station_id: int, patient_id: int, date: date) -> list:
         'barthel_index': classification['barthel_index'] if classification else 0,
         'expanded_barthel_index': classification['expanded_barthel_index'] if classification else 0,
         'mini_mental_status': classification['mini_mental_status'] if classification else 0,
+        'isDayOfAdmission': False,  # TODO: Implement this
+        'isDayOfDischarge': False,  # TODO: Implement this
     }
 
 
