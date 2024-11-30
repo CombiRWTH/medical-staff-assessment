@@ -38,6 +38,20 @@ fi
 echo "Filling database with questions from the PPBV."
 python /app/manage.py loaddata /app/backend/fixtures/questions.json
 
+#Remove the three down in production
+
+# Fill database with dummy stations 
+echo "Filling database with dummy stations."
+python /app/manage.py loaddata /app/backend/fixtures/stations.json
+
+# Fill database with dummy patients 
+echo "Filling database with  dummy patients "
+python /app/manage.py loaddata /app/backend/fixtures/patients.json
+
+# Fill database with dummy patient journies 
+echo "Filling database with  dummy patient journies  "
+python /app/manage.py loaddata /app/backend/fixtures/patient_transfers.json
+
 # Run server
 python /app/manage.py runserver 0.0.0.0:$WEB_PORT
 
