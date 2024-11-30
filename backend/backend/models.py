@@ -185,4 +185,3 @@ class StationWorkloadMonthly(models.Model):
 
     def __str__(self):
         return f"{self.station} {self.month} {self.shift} {self.patients_per_caregiver_avg}"
-    
