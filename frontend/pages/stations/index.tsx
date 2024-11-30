@@ -27,7 +27,7 @@ export const StationsPage: NextPage = () => {
         </Sidebar>
       )}
     >
-      <div className="flex flex-wrap gap-10 p-10 content-start">
+      <div className="flex flex-wrap gap-10 p-10 content-start w-full">
         {stations.map(value => (
           <Card key={value.id} className="flex flex-col gap-y-2" onClick={() => router.push(`/stations/${value.id}`)}>
             <span className="text-xl font-semibold">{value.name}</span>

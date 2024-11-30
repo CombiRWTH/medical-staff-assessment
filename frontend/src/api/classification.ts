@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { baseURL } from '@/config'
+import { apiURL } from '@/config'
 import type { DailyClassification, DailyClassificationOption } from '@/data-models/classification'
 
-export const usePatientClassification = (patientId: string) => {
+export const usePatientClassification = (stationId?: number, patientId?: number, date?: string) => {
   const [classification, setClassification] = useState<DailyClassification>({
     id: 'daily-classification-001',
     patientId: 'patient-12345',
@@ -18,16 +18,18 @@ export const usePatientClassification = (patientId: string) => {
     }
   })
 
-  patientId = '1' // TODO this is should be your patient id
-
   const load = useCallback(async () => {
+    if (!stationId || !patientId || !date) {
+      return
+    }
     try {
-      const options: DailyClassificationOption[] = await (await fetch(`${baseURL}/questions/${patientId}`)).json()
-      setClassification(prevState => ({ ...prevState, options }))
+      const response = await (await fetch(`${apiURL}/questions/${stationId}/${patientId}/${date}`)).json()
+      console.log(response)
+      setClassification(prevState => ({ ...prevState, options: response as DailyClassificationOption[] }))
     } catch (e) {
       console.error(e)
     }
-  }, [patientId])
+  }, [date, patientId, stationId])
 
   useEffect(() => {
     load().then()

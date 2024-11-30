@@ -1,17 +1,19 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { Patient } from '@/data-models/patient'
+import { apiURL } from '@/config'
 
-// TODO use something like react query
-export const usePatientsAPI = (_?: string) => {
+export const usePatientsAPI = (stationId?: number) => {
   const [patients, setPatients] = useState<Patient[]>([])
 
   const loadPatients = useCallback(async () => {
-    setPatients(Array.from({ length: 10 }, (_, i) => i + 1).map<Patient>(value => ({
-      id: `${value}`,
-      name: `Patient ${value + 1}`,
-      hasClassification: value < 5,
-    })))
-  }, [])
+    if (stationId === undefined) {
+      setPatients([])
+      return
+    }
+    const response = await (await fetch(`${apiURL}/stations/${stationId}`)).json()
+    // TODO parse classification date
+    setPatients(response as Patient[])
+  }, [stationId])
 
   useEffect(() => {
     loadPatients().then()

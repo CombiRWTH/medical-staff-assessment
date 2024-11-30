@@ -1,5 +1,6 @@
 export type Patient = {
-  id: string,
+  id: number,
   name: string,
-  hasClassification: boolean
+  lastClassification?: string,
+  currentBed?: string
 }

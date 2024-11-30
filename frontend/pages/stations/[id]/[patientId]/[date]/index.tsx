@@ -6,7 +6,7 @@ import { Header } from '@/layout/Header'
 import { Page } from '@/layout/Page'
 import { useStationsAPI } from '@/api/stations'
 import { usePatientsAPI } from '@/api/patients'
-import { formatDate } from '@/util/formatDate'
+import { formatDate, formatDateBackend } from '@/util/formatDate'
 import { parseDateString } from '@/util/parseDateString'
 import { noop } from '@/util/noop'
 import { ClassificationCard } from '@/components/ClassificationCard'
@@ -15,15 +15,15 @@ import { subsetByAttribute } from '@/util/subsetByAttribute'
 
 export const PatientClassification = () => {
   const router = useRouter()
-  const id = router.query.id as string
-  const patientId = router.query.patientId as string
+  const id = router.query.id !== undefined ? parseInt(router.query.id as string) : undefined
+  const patientId = router.query.patientId !== undefined ? parseInt(router.query.patientId as string) : undefined
   const dateString: string = (router.query.date as string | undefined) ?? ''
   const date = parseDateString(dateString)
   const { stations } = useStationsAPI()
   const currentStation = stations.find(value => value.id === id)
   const { patients } = usePatientsAPI(currentStation?.id)
   const currentPatient = patients.find(value => value.id === patientId)
-  const { classification } = usePatientClassification(patientId)
+  const { classification } = usePatientClassification(id, patientId, formatDateBackend(date))
   const currentPatientIndex = patients.findIndex(value => value.id === currentPatient?.id)
   const nextPatientIndex = currentPatientIndex !== -1 ? (currentPatientIndex + 1) % patients.length : undefined
   const nextPatient = nextPatientIndex !== undefined ? patients[nextPatientIndex] : undefined

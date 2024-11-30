@@ -16,7 +16,7 @@ type SortingState = {
 
 export const StationPatientList = () => {
   const router = useRouter()
-  const id = router.query.id as string
+  const id = router.query.id !== undefined ? parseInt(router.query.id as string) : undefined
   const [sortingState, setSortingState] = useState<SortingState>({
     hasClassificationAscending: true,
     nameAscending: true,
@@ -27,7 +27,9 @@ export const StationPatientList = () => {
   const { patients } = usePatientsAPI(currentStation?.id)
   const sortedPatients = patients.sort((a, b) => {
     const nameCompare = a.name.localeCompare(b.name) * (sortingState.nameAscending ? 1 : -1)
-    const classificationCompare = (a.hasClassification ? 1 : (b.hasClassification ? -1 : 1)) * (sortingState.hasClassificationAscending ? 1 : -1)
+    const aHasClassification = !!a.lastClassification
+    const bHasClassification = !!b.lastClassification
+    const classificationCompare = (aHasClassification ? 1 : (bHasClassification ? -1 : 1)) * (sortingState.hasClassificationAscending ? 1 : -1)
 
     if (sortingState.last === 'name') {
       if (nameCompare !== 0) {
@@ -90,27 +92,30 @@ export const StationPatientList = () => {
             </tr>
             </thead>
             <tbody>
-            {sortedPatients.map(patient => (
-              <tr
-                key={patient.id}
-                onClick={() => router.push(`/stations/${id}/${patient.id}/${formatDate()}`)}
-                className="cursor-pointer hover:bg-gray-200 rounded-xl"
-              >
-                <td className="rounded-l-xl pl-2">{patient.name}</td>
-                <td className="flex flex-col items-center py-1">
-                  <div
-                    className={`rounded-xl w-32 text-center px-2 py-1 border-2 ${patient.hasClassification ? 'border-green-500' : 'border-amber-400'}`}>
-                    {patient.hasClassification ? 'Heute' : 'Gestern'}
-                  </div>
-                </td>
-                <td className="rounded-r-xl">
-                  <button className="flex flex-row gap-x-2 rounded px-2 py-1 items-center float-end">
-                    <span>Auswählen</span>
-                    <ArrowRight size={20}/>
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {sortedPatients.map(patient => {
+              const hasClassification = !!patient.lastClassification
+              return (
+                  <tr
+                      key={patient.id}
+                      onClick={() => router.push(`/stations/${id}/${patient.id}/${formatDate()}`)}
+                      className="cursor-pointer hover:bg-gray-200 rounded-xl"
+                  >
+                    <td className="rounded-l-xl pl-2">{patient.name}</td>
+                    <td className="flex flex-col items-center py-1">
+                      <div
+                          className={`rounded-xl w-32 text-center px-2 py-1 border-2 ${hasClassification ? 'border-green-500' : 'border-amber-400'}`}>
+                        {hasClassification ? 'Heute' : 'Gestern'}
+                      </div>
+                    </td>
+                    <td className="rounded-r-xl">
+                      <button className="flex flex-row gap-x-2 rounded px-2 py-1 items-center float-end">
+                        <span>Auswählen</span>
+                        <ArrowRight size={20}/>
+                      </button>
+                    </td>
+                  </tr>
+              )
+            })}
             </tbody>
           </table>
         </Card>

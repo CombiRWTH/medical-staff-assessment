@@ -1,5 +1,5 @@
 export type Station = {
-  id: string,
+  id: number,
   name: string,
   patientCount: number
 }
