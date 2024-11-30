@@ -94,7 +94,7 @@ class Patient(models.Model):
     date_of_birth = models.DateField()
     weight = models.FloatField()
     height = models.FloatField()
-    deceased_date = models.DateField(null=True, blank=True)  # Date patient passed away 
+    deceased_date = models.DateField(null=True, blank=True)  # Date patient passed away
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
@@ -185,3 +185,4 @@ class StationWorkloadMonthly(models.Model):
 
     def __str__(self):
         return f"{self.station} {self.month} {self.shift} {self.patients_per_caregiver_avg}"
+    
