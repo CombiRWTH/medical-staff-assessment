@@ -47,7 +47,7 @@ export const PatientClassification = () => {
 
   const allPatientsClassified = useMemo(() =>
     patients.every(patient => patient.hasClassification),
-    [patients]
+  [patients]
   )
 
   useEffect(noop, [router.query.date]) // reload once the date can be parsed
@@ -95,8 +95,8 @@ export const PatientClassification = () => {
                   <Tooltip
                     content={
                       allPatientsClassified
-                        ? "Alle Patienten sind klassifiziert"
-                        : "Kein unklassifizierter Patient gefunden"
+                        ? 'Alle Patienten sind klassifiziert'
+                        : 'Kein unklassifizierter Patient gefunden'
                     }
                   >
                     <button
