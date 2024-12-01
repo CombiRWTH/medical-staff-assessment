@@ -4,8 +4,6 @@ from datetime import date
 from django.db.models import Subquery, OuterRef, Count, Value
 from django.db.models.functions import Coalesce
 from django.http import JsonResponse
-
-from .handle_patients import get_active_patients_on_station
 from ..models import Station, PatientTransfers
 
 
@@ -18,7 +16,7 @@ def get_all_stations() -> list[Station]:
 
     today = date.today()
 
-    ## TODO fix this logic
+    # TODO fix this logic
     # Subquery to get the count of patients for each station
     patients_count_subquery = PatientTransfers.objects.filter(
         station_new_id=OuterRef('pk'),

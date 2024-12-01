@@ -23,7 +23,8 @@ def get_active_patients_on_station(station_id: int, date: datetime.date = dateti
 
 
 def get_patients_with_additional_information(station_id: int) -> list:
-    """Get all patients assigned to a station with the date of their last classification and the bed they are assigned to.
+    """Get all patients assigned to a station with the date of their last classification and the bed they are
+    assigned to.
 
     Args:
         station_id (int): The ID of the station.
