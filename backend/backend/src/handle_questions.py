@@ -103,6 +103,7 @@ def group_questions(questions: list) -> list:
         list: The questions grouped by field, category and severity.
     """
     grouped_questions = []
+
     for question in questions:
         field = question['field__name']
         field_short = question['field__short']
@@ -159,8 +160,9 @@ def get_grouped_data(station_id: int, patient_id: int, date: datetime.date) -> d
     """
     classification_information = get_questions(station_id, patient_id, date)
     questions = classification_information['care_service_options']
+    del classification_information['care_service_options']
     grouped_questions = group_questions(questions)
-    classification_information['care_service_options'] = grouped_questions
+    classification_information['careServices'] = grouped_questions
     return classification_information
 
 
@@ -182,7 +184,7 @@ def submit_selected_options(station_id: int, patient_id: int, date: datetime.dat
     # Check if the classification already exists
     classification = DailyClassification.objects.filter(
         patient=patient,
-        date=date.today(),
+        date=date,
     ).first()
 
     if classification is None:

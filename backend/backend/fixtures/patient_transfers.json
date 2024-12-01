@@ -7,7 +7,7 @@
       "transfer_date": "2024-11-01T10:00:00+01:00",
       "admission_date": "2024-11-01T10:30:00+01:00",
       "discharge_date": "2024-11-15",
-      "station_old": null,
+      "station_old": 2,
       "station_new": 1,
       "transferred_to_external": false
     }
@@ -20,7 +20,7 @@
       "transfer_date": "2024-11-05T09:15:00+01:00",
       "admission_date": "2024-11-05T09:45:00+01:00",
       "discharge_date": "2024-11-20",
-      "station_old": null,
+      "station_old": 1,
       "station_new": 2,
       "transferred_to_external": false
     }
@@ -33,7 +33,7 @@
       "transfer_date": "2024-11-10T14:20:00+01:00",
       "admission_date": "2024-11-10T14:45:00+01:00",
       "discharge_date": "2024-11-25",
-      "station_old": null,
+      "station_old": 2,
       "station_new": 3,
       "transferred_to_external": false
     }
@@ -163,7 +163,7 @@
       "transfer_date": "2024-11-05T12:20:00+01:00",
       "admission_date": "2024-11-05T12:50:00+01:00",
       "discharge_date": "2024-11-15",
-      "station_old": null,
+      "station_old": 7,
       "station_new": 4,
       "transferred_to_external": false
     }

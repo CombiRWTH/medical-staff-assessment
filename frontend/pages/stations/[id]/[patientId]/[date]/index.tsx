@@ -11,7 +11,6 @@ import { parseDateString } from '@/util/parseDateString'
 import { noop } from '@/util/noop'
 import { ClassificationCard } from '@/components/ClassificationCard'
 import { usePatientClassification } from '@/api/classification'
-import { subsetByAttribute } from '@/util/subsetByAttribute'
 import { Tooltip } from '@/components/Tooltip'
 
 export const PatientClassification = () => {
@@ -25,7 +24,7 @@ export const PatientClassification = () => {
   const currentStation = stations.find(value => value.id === id)
   const { patients } = usePatientsAPI(currentStation?.id)
   const currentPatient = patients.find(value => value.id === patientId)
-  const { classification } = usePatientClassification(id, patientId, formatDateBackend(date))
+  const { classification, update } = usePatientClassification(id, patientId, formatDateBackend(date))
 
   const nextUnclassifiedPatient = useMemo(() => {
     // Start searching from the current patient's index
@@ -68,15 +67,15 @@ export const PatientClassification = () => {
                         <div className="flex flex-row items-center justify-between w-full">
                             <div className="flex flex-row gap-x-4 items-center mx-auto">
                                 <label className="flex flex-row gap-x-1 items-center">
-                                    <input type="checkbox" checked={classification?.isDayOfAdmission} readOnly={true}/>
+                                    <input type="checkbox" checked={false /* TODO get from classification */} readOnly={true}/>
                                     <span>Tag der Aufnahme</span>
                                 </label>
                                 <label className="flex flex-row gap-x-1 items-center">
-                                    <input type="checkbox" checked={classification?.isDayOfDischarge} readOnly={true}/>
+                                    <input type="checkbox" checked={false /* TODO get from classification */} readOnly={true}/>
                                     <span>Tag der Entlassung</span>
                                 </label>
                                 <label className="flex flex-row gap-x-1 items-center">
-                                    <input type="checkbox" checked={classification?.isInIsolation} readOnly={true}/>
+                                    <input type="checkbox" checked={classification?.is_in_isolation} readOnly={true}/>
                                     <span>In Isolation</span>
                                 </label>
                             </div>
@@ -135,8 +134,8 @@ export const PatientClassification = () => {
                     </div>
                 </div>
 
-                {subsetByAttribute(classification.options, value => value.field__short).map((list, index) => (
-                    <ClassificationCard key={index} options={list}/>
+                {classification.careServices.map((list, index) => (
+                    <ClassificationCard key={index} classification={list} onUpdate={update}/>
                 ))}
             </div>
         </Page>
