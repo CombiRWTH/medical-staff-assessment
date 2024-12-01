@@ -1,11 +1,11 @@
 """Provide questions for the frontend to display and handle the submission of answers."""
 import json
-from datetime import date, datetime
+import datetime as datetime
 
 from django.http import JsonResponse
 
 from ..models import (CareServiceOption, DailyClassification,
-                      IsCareServiceUsed, Patient, Station)
+                      IsCareServiceUsed, Patient, Station, PatientTransfers)
 
 
 def add_selected_attribute(care_service_options: list, classification: dict) -> list:
@@ -37,7 +37,7 @@ def add_selected_attribute(care_service_options: list, classification: dict) -> 
     return care_service_options
 
 
-def get_questions(station_id: int, patient_id: int, date: date) -> list:
+def get_questions(station_id: int, patient_id: int, date: datetime.date) -> dict:
     """Get the questions and general information about the classification from the database.
 
     Args:
@@ -88,8 +88,8 @@ def get_questions(station_id: int, patient_id: int, date: date) -> list:
         'barthel_index': classification['barthel_index'] if classification else 0,
         'expanded_barthel_index': classification['expanded_barthel_index'] if classification else 0,
         'mini_mental_status': classification['mini_mental_status'] if classification else 0,
-        'admission_date': admission_date,  # TODO: Implement this
-        'admission_date': discharge_date,  # TODO: Implement this
+        'admission_date': admission_date,
+        'discharge_date': discharge_date,
     }
 
 
@@ -146,7 +146,7 @@ def group_questions(questions: list) -> list:
     return grouped_questions
 
 
-def get_grouped_data(station_id: int, patient_id: int, date: date) -> dict:
+def get_grouped_data(station_id: int, patient_id: int, date: datetime.date) -> dict:
     """Get the questions grouped by field, category, severity and general information about the classification.
 
     Args:
@@ -164,7 +164,7 @@ def get_grouped_data(station_id: int, patient_id: int, date: date) -> dict:
     return classification_information
 
 
-def submit_selected_options(station_id: int, patient_id: int, date: str, body: dict) -> JsonResponse:
+def submit_selected_options(station_id: int, patient_id: int, date: datetime.date, body: dict) -> JsonResponse:
     """Save the questions to the database.
 
     Args:
@@ -216,7 +216,7 @@ def submit_selected_options(station_id: int, patient_id: int, date: str, body: d
             care_service_option=care_service,
         ).delete()
 
-    return get_grouped_data(station_id, patient_id, date)
+    return JsonResponse(get_grouped_data(station_id, patient_id, date), safe=False)
 
 
 def handle_questions(request, station_id: int, patient_id: int, date: str) -> JsonResponse:
@@ -232,13 +232,13 @@ def handle_questions(request, station_id: int, patient_id: int, date: str) -> Js
         JsonResponse: The response sent back to the client depending on the type of request.
     """
     try:
-        date = datetime.strptime(date, '%Y-%m-%d').date()
+        date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
     except ValueError:
         return JsonResponse({'error': 'Invalid date format. Use YYYY-MM-DD.'}, status=400)
     if request.method == 'PUT':
         # Handle the updating of questions
         body_data = json.loads(request.body)
-        return JsonResponse(submit_selected_options(station_id, patient_id, date, body_data), safe=False)
+        return submit_selected_options(station_id, patient_id, date, body_data)
     elif request.method == 'GET':
         # Handle the pulling of questions for a patient
         return JsonResponse(get_grouped_data(station_id, patient_id, date), safe=False)
