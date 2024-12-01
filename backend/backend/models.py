@@ -110,12 +110,14 @@ class PatientTransfers(models.Model):
     id = models.IntegerField(primary_key=True)
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE)
     transfer_date = models.DateTimeField()
-    admission_date = models.DateTimeField()  # Date and time patient arrived at hospital
-    discharge_date = models.DateField()  # Date patient will be released from hospital
+    admission_date = models.DateTimeField(null=True, blank=True)  # Date and time patient arrived at hospital
+    discharge_date = models.DateField(null=True, blank=True)  # Date patient will be released from hospital
     station_old = models.ForeignKey(
         'Station',
         on_delete=models.CASCADE,
-        related_name='station_old'
+        related_name='station_old',
+        null=True,
+        blank=True
     )  # Station patient came from
     station_new = models.ForeignKey(
         'Station',
