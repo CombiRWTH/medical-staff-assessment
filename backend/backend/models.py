@@ -98,7 +98,7 @@ class Patient(models.Model):
     date_of_birth = models.DateField()
     weight = models.FloatField()
     height = models.FloatField()
-    deceased_date = models.DateField()  # Date patient passed away
+    deceased_date = models.DateField(null=True, blank=True)  # Date patient passed away
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
@@ -110,12 +110,14 @@ class PatientTransfers(models.Model):
     id = models.IntegerField(primary_key=True)
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE)
     transfer_date = models.DateTimeField()
-    admission_date = models.DateTimeField()  # Date and time patient arrived at hospital
-    discharge_date = models.DateField()  # Date patient will be released from hospital
+    admission_date = models.DateTimeField(null=True, blank=True)  # Date and time patient arrived at hospital
+    discharge_date = models.DateField(null=True, blank=True)  # Date patient will be released from hospital
     station_old = models.ForeignKey(
         'Station',
         on_delete=models.CASCADE,
-        related_name='station_old'
+        related_name='station_old',
+        null=True,
+        blank=True
     )  # Station patient came from
     station_new = models.ForeignKey(
         'Station',

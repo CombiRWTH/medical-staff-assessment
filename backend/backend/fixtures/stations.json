@@ -1,0 +1,101 @@
+[
+  {
+    "model": "backend.Station",
+    "pk": 1,
+    "fields": {
+      "name": "3",
+      "is_intensive_care": false,
+      "is_child_care_unit": false,
+      "bed_count": 20,
+      "max_patients_per_caregiver": 5.0
+    }
+  },
+  {
+    "model": "backend.Station",
+    "pk": 2,
+    "fields": {
+      "name": "5",
+      "is_intensive_care": false,
+      "is_child_care_unit": false,
+      "bed_count": 25,
+      "max_patients_per_caregiver": 4.5
+    }
+  },
+  {
+    "model": "backend.Station",
+    "pk": 3,
+    "fields": {
+      "name": "1A",
+      "is_intensive_care": false,
+      "is_child_care_unit": false,
+      "bed_count": 30,
+      "max_patients_per_caregiver": 6.0
+    }
+  },
+  {
+    "model": "backend.Station",
+    "pk": 4,
+    "fields": {
+      "name": "1C",
+      "is_intensive_care": false,
+      "is_child_care_unit": false,
+      "bed_count": 15,
+      "max_patients_per_caregiver": 4.0
+    }
+  },
+  {
+    "model": "backend.Station",
+    "pk": 5,
+    "fields": {
+      "name": "2A",
+      "is_intensive_care": false,
+      "is_child_care_unit": false,
+      "bed_count": 20,
+      "max_patients_per_caregiver": 5.0
+    }
+  },
+  {
+    "model": "backend.Station",
+    "pk": 6,
+    "fields": {
+      "name": "2C",
+      "is_intensive_care": false,
+      "is_child_care_unit": false,
+      "bed_count": 25,
+      "max_patients_per_caregiver": 4.5
+    }
+  },
+  {
+    "model": "backend.Station",
+    "pk": 7,
+    "fields": {
+      "name": "E1",
+      "is_intensive_care": false,
+      "is_child_care_unit": false,
+      "bed_count": 20,
+      "max_patients_per_caregiver": 5.5
+    }
+  },
+  {
+    "model": "backend.Station",
+    "pk": 8,
+    "fields": {
+      "name": "K1",
+      "is_intensive_care": true,
+      "is_child_care_unit": true,
+      "bed_count": 10,
+      "max_patients_per_caregiver": 2.0
+    }
+  },
+  {
+    "model": "backend.Station",
+    "pk": 9,
+    "fields": {
+      "name": "K3",
+      "is_intensive_care": false,
+      "is_child_care_unit": true,
+      "bed_count": 15,
+      "max_patients_per_caregiver": 3.5
+    }
+  }
+]
