@@ -25,6 +25,10 @@ def calculate_daily_station_minutes(body_data: dict) -> int:
     # Filter the database to get all the patients at the specifed station and day
     patients = DailyClassification.objects.filter(date__month=date, station=station)
 
+    # If no patients where found return
+    if not patients.exists():
+        return -1
+
     # Add up the minutes of all the patients to get a total for the day
     result_minutes = 0
     for entry in patients:
@@ -46,7 +50,13 @@ def handle_daily_station_minutes(request):
     if request.method == 'POST':
         body_data = json.loads(request.body)
         result_minutes, minutes_per_caregiver = calculate_daily_station_minutes(body_data)
+
+        # In case of a negative result return an error
+        if result_minutes < 0:
+            return JsonResponse({'error': 'No classification exists for that day and station'}, status=400)
+
         return JsonResponse({'minutes': result_minutes, 'minutes_per_caregiver': minutes_per_caregiver}, status=200)
+
     else:
         return JsonResponse({'message': 'Method not allowed.'}, status=405)
 
@@ -73,6 +83,10 @@ def calculate_monthly_station_minutes(body_data: dict) -> int:
     days = StationWorkloadDaily.objects.filter(
         date__month=date.month, date__year=date.year, station=station, shift=shift)
 
+    # If no entries where found return
+    if not days.exists():
+        return -1
+
     # Add up the minutes of all the days filtered days to get a total for the month
     result_minutes = 0
     for entry in days:
@@ -93,7 +107,14 @@ def handle_monthly_station_minutes(request):
     if request.method == 'POST':
         body_data = json.loads(request.body)
         result_minutes = calculate_monthly_station_minutes(body_data)
+
+        # In case of a negative result return an error
+        if result_minutes < 0:
+            return JsonResponse({'error': 'No entries for that month and station exist'}, status=400)
+
         return JsonResponse({'minutes': result_minutes}, status=200)
+
     else:
         return JsonResponse({'message': 'Method not allowed.'}, status=405)
     return
+    
