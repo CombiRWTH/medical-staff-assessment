@@ -1,61 +1,58 @@
-import {useRouter} from 'next/router'
-import {ArrowLeft, ArrowRight, ChevronDown, ChevronUp, Info} from 'lucide-react'
-import {useEffect, useMemo} from 'react'
-import {addDays, subDays} from 'date-fns'
-import {Header} from '@/layout/Header'
-import {Page} from '@/layout/Page'
-import {useStationsAPI} from '@/api/stations'
-import {usePatientsAPI} from '@/api/patients'
-import {formatDate, formatDateBackend} from '@/util/formatDate'
-import {parseDateString} from '@/util/parseDateString'
-import {noop} from '@/util/noop'
-import {ClassificationCard} from '@/components/ClassificationCard'
-import {usePatientClassification} from '@/api/classification'
-import {subsetByAttribute} from '@/util/subsetByAttribute'
-import {Tooltip} from '@/components/Tooltip'
+import { useRouter } from 'next/router'
+import { ArrowLeft, ArrowRight, ChevronDown, ChevronUp, Info } from 'lucide-react'
+import { useEffect, useMemo } from 'react'
+import { addDays, subDays } from 'date-fns'
+import { Header } from '@/layout/Header'
+import { Page } from '@/layout/Page'
+import { useStationsAPI } from '@/api/stations'
+import { usePatientsAPI } from '@/api/patients'
+import { formatDate, formatDateBackend } from '@/util/formatDate'
+import { parseDateString } from '@/util/parseDateString'
+import { noop } from '@/util/noop'
+import { ClassificationCard } from '@/components/ClassificationCard'
+import { usePatientClassification } from '@/api/classification'
+import { subsetByAttribute } from '@/util/subsetByAttribute'
+import { Tooltip } from '@/components/Tooltip'
 
 export const PatientClassification = () => {
-    const router = useRouter()
-    const id = router.query.id !== undefined ? parseInt(router.query.id as string) : undefined
-    const patientId = router.query.patientId !== undefined ? parseInt(router.query.patientId as string) : undefined
-    const dateString: string = (router.query.date as string | undefined) ?? ''
-    const date = parseDateString(dateString)
+  const router = useRouter()
+  const id = router.query.id !== undefined ? parseInt(router.query.id as string) : undefined
+  const patientId = router.query.patientId !== undefined ? parseInt(router.query.patientId as string) : undefined
+  const dateString: string = (router.query.date as string | undefined) ?? ''
+  const date = parseDateString(dateString)
 
-    const {stations} = useStationsAPI()
-    const currentStation = stations.find(value => value.id === id)
-    const {patients} = usePatientsAPI(currentStation?.id)
-    const currentPatient = patients.find(value => value.id === patientId)
-    const {classification} = usePatientClassification(id, patientId, formatDateBackend(date))
-    const currentPatientIndex = patients.findIndex(value => value.id === currentPatient?.id)
-    const nextPatientIndex = currentPatientIndex !== -1 ? (currentPatientIndex + 1) % patients.length : undefined
-    const nextPatient = nextPatientIndex !== undefined ? patients[nextPatientIndex] : undefined
+  const { stations } = useStationsAPI()
+  const currentStation = stations.find(value => value.id === id)
+  const { patients } = usePatientsAPI(currentStation?.id)
+  const currentPatient = patients.find(value => value.id === patientId)
+  const { classification } = usePatientClassification(id, patientId, formatDateBackend(date))
 
-    const nextUnclassifiedPatient = useMemo(() => {
-        // Start searching from the current patient's index
-        const currentIndex = patients.findIndex(p => p.id === currentPatient?.id)
-        const patientsLength = patients.length
+  const nextUnclassifiedPatient = useMemo(() => {
+    // Start searching from the current patient's index
+    const currentIndex = patients.findIndex(p => p.id === currentPatient?.id)
+    const patientsLength = patients.length
 
-        for (let i = 1; i < patientsLength; i++) {
-            const nextIndex = (currentIndex + i) % patientsLength
-            const nextPatient = patients[nextIndex]
+    for (let i = 1; i < patientsLength; i++) {
+      const nextIndex = (currentIndex + i) % patientsLength
+      const nextPatient = patients[nextIndex]
 
-            if (!!nextPatient.lastClassification) {
-                return nextPatient
-            }
-        }
+      if (nextPatient.lastClassification) {
+        return nextPatient
+      }
+    }
 
-        // If all patients are classified, return undefined
-        return undefined
-    }, [patients, currentPatient])
+    // If all patients are classified, return undefined
+    return undefined
+  }, [patients, currentPatient])
 
-    const allPatientsClassified = useMemo(() =>
-            patients.every(patient => !!patient.lastClassification),
-        [patients]
-    )
+  const allPatientsClassified = useMemo(() =>
+    patients.every(patient => !!patient.lastClassification),
+  [patients]
+  )
 
-    useEffect(noop, [router.query.date]) // reload once the date can be parsed
+  useEffect(noop, [router.query.date]) // reload once the date can be parsed
 
-    return (
+  return (
         <Page
             header={(
                 <Header
@@ -98,10 +95,10 @@ export const PatientClassification = () => {
                                     </a>
                                 ) : (
                                     <Tooltip
-                                        content={
+                                        tooltip={
                                             allPatientsClassified
-                                                ? 'Alle Patienten sind klassifiziert'
-                                                : 'Kein unklassifizierter Patient gefunden'
+                                              ? 'Alle Patienten sind klassifiziert'
+                                              : 'Kein unklassifizierter Patient gefunden'
                                         }
                                     >
                                         <button
@@ -143,7 +140,7 @@ export const PatientClassification = () => {
                 ))}
             </div>
         </Page>
-    )
+  )
 }
 
 export default PatientClassification

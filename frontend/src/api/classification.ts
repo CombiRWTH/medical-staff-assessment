@@ -23,6 +23,7 @@ export const usePatientClassification = (stationId?: number, patientId?: number,
       return
     }
     try {
+      // TODO fix this to the better format
       const response = await (await fetch(`${apiURL}/questions/${stationId}/${patientId}/${date}`)).json()
       console.log(response)
       setClassification(prevState => ({ ...prevState, options: response as DailyClassificationOption[] }))

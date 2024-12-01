@@ -1,18 +1,18 @@
-import React, { ReactNode, useState } from 'react'
+import type { PropsWithChildren, ReactNode } from 'react'
+import React, { useState } from 'react'
 
-interface TooltipProps {
-  content: string | ReactNode
-  children: ReactNode
-  className?: string
-  position?: 'top' | 'bottom' | 'left' | 'right'
-}
+export type TooltipProps = PropsWithChildren<{
+    tooltip: string | ReactNode,
+    className?: string,
+    position?: 'top' | 'bottom' | 'left' | 'right'
+}>
 
-export const Tooltip: React.FC<TooltipProps> = ({
-  content,
+export const Tooltip = ({
+  tooltip,
   children,
   className = '',
   position = 'top'
-}) => {
+}: TooltipProps) => {
   const [isVisible, setIsVisible] = useState(false)
 
   const positionClasses = {
@@ -23,31 +23,20 @@ export const Tooltip: React.FC<TooltipProps> = ({
   }
 
   return (
-    <div
-      className="relative inline-block"
-      onMouseEnter={() => setIsVisible(true)}
-      onMouseLeave={() => setIsVisible(false)}
-    >
-      {children}
-      {isVisible && (
         <div
-          className={`
-            absolute z-50
-            bg-gray-800
-            text-white
-            text-xs
-            px-3
-            py-2
-            rounded
-            shadow-lg
-            whitespace-nowrap
-            ${positionClasses[position]}
-            ${className}
-          `}
+            className="relative inline-block"
+            onMouseEnter={() => setIsVisible(true)}
+            onMouseLeave={() => setIsVisible(false)}
         >
-          {content}
+            {children}
+            {isVisible && (
+                <div
+                    className={`absolute z-50 bg-gray-800 text-white text-xs px-3 py-2 rounded shadow-lg whitespace-nowrap
+            ${positionClasses[position]} ${className}`}
+                >
+                    {tooltip}
+                </div>
+            )}
         </div>
-      )}
-    </div>
   )
 }

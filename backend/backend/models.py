@@ -45,8 +45,8 @@ class DailyClassification(models.Model):
     date = models.DateField()
     is_in_isolation = models.BooleanField()
     result_minutes = models.IntegerField()  # Care time calculated according to PPBV
-    a_index = models.IntegerField()  # Index of care group A
-    s_index = models.IntegerField()  # Index of care group S
+    a_index = models.IntegerField(default=1)  # Index of care group A
+    s_index = models.IntegerField(default=1)  # Index of care group S
     station = models.ForeignKey('Station', on_delete=models.CASCADE)
     room_name = models.CharField(max_length=100)
     bed_number = models.CharField(max_length=100)
@@ -127,7 +127,7 @@ class PatientTransfers(models.Model):
     transferred_to_external = models.BooleanField()  # True if patient was transferred to different hospital
 
     def __str__(self):
-        return f"{self.patient} {self.station_old} {self.station_new}"
+        return f"{self.patient} {self.station_old}->{self.station_new} ({self.transfer_date})"
 
 
 class StationOccupancy(models.Model):
