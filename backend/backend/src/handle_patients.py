@@ -1,8 +1,10 @@
 """Provide an endpoint to retrieve all current patients for a station."""
 import datetime
+
+from django.db.models.functions import Concat
 from django.http import JsonResponse
 from ..models import Patient, DailyClassification, PatientTransfers
-from django.db.models import Subquery, OuterRef
+from django.db.models import Subquery, OuterRef, F, Value
 
 
 def get_patients_per_station(station_id: int) -> list:
@@ -28,7 +30,7 @@ def get_patients_per_station(station_id: int) -> list:
 
     # Add the date the patient was last classified on that station
     patients = patients.annotate(
-        last_classification=Subquery(
+        lastClassification=Subquery(
             DailyClassification.objects.filter(
                 patient=OuterRef('id'),
                 date__lte=today,
@@ -36,8 +38,15 @@ def get_patients_per_station(station_id: int) -> list:
             )
             .order_by('-date')
             .values('date')[:1]
+        ),
+        currentBed=Subquery(
+            DailyClassification.objects.filter(
+                patient=OuterRef('id'),
+                date__lte=today,
+                station=station_id
+            ).values("bed_number")
         )
-    ).values('id', 'first_name', 'last_name', 'last_classification')
+    ).values('id', 'lastClassification', "currentBed", name=Concat(F('first_name'), Value(' '), F('last_name')))
 
     return list(patients)
 
