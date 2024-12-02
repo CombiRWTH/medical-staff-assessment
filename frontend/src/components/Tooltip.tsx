@@ -1,10 +1,12 @@
 import type { PropsWithChildren, ReactNode } from 'react'
 import React, { useState } from 'react'
 
+type Position = 'top' | 'bottom' | 'left' | 'right'
+
 export type TooltipProps = PropsWithChildren<{
   tooltip: string | ReactNode,
   className?: string,
-  position?: 'top' | 'bottom' | 'left' | 'right'
+  position?: Position
 }>
 
 export const Tooltip = ({
@@ -22,12 +24,19 @@ export const Tooltip = ({
     right: 'left-full top-1/2 -translate-y-1/2 ml-2'
   }
 
-  const triangleSize = '2'
+  const triangleSize = 6
   const triangleClasses = {
-    top: `top-full left-1/2 -translate-x-1/2 border-t-gray-800 border-t-${triangleSize} border-l-transparent border-l-${triangleSize} border-r-transparent border-r-${triangleSize}`,
-    bottom: `bottom-full left-1/2 -translate-x-1/2 border-b-gray-800 border-b-${triangleSize} border-l-transparent border-l-${triangleSize} border-r-transparent border-r-${triangleSize}`,
-    left: `left-full top-1/2 -translate-y-1/2 border-l-gray-800 border-l-${triangleSize} border-t-transparent border-t-${triangleSize} border-b-transparent border-b-${triangleSize}`,
-    right: `right-full top-1/2 -translate-y-1/2 border-r-gray-800 border-r-${triangleSize} border-t-transparent border-t-${triangleSize} border-b-transparent border-b-${triangleSize}`
+    top: `top-full left-1/2 -translate-x-1/2 border-t-gray-800 border-l-transparent border-r-transparent`,
+    bottom: `bottom-full left-1/2 -translate-x-1/2 border-b-gray-800 border-l-transparent border-r-transparent`,
+    left: `left-full top-1/2 -translate-y-1/2 border-l-gray-800 border-t-transparent border-b-transparent`,
+    right: `right-full top-1/2 -translate-y-1/2 border-r-gray-800 border-t-transparent border-b-transparent`
+  }
+
+  const triangleStyle: Record<Position, React.CSSProperties> = {
+    top: { borderWidth: `${triangleSize}px ${triangleSize}px 0 ${triangleSize}px` },
+    bottom: { borderWidth: `0 ${triangleSize}px ${triangleSize}px ${triangleSize}px` },
+    left: { borderWidth: `${triangleSize}px 0 ${triangleSize}px ${triangleSize}px` },
+    right: { borderWidth: `${triangleSize}px ${triangleSize}px ${triangleSize}px 0` }
   }
 
   return (
@@ -43,7 +52,7 @@ export const Tooltip = ({
             ${positionClasses[position]} ${className}`}
         >
           {tooltip}
-          <div className={`absolute w-0 h-0 z-10 ${triangleClasses[position]}`}/>
+          <div className={`absolute w-0 h-0 z-10 ${triangleClasses[position]}`} style={triangleStyle[position]}/>
         </div>
       )}
     </div>
