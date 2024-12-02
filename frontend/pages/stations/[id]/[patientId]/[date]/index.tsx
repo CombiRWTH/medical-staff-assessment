@@ -7,7 +7,7 @@ import { Header } from '@/layout/Header'
 import { Page } from '@/layout/Page'
 import { useStationsAPI } from '@/api/stations'
 import { usePatientsAPI } from '@/api/patients'
-import { formatDate, formatDateBackend } from '@/util/formatDate'
+import { formatDate } from '@/util/formatDate'
 import { parseDateString } from '@/util/parseDateString'
 import { noop } from '@/util/noop'
 import { ClassificationCard } from '@/components/ClassificationCard'
@@ -28,7 +28,7 @@ export const PatientClassification = () => {
   const {
     classification,
     update
-  } = usePatientClassification(id, patientId, formatDateBackend(date))
+  } = usePatientClassification(id, patientId, formatDate(date))
 
   const nextUnclassifiedPatient = useMemo(() => {
     // Start searching from the current patient's index
@@ -91,13 +91,13 @@ export const PatientClassification = () => {
                 <div className="flex flex-col gap-y-1">
                   <a href={`/stations/${id}/${patientId}/${formatDate(addDays(date, 1))}`}
                      className="arrow">
-                    <Tooltip tooltip="Gestern" position="left">
+                    <Tooltip tooltip="Morgen" position="left">
                       <ChevronUp/>
                     </Tooltip>
                   </a>
                   <a href={`/stations/${id}/${patientId}/${formatDate(subDays(date, 1))}`}
                      className="arrow">
-                    <Tooltip tooltip="Morgen" position="left">
+                    <Tooltip tooltip="Gestern" position="left">
                       <ChevronDown/>
                     </Tooltip>
                   </a>

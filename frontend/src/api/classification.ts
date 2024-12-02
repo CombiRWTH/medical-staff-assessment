@@ -42,7 +42,7 @@ export const usePatientClassification = (stationId?: number, patientId?: number,
       return
     }
     try {
-      await (await fetch(`${apiURL}/questions/${stationId}/${patientId}/${date}/`, {
+      const response = await (await fetch(`${apiURL}/questions/${stationId}/${patientId}/${date}/`, {
         method: 'PUT',
         // TODO fix the header in production
         headers: {
@@ -55,9 +55,13 @@ export const usePatientClassification = (stationId?: number, patientId?: number,
         }),
         credentials: 'include'
       })).json()
-      await load() // TODO optimistic update
+      setClassification(prevState => ({
+        ...response as DailyClassification,
+        result: prevState.result
+      }))
     } catch (e) {
       console.error(e)
+      await load()
     }
   }, [date, load, patientId, stationId])
 
