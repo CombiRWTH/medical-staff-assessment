@@ -43,7 +43,7 @@ export const ClassificationOptionDisplay = ({
                   }}
                 />
                 <Tooltip tooltip={option.description} position="bottom" className="max-w-[300px] !whitespace-normal w-full">
-                  <span className="break-words overflow-hidden">{option.short}</span>
+                  <span className="w-full break-words overflow-hidden">{option.short}</span>
                 </Tooltip>
               </label>
             ))}
