@@ -138,13 +138,14 @@ export const PatientClassification = () => {
             <div className="flex flex-row items-center gap-x-2">
               Kategorie:
               <strong className="bg-white rounded-full px-2 py-1">
-                {classification?.result.category1}/{classification?.result.category2}
+                { /* TODO fix hardcoding of A and S  */}
+                A{classification?.result?.category1 ?? '-'}/S{classification?.result?.category2 ?? ''}
               </strong>
             </div>
             <div className="flex flex-row items-center gap-x-2">
               Minutenzahl:
               <strong className="bg-white rounded-full px-2 py-1">
-                {classification?.result.minutes}min
+                {classification?.result?.minutes ?? 0}min
               </strong>
             </div>
           </div>
