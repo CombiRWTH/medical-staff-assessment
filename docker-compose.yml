@@ -33,8 +33,6 @@ services:
     container_name: frontend
     env_file:
       - .env
-    volumes:
-      - ./frontend:/app
     ports:
       - "3000:3000"
     networks:

@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from ..models import Station, PatientTransfers
 
 
-def get_all_stations() -> list:
+def get_all_stations() -> list[Station]:
     """Get all stations stored in the db.
 
     Returns:
@@ -16,6 +16,7 @@ def get_all_stations() -> list:
 
     today = date.today()
 
+    # TODO fix this logic
     # Subquery to get the count of patients for each station
     patients_count_subquery = PatientTransfers.objects.filter(
         station_new_id=OuterRef('pk'),

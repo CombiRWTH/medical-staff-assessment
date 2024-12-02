@@ -1,22 +1,42 @@
+export type DailyClassificationField = {
+  id: number,
+  name: string,
+  short: string,
+  categories: DailyClassificationCategory[]
+}
+
+export type DailyClassificationCategory = {
+  id: number,
+  name: string,
+  short: string,
+  severities: DailyClassificationSeverity[]
+}
+
+export type DailyClassificationSeverity = {
+  severity: number,
+  questions: DailyClassificationOption[]
+}
+
 export type DailyClassificationOption = {
   id: number,
-  field__name: string,
-  field__short: string,
-  category__name: string,
   name: string,
   description: string,
   selected: boolean,
-  severity: number
+  severity: number,
+  short: string
 }
 
 export type DailyClassification = {
-  id: string,
-  patientId: string,
-  date: Date,
-  isInIsolation: boolean,
-  isDayOfAdmission: boolean,
-  isDayOfDischarge: boolean,
-  options: DailyClassificationOption[],
+  a_index: number,
+  s_index: number,
+  admission_date: string,
+  discharge_date: string,
+  barthel_index: number,
+  expanded_barthel_index: number,
+  care_time: number,
+  mini_mental_status: number,
+  is_in_isolation: boolean,
+  careServices: DailyClassificationField[],
   result: DailyClassificationResult
 }
 

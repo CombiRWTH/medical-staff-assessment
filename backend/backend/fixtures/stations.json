@@ -3,7 +3,7 @@
     "model": "backend.Station",
     "pk": 1,
     "fields": {
-      "name": "3",
+      "name": "Station 3",
       "is_intensive_care": false,
       "is_child_care_unit": false,
       "bed_count": 20,
@@ -14,7 +14,7 @@
     "model": "backend.Station",
     "pk": 2,
     "fields": {
-      "name": "5",
+      "name": "Station 5",
       "is_intensive_care": false,
       "is_child_care_unit": false,
       "bed_count": 25,
@@ -25,7 +25,7 @@
     "model": "backend.Station",
     "pk": 3,
     "fields": {
-      "name": "1A",
+      "name": "Station 1A",
       "is_intensive_care": false,
       "is_child_care_unit": false,
       "bed_count": 30,
@@ -36,7 +36,7 @@
     "model": "backend.Station",
     "pk": 4,
     "fields": {
-      "name": "1C",
+      "name": "Station 1C",
       "is_intensive_care": false,
       "is_child_care_unit": false,
       "bed_count": 15,
@@ -47,7 +47,7 @@
     "model": "backend.Station",
     "pk": 5,
     "fields": {
-      "name": "2A",
+      "name": "Station 2A",
       "is_intensive_care": false,
       "is_child_care_unit": false,
       "bed_count": 20,
@@ -58,7 +58,7 @@
     "model": "backend.Station",
     "pk": 6,
     "fields": {
-      "name": "2C",
+      "name": "Station 2C",
       "is_intensive_care": false,
       "is_child_care_unit": false,
       "bed_count": 25,
@@ -69,7 +69,7 @@
     "model": "backend.Station",
     "pk": 7,
     "fields": {
-      "name": "E1",
+      "name": "Station E1",
       "is_intensive_care": false,
       "is_child_care_unit": false,
       "bed_count": 20,
@@ -80,7 +80,7 @@
     "model": "backend.Station",
     "pk": 8,
     "fields": {
-      "name": "K1",
+      "name": "Station K1",
       "is_intensive_care": true,
       "is_child_care_unit": true,
       "bed_count": 10,
@@ -91,7 +91,7 @@
     "model": "backend.Station",
     "pk": 9,
     "fields": {
-      "name": "K3",
+      "name": "Station K3",
       "is_intensive_care": false,
       "is_child_care_unit": true,
       "bed_count": 15,

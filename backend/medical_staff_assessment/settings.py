@@ -27,6 +27,16 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
 
+CSRF_TRUSTED_ORIGINS = ['http://0.0.0.0', 'http://localhost', 'http://127.0.0.1', 'http://localhost:3000',
+                        'http://localhost:3001'] \
+    if config("CORS_ALLOW_ALL_ORIGINS") == "True" \
+    else []  # TODO Remove when in production
+
+CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS
+
+CORS_ALLOW_ALL_ORIGINS = config("CORS_ALLOW_ALL_ORIGINS") == "True"
+CORS_ALLOW_CREDENTIALS = True
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -50,8 +60,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
-CORS_ALLOW_ALL_ORIGINS = config("CORS_ALLOW_ALL_ORIGINS") == "True"
 
 ROOT_URLCONF = 'medical_staff_assessment.urls'
 

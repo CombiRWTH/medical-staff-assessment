@@ -1,16 +1,17 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { Station } from '@/data-models/station'
+import { apiURL } from '@/config'
 
-// TODO use something like react query
 export const useStationsAPI = () => {
   const [stations, setStations] = useState<Station[]>([])
 
   const loadStations = useCallback(async () => {
-    setStations(Array.from({ length: 10 }, (_, i) => i + 1).map<Station>(value => ({
-      id: `${value}`,
-      name: `Station ${value + 1}`,
-      patientCount: value
-    })))
+    try {
+      const response = await (await fetch(`${apiURL}/stations`)).json()
+      setStations(response as Station[])
+    } catch (e) {
+      setStations([])
+    }
   }, [])
 
   useEffect(() => {
