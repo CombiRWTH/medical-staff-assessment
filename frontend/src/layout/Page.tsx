@@ -17,7 +17,7 @@ export const Page = ({
             {header}
             <div className="flex flex-row w-full flex-1 overflow-hidden">
                 {sideBar}
-                <main className={`flex flex-col w-full overflow-auto items-center justify-start ${className}`}>
+                <main className={`flex flex-col w-full overflow-x-auto overflow-y-scroll items-center justify-start ${className}`}>
                     {children}
                 </main>
             </div>

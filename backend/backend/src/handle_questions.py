@@ -1,6 +1,7 @@
 """Provide questions for the frontend to display and handle the submission of answers."""
 import json
 import datetime as datetime
+from collections import defaultdict
 
 from django.http import JsonResponse
 
@@ -55,9 +56,11 @@ def get_questions(station_id: int, patient_id: int, date: datetime.date) -> dict
             'field__name',
             'field__short',
             'category__name',
+            'category__short',
             'name',
             'severity',
             'description',
+            'short'
         )
     )
     # Get the patient's admission and discharge dates
@@ -104,45 +107,48 @@ def group_questions(questions: list) -> list:
     """
     grouped_questions = []
 
-    for question in questions:
-        field = question['field__name']
-        field_short = question['field__short']
-        category = question['category__name']
-        severity = question['severity']
+    def split_by_attribute(objects, attribute):
+        grouped = defaultdict(list)
 
-        # Check if an entry with same name as field already exists
-        matches = [field == group['name'] for group in grouped_questions]
-        if True not in matches:
-            grouped_questions.append({"name": field, "short": field_short, "categories": []})
-            field_index = 0
-        else:
-            field_index = matches.index(True)
+        for obj in objects:
+            key = obj.get(attribute)
+            grouped[key].append(obj)
 
-        # Check if an entry with same name as category already exists
-        matches = [category == group['name'] for group in grouped_questions[field_index]['categories']]
-        if True not in matches:
-            grouped_questions[field_index]['categories'].append({"name": category, "severities": []})
-            category_index = 0
-        else:
-            category_index = matches.index(True)
+        return grouped.values()
 
-        # Check if an entry with same severity already exists
-        matches = [
-            severity == group['severity']
-            for group in grouped_questions[field_index]['categories'][category_index]['severities']
-        ]
-        if True not in matches:
-            grouped_questions[field_index]['categories'][category_index]['severities'].append(
-                {"severity": severity, "questions": []}
-            )
-            severity_index = 0
-        else:
-            severity_index = matches.index(True)
+    fields = split_by_attribute(questions, "field__name")
 
-        # Add the question to the corresponding severity
-        grouped_questions[field_index]['categories'][category_index]['severities'][severity_index]['questions'].append(
-            question
-        )
+    for field in fields:
+        field_name = field[0]["field__name"]
+        field_value = {
+            "id": 1,  # TODO not accessible here
+            "name": field_name,
+            "short": field[0]["field__short"],
+            "categories": []
+        }
+
+        categories = split_by_attribute(field, "category__name")
+
+        for category in categories:
+            category_name = category[0]['category__name']
+            category_value = {
+                "id": 1,  # TODO not accessible here
+                "name": category_name,
+                "short": category[0]['category__short'],  # TODO not accessible here
+                "severities": []
+            }
+            severities = split_by_attribute(category, "severity")
+
+            for severity in severities:
+                severity_index = severity[0]['severity']
+                severity_value = {
+                    "severity": severity_index,
+                    "questions": severity
+                }
+
+                category_value["severities"].append(severity_value)
+            field_value["categories"].append(category_value)
+        grouped_questions.append(field_value)
 
     return grouped_questions
 

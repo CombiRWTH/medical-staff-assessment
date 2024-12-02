@@ -22,7 +22,8 @@ export type DailyClassificationOption = {
   name: string,
   description: string,
   selected: boolean,
-  severity: number
+  severity: number,
+  short: string
 }
 
 export type DailyClassification = {

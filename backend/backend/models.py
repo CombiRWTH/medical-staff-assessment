@@ -18,6 +18,7 @@ class CareServiceCategory(models.Model):
 
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=200)  # Category name, e.g. 'Körperpflege'
+    short = models.CharField(max_length=64)  # Abbreviation for the name
 
     def __str__(self):
         return self.name
@@ -27,7 +28,8 @@ class CareServiceOption(models.Model):
     """Care questions across all fields, categories, severities and index according to the PPBV."""
 
     id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=200)  # Concatenation of all columns, e.g. 'A-koerperpflege-1-1'
+    name = models.CharField(max_length=64)  # Concatenation of all columns, e.g. 'A-koerperpflege-1-1'
+    short = models.CharField(max_length=128)
     field = models.ForeignKey('CareServiceField', on_delete=models.CASCADE)
     category = models.ForeignKey('CareServiceCategory', on_delete=models.CASCADE)
     severity = models.IntegerField()  # Degree of needed help, increasing from 1 to 4

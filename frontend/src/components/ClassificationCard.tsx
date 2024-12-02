@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react'
 import { range } from '@/util/range'
 import type { DailyClassificationField, DailyClassificationOption } from '@/data-models/classification'
+import { Tooltip } from '@/components/Tooltip'
 
 export type ClassificationOptionDisplayProps = {
   options: DailyClassificationOption[],
   onlySelected: boolean,
-  isLastCell: boolean,
+  isLastCellInCol: boolean,
   onUpdate: (id: number, selected: boolean) => void
 }
 
 export const ClassificationOptionDisplay = ({
   options,
   onlySelected,
-  isLastCell,
+  isLastCellInCol,
   onUpdate
 }: ClassificationOptionDisplayProps) => {
   const [isOpen, setIsOpen] = useState<boolean>(!onlySelected)
@@ -26,7 +27,7 @@ export const ClassificationOptionDisplay = ({
   const usedList = isOpen ? options : filteredOptionList
   return (
     <td
-      className={`px-2 py-1 align-top border-r-2 last:border-r-0 border-black ${!isLastCell ? 'border-b-2' : 'border-0'} ${hasSelected ? 'bg-primary/10' : ''}`}>
+      className={`px-2 py-1 align-top border-r-2 last:border-r-0 border-black ${isLastCellInCol ? 'border-b-0' : 'border-b-2'} ${hasSelected ? 'bg-primary/10' : ''}`}>
       <div className="flex flex-col gap-y-1 items-start w-full">
         {usedList.length !== 0 ? (
           <>
@@ -41,15 +42,24 @@ export const ClassificationOptionDisplay = ({
                     onUpdate(option.id, !option.selected)
                   }}
                 />
-                <span className="break-words overflow-hidden">{option.description}</span>
+                <Tooltip tooltip={option.description} position="bottom" className="max-w-[300px] !whitespace-normal w-full">
+                  <span className="break-words overflow-hidden">{option.short}</span>
+                </Tooltip>
               </label>
             ))}
-            <span onClick={() => setIsOpen(false)}>Weniger anzeigen</span>
+
           </>
         ) : (
-          <label key="empty" className="flex flex-row gap-x-2 w-full items-center">
-            <span onClick={() => setIsOpen(true)}>Nichts ausgewählt</span>
-          </label>
+          <div className="flex flex-col w-full">
+            <label key="empty" className="flex flex-row gap-x-2 w-full items-center">
+              Nichts Ausgewählt
+            </label>
+          </div>
+        )}
+        {isOpen ? (
+          <button onClick={() => setIsOpen(false)} className="text-primary hover:text-primary/90 w-full text-end">Weniger anzeigen</button>
+        ) : (
+          <button onClick={() => setIsOpen(true)} className="text-primary hover:text-primary/90 w-full text-end">Alle anzeigen</button>
         )}
       </div>
     </td>
@@ -90,18 +100,18 @@ export const ClassificationCard = ({
         </tr>
         </thead>
         <tbody>
-        {classification.categories.map((category, index) => (
-          <tr key={category.name}>
+        {classification.categories.map((category, categoryIndex) => (
+          <tr key={category.short}>
             <td
-              className={`align-top font-semibold px-2 border-r-2 last:border-r-0 border-black ${index !== classification.categories.length - 1 ? 'border-b-2' : 'border-0'}`}>
-              {category.name}
+              className={`align-top font-semibold px-2 border-r-2 last:border-r-0 border-black ${categoryIndex !== classification.categories.length - 1 ? 'border-b-2' : 'border-0'}`}>
+              {category.short}
             </td>
             {category.severities.sort((a, b) => a.severity - b.severity).slice(1).map((severity, index) => {
               return (
                 <ClassificationOptionDisplay
                   key={index}
                   options={severity.questions}
-                  isLastCell={index === classification.categories.length - 1}
+                  isLastCellInCol={categoryIndex === classification.categories.length - 1}
                   onlySelected={onlySelected}
                   onUpdate={onUpdate}
                 />

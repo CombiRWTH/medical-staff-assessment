@@ -2,9 +2,9 @@ import type { PropsWithChildren, ReactNode } from 'react'
 import React, { useState } from 'react'
 
 export type TooltipProps = PropsWithChildren<{
-    tooltip: string | ReactNode,
-    className?: string,
-    position?: 'top' | 'bottom' | 'left' | 'right'
+  tooltip: string | ReactNode,
+  className?: string,
+  position?: 'top' | 'bottom' | 'left' | 'right'
 }>
 
 export const Tooltip = ({
@@ -22,21 +22,30 @@ export const Tooltip = ({
     right: 'left-full top-1/2 -translate-y-1/2 ml-2'
   }
 
+  const triangleSize = '4'
+  const triangleClasses = {
+    top: `absolute top-full left-1/2 -translate-x-1/2 border-t-gray-800 border-t-${triangleSize} border-l-transparent border-l-${triangleSize} border-r-transparent border-r-${triangleSize}`,
+    bottom: `absolute bottom-full left-1/2 -translate-x-1/2 border-b-gray-800 border-b-${triangleSize} border-l-transparent border-l-${triangleSize} border-r-transparent border-r-${triangleSize}`,
+    left: `absolute left-full top-1/2 -translate-y-1/2 border-l-gray-800 border-l-${triangleSize} border-t-transparent border-t-${triangleSize} border-b-transparent border-b-${triangleSize}`,
+    right: `absolute right-full top-1/2 -translate-y-1/2 border-r-gray-800 border-r-${triangleSize} border-t-transparent border-t-${triangleSize} border-b-transparent border-b-${triangleSize}`
+  }
+
   return (
+    <div
+      className="relative inline-block"
+      onMouseEnter={() => setIsVisible(true)}
+      onMouseLeave={() => setIsVisible(false)}
+    >
+      {children}
+      {isVisible && (
         <div
-            className="relative inline-block"
-            onMouseEnter={() => setIsVisible(true)}
-            onMouseLeave={() => setIsVisible(false)}
-        >
-            {children}
-            {isVisible && (
-                <div
-                    className={`absolute z-50 bg-gray-800 text-white text-xs px-3 py-2 rounded shadow-lg whitespace-nowrap
+          className={`absolute z-50 bg-gray-800 text-white text-xs px-3 py-2 rounded shadow-lg whitespace-nowrap
             ${positionClasses[position]} ${className}`}
-                >
-                    {tooltip}
-                </div>
-            )}
+        >
+          {tooltip}
+          <div className={`w-0 h-0 z-10 ${triangleClasses[position]}`}/>
         </div>
+      )}
+    </div>
   )
 }
