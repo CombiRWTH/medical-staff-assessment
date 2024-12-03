@@ -53,7 +53,8 @@ def get_patients_with_additional_information(station_id: int) -> list:
                 patient=OuterRef('id'),
                 date__lte=today,
                 station=station_id
-            ).values("bed_number")
+            ).order_by('-date')
+            .values('bed_number')[:1]
         )
     ).values('id', 'lastClassification', "currentBed", name=Concat(F('first_name'), Value(' '), F('last_name')))
 
