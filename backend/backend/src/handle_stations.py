@@ -16,7 +16,7 @@ def get_all_stations() -> list[Station]:
     """
 
     today = date.today()
-    
+
     # Subquery to get the latest transfer date for each patient
     latest_transfer_date_subquery = PatientTransfers.objects.filter(
         patient=OuterRef('patient')

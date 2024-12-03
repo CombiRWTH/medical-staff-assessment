@@ -19,7 +19,7 @@ def get_active_patients_on_station(station_id: int, date: datetime.date = dateti
     Returns:
         list: The patients assigned to the station.
     """
-   
+
     # Get the latest transfer_date for each patient
     latest_transfers = PatientTransfers.objects.filter(
         transfer_date__lte=date
@@ -71,7 +71,8 @@ def get_patients_with_additional_information(station_id: int) -> list:
                 station=station_id
             ).values("bed_number")
         )
-    ).values('id', 'lastClassification', "currentBed", name=Concat(F('patient__first_name'), Value(' '), F('patient__last_name')))
+    ).values('id', 'lastClassification', "currentBed", name=Concat(F('patient__first_name'), Value(' '), 
+                                                                   F('patient__last_name')))
 
     return list(patients)
 
@@ -105,12 +106,13 @@ def get_patient_count_per_station(station_id: int) -> int:
     Returns:
         int: The number of patients assigned to the station.
     """
-    
+
     return get_active_patients_on_station(station_id).count()
 
 
 def is_patient_new_to_station(patient_id: int, station_id: int) -> bool:
-    """Check if a patient was at station in the last three months. If yes, the 75 minutes are not added in care calculation.
+    """Check if a patient was at station in the last three months. 
+    If yes, the 75 minutes are not added in care calculation.
 
     Args:
         patient_id (int): The ID of the patient.
@@ -127,7 +129,7 @@ def is_patient_new_to_station(patient_id: int, station_id: int) -> bool:
         station_new_id=station_id,
         transfer_date__lte=today
     ).latest('transfer_date')
-    
+
     if today - latest_transfer_to_station > 90:
         return True
     else:
@@ -138,7 +140,7 @@ def visited_at_daytime(transfer_date: datetime.date, today: datetime.date) -> bo
     """Check if the patient's stay includes at least one day."""
     stay_duration = today - transfer_date
     return stay_duration.days >= 1
-    
+
 
 def visited_at_nighttime(transfer_date: datetime.date, today: datetime.date, now: datetime) -> bool:
     """Check if the patient's stay includes at least one night."""
