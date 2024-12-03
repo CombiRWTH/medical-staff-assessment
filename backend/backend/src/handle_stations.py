@@ -1,10 +1,11 @@
 """Provide stations for the frontend to display  """
 from datetime import date
 
-from django.db.models import Subquery, OuterRef, Count, Value
+from django.db.models import Count, OuterRef, Subquery, Value
 from django.db.models.functions import Coalesce
 from django.http import JsonResponse
-from ..models import Station, PatientTransfers
+
+from ..models import PatientTransfers, Station
 
 
 def get_all_stations() -> list[Station]:
@@ -15,11 +16,17 @@ def get_all_stations() -> list[Station]:
     """
 
     today = date.today()
+    
+    # Subquery to get the latest transfer date for each patient
+    latest_transfer_date_subquery = PatientTransfers.objects.filter(
+        patient=OuterRef('patient')
+    ).order_by('-transfer_date').values('transfer_date')[:1]
 
-    # TODO fix this logic
     # Subquery to get the count of patients for each station
     patients_count_subquery = PatientTransfers.objects.filter(
         station_new_id=OuterRef('pk'),
+        transfer_date=Subquery(latest_transfer_date_subquery),
+        transferred_to_external=False,
         discharge_date__gte=today
     ).values('station_new_id').annotate(
         patient_count=Count('patient')
@@ -29,7 +36,6 @@ def get_all_stations() -> list[Station]:
     stations = Station.objects.annotate(
         patientCount=Coalesce(Subquery(patients_count_subquery), Value(0))
     ).values("id", "name", "patientCount")
-
     return list(stations)
 
 

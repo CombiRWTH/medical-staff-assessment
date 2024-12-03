@@ -6,7 +6,7 @@
       "patient": 1,
       "transfer_date": "2024-11-01T10:00:00+01:00",
       "admission_date": "2024-11-01T10:30:00+01:00",
-      "discharge_date": "2024-11-15",
+      "discharge_date": "2025-11-15",
       "station_old": 2,
       "station_new": 1,
       "transferred_to_external": false
@@ -19,7 +19,7 @@
       "patient": 2,
       "transfer_date": "2024-11-05T09:15:00+01:00",
       "admission_date": "2024-11-05T09:45:00+01:00",
-      "discharge_date": "2024-11-20",
+      "discharge_date": "2025-11-20",
       "station_old": 1,
       "station_new": 2,
       "transferred_to_external": false
@@ -32,7 +32,7 @@
       "patient": 3,
       "transfer_date": "2024-11-10T14:20:00+01:00",
       "admission_date": "2024-11-10T14:45:00+01:00",
-      "discharge_date": "2024-11-25",
+      "discharge_date": "2025-11-25",
       "station_old": 2,
       "station_new": 3,
       "transferred_to_external": false
@@ -45,7 +45,7 @@
       "patient": 4,
       "transfer_date": "2024-11-12T08:00:00+01:00",
       "admission_date": "2024-11-12T08:15:00+01:00",
-      "discharge_date": "2024-11-18",
+      "discharge_date": "2025-11-18",
       "station_old": 1,
       "station_new": 4,
       "transferred_to_external": false
@@ -58,7 +58,7 @@
       "patient": 5,
       "transfer_date": "2024-11-15T12:30:00+01:00",
       "admission_date": "2024-11-15T13:00:00+01:00",
-      "discharge_date": "2024-11-28",
+      "discharge_date": "2025-11-28",
       "station_old": 2,
       "station_new": 5,
       "transferred_to_external": false
@@ -71,7 +71,7 @@
       "patient": 6,
       "transfer_date": "2024-11-01T15:45:00+01:00",
       "admission_date": "2024-11-01T16:00:00+01:00",
-      "discharge_date": "2024-11-10",
+      "discharge_date": "2025-11-10",
       "station_old": 3,
       "station_new": 6,
       "transferred_to_external": true
@@ -84,7 +84,7 @@
       "patient": 7,
       "transfer_date": "2024-11-08T10:20:00+01:00",
       "admission_date": "2024-11-08T10:45:00+01:00",
-      "discharge_date": "2024-11-22",
+      "discharge_date": "2025-11-22",
       "station_old": 4,
       "station_new": 7,
       "transferred_to_external": false
@@ -97,7 +97,7 @@
       "patient": 8,
       "transfer_date": "2024-11-03T08:50:00+01:00",
       "admission_date": "2024-11-03T09:15:00+01:00",
-      "discharge_date": "2024-11-12",
+      "discharge_date": "2025-11-12",
       "station_old": 5,
       "station_new": 8,
       "transferred_to_external": false
@@ -110,7 +110,7 @@
       "patient": 9,
       "transfer_date": "2024-11-17T14:00:00+01:00",
       "admission_date": "2024-11-17T14:30:00+01:00",
-      "discharge_date": "2024-11-29",
+      "discharge_date": "2025-11-29",
       "station_old": 6,
       "station_new": 9,
       "transferred_to_external": true
@@ -149,7 +149,7 @@
       "patient": 12,
       "transfer_date": "2024-11-18T07:15:00+01:00",
       "admission_date": "2024-11-18T07:45:00+01:00",
-      "discharge_date": "2024-11-26",
+      "discharge_date": "2025-11-26",
       "station_old": 9,
       "station_new": 3,
       "transferred_to_external": false
@@ -162,7 +162,7 @@
       "patient": 13,
       "transfer_date": "2024-11-05T12:20:00+01:00",
       "admission_date": "2024-11-05T12:50:00+01:00",
-      "discharge_date": "2024-11-15",
+      "discharge_date": "2025-11-15",
       "station_old": 7,
       "station_new": 4,
       "transferred_to_external": false
@@ -175,7 +175,7 @@
       "patient": 14,
       "transfer_date": "2024-11-09T08:30:00+01:00",
       "admission_date": "2024-11-09T09:00:00+01:00",
-      "discharge_date": "2024-11-21",
+      "discharge_date": "2025-11-21",
       "station_old": 1,
       "station_new": 5,
       "transferred_to_external": false
@@ -188,7 +188,7 @@
       "patient": 15,
       "transfer_date": "2024-11-12T14:00:00+01:00",
       "admission_date": "2024-11-12T14:30:00+01:00",
-      "discharge_date": "2024-11-23",
+      "discharge_date": "2025-11-23",
       "station_old": 2,
       "station_new": 6,
       "transferred_to_external": true
