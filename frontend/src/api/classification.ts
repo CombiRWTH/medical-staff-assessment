@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { apiURL } from '@/config'
-import type { DailyClassification } from '@/data-models/classification'
+import type { DailyClassification, DailyClassificationResult } from '@/data-models/classification'
 import { getCookie } from '@/util/getCookie'
 
 export const usePatientClassification = (stationId?: number, patientId?: number, date?: string) => {
@@ -15,12 +15,23 @@ export const usePatientClassification = (stationId?: number, patientId?: number,
     expanded_barthel_index: 0,
     care_time: 0,
     mini_mental_status: 0,
-    result: {
-      category1: 'A1',
-      category2: 'S2',
-      minutes: 120,
-    }
   })
+
+  const loadResult = useCallback(async () => {
+    if (!stationId || !patientId || !date) {
+      return
+    }
+    try {
+      const result = await (await fetch(`${apiURL}/calculate/${stationId}/${patientId}/${date}/`)).json()
+      setClassification(prevState => ({
+        ...prevState,
+        result: result as DailyClassificationResult
+      }))
+      console.log(result)
+    } catch (e) {
+      console.error(e)
+    }
+  }, [stationId, patientId, date])
 
   const load = useCallback(async () => {
     if (!stationId || !patientId || !date) {
@@ -32,17 +43,18 @@ export const usePatientClassification = (stationId?: number, patientId?: number,
         ...response as DailyClassification,
         result: prevState.result
       }))
+      await loadResult()
     } catch (e) {
       console.error(e)
     }
-  }, [date, patientId, stationId])
+  }, [date, loadResult, patientId, stationId])
 
   const update = useCallback(async (id: number, selected: boolean) => {
     if (!stationId || !patientId || !date) {
       return
     }
     try {
-      await (await fetch(`${apiURL}/questions/${stationId}/${patientId}/${date}/`, {
+      const response = await (await fetch(`${apiURL}/questions/${stationId}/${patientId}/${date}/`, {
         method: 'PUT',
         // TODO fix the header in production
         headers: {
@@ -55,11 +67,16 @@ export const usePatientClassification = (stationId?: number, patientId?: number,
         }),
         credentials: 'include'
       })).json()
-      await load() // TODO optimistic update
+      setClassification(prevState => ({
+        ...response as DailyClassification,
+        result: prevState.result
+      }))
+      await loadResult()
     } catch (e) {
       console.error(e)
+      await load()
     }
-  }, [date, load, patientId, stationId])
+  }, [date, load, loadResult, patientId, stationId])
 
   useEffect(() => {
     load().then()
