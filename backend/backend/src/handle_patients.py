@@ -71,7 +71,7 @@ def get_patients_with_additional_information(station_id: int) -> list:
                 station=station_id
             ).values("bed_number")
         )
-    ).values('id', 'lastClassification', "currentBed", name=Concat(F('patient__first_name'), Value(' '), 
+    ).values('id', 'lastClassification', "currentBed", name=Concat(F('patient__first_name'), Value(' '),
                                                                    F('patient__last_name')))
 
     return list(patients)
@@ -111,7 +111,7 @@ def get_patient_count_per_station(station_id: int) -> int:
 
 
 def is_patient_new_to_station(patient_id: int, station_id: int) -> bool:
-    """Check if a patient was at station in the last three months. 
+    """Check if a patient was at station in the last three months.
     If yes, the 75 minutes are not added in care calculation.
 
     Args:
