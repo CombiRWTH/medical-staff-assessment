@@ -168,8 +168,8 @@ def get_patients_visit_type(station_id: int) -> dict:
     # Get all patients on station and initialize visit type lists
     all_patients = get_active_patients_on_station(station_id)
     stationary = []
-    partstationary = []
-    accute = []
+    part_stationary = []
+    acute = []
     undefined = []  # catch possible edges cases
 
     all_patients = get_active_patients_on_station(station_id)
@@ -182,16 +182,16 @@ def get_patients_visit_type(station_id: int) -> dict:
         if includes_day and includes_night:
             stationary.append(patient_transfer.patient)
         elif includes_day or includes_night:
-            partstationary.append(patient_transfer.patient)
+            part_stationary.append(patient_transfer.patient)
         elif not includes_night and includes_day:
-            accute.append(patient_transfer.patient)
+            acute.append(patient_transfer.patient)
         else:
             undefined.append(patient_transfer.patient)
 
     return {
         'stationary': stationary,
-        'partstationary': partstationary,
-        'accute': accute,
+        'part_stationary': part_stationary,
+        'acute': acute,
         'undefined': undefined
     }
 
