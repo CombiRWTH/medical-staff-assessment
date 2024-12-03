@@ -37,11 +37,11 @@ export type DailyClassification = {
   mini_mental_status: number,
   is_in_isolation: boolean,
   careServices: DailyClassificationField[],
-  result: DailyClassificationResult
+  result?: DailyClassificationResult
 }
 
 export type DailyClassificationResult = {
-  category1: string,
-  category2: string,
+  category1: number,
+  category2: number,
   minutes: number
 }
