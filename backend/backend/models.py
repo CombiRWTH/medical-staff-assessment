@@ -158,15 +158,19 @@ class StationOccupancy(models.Model):
 class StationWorkloadDaily(models.Model):
     """Daily workload for caregivers in all stations."""
 
-    id = models.IntegerField(primary_key=True)
     station = models.ForeignKey('Station', on_delete=models.CASCADE)
     date = models.DateField()
-    shift = models.CharField(max_length=100)  # Day or night shift
+    SHIFT_CHOICES = [
+        ('DAY', 'Day Shift'),
+        ('NIGHT', 'Night Shift'),
+    ]
+    shift = models.CharField(max_length=100, choices=SHIFT_CHOICES)  # Day or night shift
     patients_total = models.IntegerField()  # Patients_total of station and date
     caregivers_total = models.IntegerField()  # Imported via shift plan
     patients_per_caregiver = models.FloatField()  # patients_total / caregivers_total
     minutes_total = models.IntegerField()  # Sum of result_minutes of station and date
     minutes_per_caregiver = models.FloatField()  # minutes_total / caregivers_total
+    PPBV_suggested_caregivers = models.FloatField(null=True, blank=True)  # Suggested caregivers according to PPBV
 
     class Meta:
         unique_together = ('station', 'date', 'shift')
@@ -178,7 +182,6 @@ class StationWorkloadDaily(models.Model):
 class StationWorkloadMonthly(models.Model):
     """Monthly workload for caregivers in all stations for export."""
 
-    id = models.IntegerField(primary_key=True)
     station = models.ForeignKey('Station', on_delete=models.CASCADE)
     month = models.DateField()  # Use first day to represent month
     shift = models.CharField(max_length=100)  # Day or night shift
