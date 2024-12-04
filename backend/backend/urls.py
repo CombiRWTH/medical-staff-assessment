@@ -16,4 +16,5 @@ urlpatterns = [
     ),
     path('stations/<int:station_id>/', handle_patients.handle_patients, name='handle_patients'),
     path('stations/', handle_stations.handle_stations, name='handle_stations'),
+    path('stations/analysis', handle_stations.handle_stations_analysis, name='stations-analysis'),
 ]
