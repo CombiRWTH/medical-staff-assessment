@@ -1,13 +1,13 @@
 import ExcelJS from 'exceljs'
 
 export type StationDaily = {
-  id: string,
+  id: number,
   name: string,
   minutes: number
 }
 
 export type StationMonthly = {
-  id: string,
+  id: number,
   name: string,
   data: { day: number, minutes: number }[]
 }

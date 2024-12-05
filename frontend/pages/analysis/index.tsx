@@ -7,19 +7,21 @@ import { LinkTiles } from '@/components/LinkTiles'
 import { Card } from '@/components/Card'
 import { useStationsAPI } from '@/api/stations'
 import { useAnalysisAPI } from '@/api/analysis'
-import { exportDailyAnalysis, exportMonthlyAnalysis } from '@/util/export2'
-import type { StationDaily, StationMonthly } from '@/util/export2'
+import { exportMonthlyAnalysis } from '@/util/export2'
+import type { StationMonthly } from '@/util/export2'
 
 export const AnalysisPage: NextPage = () => {
   const [viewMode, setViewMode] = useState<'daily' | 'monthly'>('daily')
   const { stations } = useStationsAPI()
   const { data } = useAnalysisAPI(viewMode)
-  const [selectedStations, setSelectedStations] = useState<string[]>([])
+  const [selectedStations, setSelectedStations] = useState<number[]>([])
 
+  /*
   const dailyStations: StationDaily[] = [
     { id: '1', name: 'Station A', minutes: 42 },
     { id: '2', name: 'Station B', minutes: 35 },
   ]
+   */
 
   const monthlyStations: StationMonthly[] = [
     {
@@ -42,7 +44,7 @@ export const AnalysisPage: NextPage = () => {
     }
   ]
 
-  const toggleStationSelection = (stationId: string) => {
+  const toggleStationSelection = (stationId: number) => {
     setSelectedStations(prev =>
       prev.includes(stationId)
         ? prev.filter(id => id !== stationId)
@@ -60,6 +62,8 @@ export const AnalysisPage: NextPage = () => {
   const combinedValues = stations.reduce((acc, station) => ({
     patientCount: acc.patientCount + station.patientCount,
   }), { patientCount: 0 })
+
+  const combinedKey = NaN // TODO use a cleaner solution here
 
   return (
     <Page
@@ -92,10 +96,10 @@ export const AnalysisPage: NextPage = () => {
         <Card
                   key="combined-stations"
                   className={`flex flex-col gap-y-2 bg-emerald-100 border-emerald-300 w-full cursor-pointer
-                    ${selectedStations.includes('combined')
+                    ${selectedStations.includes(combinedKey)
                       ? 'border-2 border-primary bg-primary/10'
                       : ''}`}
-                  onClick={() => toggleStationSelection('combined')}
+                  onClick={() => toggleStationSelection(combinedKey)}
                 >
                   <span className="text-xl font-semibold text-emerald-800">Alle Stationen</span>
                   <div className="flex flex-row w-full justify-between gap-x-2 items-center">
