@@ -6,43 +6,16 @@ import { Sidebar } from '@/layout/Sidebar'
 import { LinkTiles } from '@/components/LinkTiles'
 import { Card } from '@/components/Card'
 import { useStationsAPI } from '@/api/stations'
+import type { AnalysisFrequency } from '@/api/analysis'
 import { useAnalysisAPI } from '@/api/analysis'
-import { exportMonthlyAnalysis } from '@/util/export2'
-import type { StationMonthly } from '@/util/export2'
+import type { StationMonthly } from '@/util/export'
+import { exportMonthlyAnalysis } from '@/util/export'
 
 export const AnalysisPage: NextPage = () => {
-  const [viewMode, setViewMode] = useState<'daily' | 'monthly'>('daily')
+  const [viewMode, setViewMode] = useState<AnalysisFrequency>('daily')
   const { stations } = useStationsAPI()
   const { data } = useAnalysisAPI(viewMode)
   const [selectedStations, setSelectedStations] = useState<number[]>([])
-
-  /*
-  const dailyStations: StationDaily[] = [
-    { id: '1', name: 'Station A', minutes: 42 },
-    { id: '2', name: 'Station B', minutes: 35 },
-  ]
-   */
-
-  const monthlyStations: StationMonthly[] = [
-    {
-      id: 1,
-      name: 'Station A',
-      data: [
-        { day: 1, minutes: 42 },
-        { day: 2, minutes: 38 },
-        { day: 3, minutes: 40 }
-      ]
-    },
-    {
-      id: 2,
-      name: 'Station B',
-      data: [
-        { day: 1, minutes: 30 },
-        { day: 2, minutes: 28 },
-        { day: 3, minutes: 29 }
-      ]
-    }
-  ]
 
   const toggleStationSelection = (stationId: number) => {
     setSelectedStations(prev =>
@@ -51,9 +24,8 @@ export const AnalysisPage: NextPage = () => {
         : [...prev, stationId]
     )
   }
-  // const exportData = async () => exportDailyAnalysis(dailyStations)
 
-  const exportData2 = async () => exportMonthlyAnalysis(monthlyStations)
+  const exportData = async () => exportMonthlyAnalysis(data as StationMonthly[])
 
   const toggleViewMode = () => {
     setViewMode(prevMode => prevMode === 'daily' ? 'monthly' : 'daily')
@@ -74,7 +46,7 @@ export const AnalysisPage: NextPage = () => {
               onClick={toggleViewMode}
               className="bg-primary/60 hover:bg-primary/80 rounded px-2 py-1"
             >
-               {viewMode === 'daily' ? 'Monatlich' : 'Täglich'}
+              {viewMode === 'daily' ? 'Monatlich' : 'Täglich'}
             </button>
           )}
         >
@@ -94,40 +66,49 @@ export const AnalysisPage: NextPage = () => {
     >
       <div className="flex flex-wrap gap-10 p-10 content-start">
         <Card
-                  key="combined-stations"
-                  className={`flex flex-col gap-y-2 bg-emerald-100 border-emerald-300 w-full cursor-pointer
+          key="combined-stations"
+          className={`flex flex-col gap-y-2 bg-emerald-100 border-emerald-300 w-full cursor-pointer
                     ${selectedStations.includes(combinedKey)
-                      ? 'border-2 border-primary bg-primary/10'
-                      : ''}`}
-                  onClick={() => toggleStationSelection(combinedKey)}
-                >
-                  <span className="text-xl font-semibold text-emerald-800">Alle Stationen</span>
-                  <div className="flex flex-row w-full justify-between gap-x-2 items-center">
-                    <span className="text-emerald-700">Gesamtpatientenanzahl:</span>
-                    <span className="font-semibold text-emerald-800">{combinedValues.patientCount}</span>
-                  </div>
-                </Card>
+            ? 'border-2 border-primary bg-primary/10'
+            : ''}`}
+          onClick={() => toggleStationSelection(combinedKey)}
+        >
+          <span className="text-xl font-semibold text-emerald-800">Alle Stationen</span>
+          <div className="flex flex-row w-full justify-between gap-x-2 items-center">
+            <span className="text-emerald-700">Gesamtpatientenanzahl:</span>
+            <span className="font-semibold text-emerald-800">{combinedValues.patientCount}</span>
+          </div>
+        </Card>
 
-        {data.map(value => (
-          <Card
-            key={value.id}
-            className={`flex flex-col gap-y-2 cursor-pointer
+        {data.map(value => {
+          let minutes: number
+          if ('minutes' in value) {
+            minutes = value.minutes
+          } else {
+            minutes = value.data.map(value => value.minutes).reduce((pre, acc) => pre + acc, 0)
+          }
+          return (
+            <Card
+              key={value.id}
+              className={`flex flex-col gap-y-2 cursor-pointer
               ${selectedStations.includes(value.id)
                 ? 'border-2 border-primary bg-primary/10'
                 : 'border-gray-200'}`}
-            onClick={() => toggleStationSelection(value.id)}
-          >
-            <span className="text-xl font-semibold">{value.name}</span>
-            <div className="flex flex-row w-full justify-between items-center">
-              <span className="text-sm text-gray-500">Minuten</span>
-              <span className="font-semibold text-emerald-800">100</span>
-            </div>
-          </Card>
-        ))}
+              onClick={() => toggleStationSelection(value.id)}
+            >
+              <span className="text-xl font-semibold">{value.name}</span>
+              <div className="flex flex-row w-full justify-between items-center gap-x-4">
+                <span className="text-sm text-gray-500">Minuten</span>
+                <span className="font-semibold text-emerald-800">{minutes}</span>
+              </div>
+            </Card>
+          )
+        })}
       </div>
       <button
-        onClick={exportData2}
+        onClick={exportData}
         className="bg-primary/60 hover:bg-primary/80 rounded px-2 py-1"
+        disabled={viewMode === 'daily'}
       >
         {'Daten exportieren'}
       </button>

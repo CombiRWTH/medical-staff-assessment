@@ -25,7 +25,6 @@ export const LastClassifiedBadge = ({
   const isToday = today - lastDate.getTime() < 24 * 60 * 60 * 1000
   const isYesterday = today - lastDate.getTime() < 24 * 60 * 60 * 1000 * 2 && !isToday
   if (isYesterday || isToday) {
-    console.log(isYesterday || isToday)
     return (
       <div
         className={`${baseStyle} ${isToday ? 'border-green-500' : 'border-amber-400'}`}>
@@ -33,7 +32,6 @@ export const LastClassifiedBadge = ({
       </div>
     )
   }
-  console.log('hi')
   return (
     <div className={`${baseStyle} border-orange-400`}>
       {formatDate(lastDate)}
