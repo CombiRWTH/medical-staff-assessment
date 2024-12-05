@@ -49,7 +49,7 @@ export const Tooltip = ({
       {isVisible && (
         <div
           className={`absolute z-50 bg-gray-800 text-white text-xs px-3 py-2 rounded shadow-lg whitespace-nowrap
-            ${positionClasses[position]} ${className}`}
+            ${positionClasses[position]} ${className} animate-fade-in`}
         >
           {tooltip}
           <div className={`absolute w-0 h-0 z-10 ${triangleClasses[position]}`} style={triangleStyle[position]}/>
