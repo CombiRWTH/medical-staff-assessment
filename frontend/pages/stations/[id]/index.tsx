@@ -7,6 +7,8 @@ import { Page } from '@/layout/Page'
 import { useStationsAPI } from '@/api/stations'
 import { usePatientsAPI } from '@/api/patients'
 import { formatDate } from '@/util/formatDate'
+import { parseDateString } from '@/util/parseDateString'
+import { LastClassifiedBadge } from '@/components/LastClassifiedBadge'
 
 type SortingState = {
   nameAscending: boolean,
@@ -36,9 +38,12 @@ export const StationPatientList = () => {
     // Sort the filtered patients
     return filteredPatients.sort((a, b) => {
       const nameCompare = a.name.localeCompare(b.name) * (sortingState.nameAscending ? 1 : -1)
-      const aHasClassification = !!a.lastClassification
-      const bHasClassification = !!b.lastClassification
-      const classificationCompare = (aHasClassification ? 1 : (bHasClassification ? -1 : 1)) * (sortingState.hasClassificationAscending ? 1 : -1)
+      let classificationCompare = sortingState.hasClassificationAscending ? 1 : -1
+      if (!!a.lastClassification && !!b.lastClassification) {
+        classificationCompare = classificationCompare * (parseDateString(a.lastClassification).getTime() - parseDateString(b.lastClassification).getTime())
+      } else if (b.lastClassification) {
+        classificationCompare *= -1
+      }
 
       if (sortingState.last === 'name') {
         if (nameCompare !== 0) {
@@ -122,31 +127,25 @@ export const StationPatientList = () => {
             </tr>
             </thead>
             <tbody>
-            {sortedAndFilteredPatients.map(patient => {
-              const hasClassification = !!patient.lastClassification
-              return (
-                <tr
-                  key={patient.id}
-                  onClick={() => router.push(`/stations/${id}/${patient.id}/${formatDate()}`)}
-                  className="cursor-pointer hover:bg-gray-200 rounded-xl"
-                >
-                  <td className="rounded-l-xl pl-2">{patient.name}</td>
-                  <td className="flex flex-col items-center py-1">
-                    <div
-                      className={`rounded-xl w-32 text-center px-2 py-1 border-2 ${hasClassification ? 'border-green-500' : 'border-amber-400'}`}>
-                      {hasClassification ? 'Heute' : 'Gestern'}
-                    </div>
-                  </td>
-                  <td className="rounded-r-xl">
-                    <button
-                      className="flex flex-row gap-x-2 rounded px-2 py-1 items-center float-end">
-                      <span>Auswählen</span>
-                      <ArrowRight size={20}/>
-                    </button>
-                  </td>
-                </tr>
-              )
-            })}
+            {sortedAndFilteredPatients.map(patient => (
+              <tr
+                key={patient.id}
+                onClick={() => router.push(`/stations/${id}/${patient.id}/${formatDate()}`)}
+                className="cursor-pointer hover:bg-gray-200 rounded-xl"
+              >
+                <td className="rounded-l-xl pl-2">{patient.name}</td>
+                <td className="flex flex-col items-center py-1">
+                  <LastClassifiedBadge dateString={patient.lastClassification}/>
+                </td>
+                <td className="rounded-r-xl">
+                  <button
+                    className="flex flex-row gap-x-2 rounded px-2 py-1 items-center float-end">
+                    <span>Auswählen</span>
+                    <ArrowRight size={20}/>
+                  </button>
+                </td>
+              </tr>
+            ))}
             </tbody>
           </table>
         </Card>

@@ -55,8 +55,6 @@ export const PatientClassification = () => {
 
   useEffect(noop, [router.query.date]) // reload once the date can be parsed
 
-  console.log(classification)
-
   return (
     <Page
       header={(
