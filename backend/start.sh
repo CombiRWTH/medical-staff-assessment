@@ -34,22 +34,28 @@ else
   echo "Superuser already exists. Skipping creation."
 fi
 
+# Run cronjobs
+echo "Running cronjobs."
+printenv | grep -v "no_proxy" >> /etc/environment
+service cron start
+tail -f /var/log/cron.log >> /proc/1/fd/1 2>&1 &
+
 # Fill database with questions from the PPBV
 echo "Filling database with questions from the PPBV."
 python /app/manage.py loaddata /app/backend/fixtures/questions.json
 
 #Remove the three down in production
 
-# Fill database with dummy stations 
+# Fill database with dummy stations
 echo "Filling database with dummy stations."
 python /app/manage.py loaddata /app/backend/fixtures/stations.json
 
-# Fill database with dummy patients 
-echo "Filling database with  dummy patients "
+# Fill database with dummy patients
+echo "Filling database with  dummy patients."
 python /app/manage.py loaddata /app/backend/fixtures/patients.json
 
-# Fill database with dummy patient journies 
-echo "Filling database with  dummy patient journies  "
+# Fill database with dummy patient journies
+echo "Filling database with dummy patient journies."
 python /app/manage.py loaddata /app/backend/fixtures/patient_transfers.json
 
 # Run server
