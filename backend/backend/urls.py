@@ -20,6 +20,9 @@ urlpatterns = [
     path('stations/', handle_stations.handle_stations, name='handle_stations'),
     path('stations/analysis', handle_stations.handle_stations_analysis, name='stations-analysis'),
     path('visit-type/<int:station_id>/', handle_patients.handle_visit_type, name='handle_visit_type'),
-    path('current-station/<int:patient_id>/', handle_patients.handle_current_station_of_patient, 
-        name='handle_current_station_of_patient'),
+    path(
+        'current-station/<int:patient_id>/',
+        handle_patients.handle_current_station_of_patient,
+        name='handle_current_station_of_patient'
+    ),
 ]
