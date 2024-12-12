@@ -6,9 +6,8 @@ import { Card } from '@/components/Card'
 import { Page } from '@/layout/Page'
 import { useStationsAPI } from '@/api/stations'
 import { usePatientsAPI } from '@/api/patients'
-import { formatDate } from '@/util/formatDate'
-import { parseDateString } from '@/util/parseDateString'
 import { LastClassifiedBadge } from '@/components/LastClassifiedBadge'
+import { formatDateFrontendURL, parseDateString } from '@/util/date'
 
 type SortingState = {
   nameAscending: boolean,
@@ -130,7 +129,7 @@ export const StationPatientList = () => {
             {sortedAndFilteredPatients.map(patient => (
               <tr
                 key={patient.id}
-                onClick={() => router.push(`/stations/${id}/${patient.id}/${formatDate()}`)}
+                onClick={() => router.push(`/stations/${id}/${patient.id}/${formatDateFrontendURL()}`)}
                 className="cursor-pointer hover:bg-gray-200 rounded-xl"
               >
                 <td className="rounded-l-xl pl-2">{patient.name}</td>
