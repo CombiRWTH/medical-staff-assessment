@@ -1,10 +1,12 @@
 """Provide an endpoint to retrieve all current patients for a station."""
 import datetime
+from datetime import time
 
+from django.db.models import F, Max, OuterRef, Q, QuerySet, Subquery, Value
 from django.db.models.functions import Concat
 from django.http import JsonResponse
-from ..models import Patient, DailyClassification
-from django.db.models import Subquery, OuterRef, F, Value, QuerySet
+
+from ..models import DailyClassification, Patient, PatientTransfers
 
 
 def get_active_patients_on_station(station_id: int, date: datetime.date = datetime.date.today()) -> QuerySet[Patient]:
@@ -17,9 +19,23 @@ def get_active_patients_on_station(station_id: int, date: datetime.date = dateti
     Returns:
         list: The patients assigned to the station.
     """
-    patients = Patient.objects.all()
 
-    return patients
+    # Get the latest transfer_date for each patient
+    latest_transfers = PatientTransfers.objects.filter(
+        transfer_date__lte=date
+    ).values('patient').annotate(
+        latest_transfer_date=Max('transfer_date')
+    )
+
+    # Filter the PatientTransfers based on the latest transfer_date and other conditions
+    active_patients = PatientTransfers.objects.filter(
+        Q(transfer_date__in=[lt['latest_transfer_date'] for lt in latest_transfers]),
+        station_new_id=station_id,
+        transferred_to_external=False,
+        discharge_date__gte=date
+    )
+
+    return active_patients
 
 
 def get_patients_with_additional_information(station_id: int) -> list:
@@ -41,7 +57,7 @@ def get_patients_with_additional_information(station_id: int) -> list:
     patients = patients.annotate(
         lastClassification=Subquery(
             DailyClassification.objects.filter(
-                patient=OuterRef('id'),
+                patient=OuterRef('patient_id'),
                 date__lte=today,
                 station=station_id
             )
@@ -50,15 +66,142 @@ def get_patients_with_additional_information(station_id: int) -> list:
         ),
         currentBed=Subquery(
             DailyClassification.objects.filter(
-                patient=OuterRef('id'),
+                patient=OuterRef('patient_id'),
                 date__lte=today,
                 station=station_id
             ).order_by('-date')
             .values('bed_number')[:1]
         )
-    ).values('id', 'lastClassification', "currentBed", name=Concat(F('first_name'), Value(' '), F('last_name')))
-
+    ).values('id', 'lastClassification', "currentBed", name=Concat(F('patient__first_name'), Value(' '),
+                                                                   F('patient__last_name')))
+    
     return list(patients)
+
+
+def get_current_station_for_patient(patient_id: int) -> str:
+    """Get the current station for a patient.
+
+    Args:
+        patient_id (int): The ID of the patient.
+
+    Returns:
+        int: The ID of the station the patient is currently assigned to.
+    """
+    today = datetime.date.today()
+
+    # Get the latest transfer_date for the patient
+    latest_transfer = PatientTransfers.objects.filter(
+        patient_id=patient_id,
+        transfer_date__lte=today
+    ).latest('transfer_date')
+
+    if latest_transfer.transferred_to_external:
+        return "external"
+    else:
+        return int(latest_transfer.station_new_id)
+
+
+def get_patient_count_per_station(station_id: int) -> int:
+    """Get the number of patients currently assigned to a station. Needed for night shift calculation.
+
+    Args:
+        station_id (int): The ID of the station.
+
+    Returns:
+        int: The number of patients assigned to the station.
+    """
+
+    return get_active_patients_on_station(station_id).count()
+
+
+def is_patient_new_to_station(patient_id: int, station_id: int) -> bool:
+    """Check if a patient was at station in the last three months.
+    If yes, the 75 minutes are not added in care calculation.
+
+    Args:
+        patient_id (int): The ID of the patient.
+        station_id (int): The ID of the station.
+
+    Returns:
+        bool: True if the patient is new to the station, False otherwise.
+    """
+    today = datetime.date.today()
+
+    # Get the latest transfer_date for the patient
+    latest_transfer_to_station = PatientTransfers.objects.filter(
+        patient_id=patient_id,
+        station_new_id=station_id,
+        transfer_date__lte=today
+    ).latest('transfer_date')
+
+    if today - latest_transfer_to_station > 90:
+        return True
+    else:
+        return False
+
+
+def visited_at_daytime(transfer_date: datetime.date, today: datetime.date) -> bool:
+    """Check if the patient's stay includes at least one day."""
+    stay_duration = today - transfer_date
+
+    return stay_duration.days >= 1
+
+
+def visited_at_nighttime(transfer_date: datetime.date, today: datetime.date, now: datetime) -> bool:
+    """Check if the patient's stay includes at least one night."""
+    night_start = time(22, 0)  # 10 PM
+    night_end = time(6, 0)  # 6 AM
+
+    if transfer_date == today:
+        if now.time() >= night_start or now.time() <= night_end:
+            return True
+    else:
+        return True
+    return False
+
+
+def get_patients_visit_type(station_id: int) -> dict:
+    """Return lists of patients for a single station classified by visit type.
+
+    Args:
+        station_id (int): The ID of the station.
+
+    Returns:
+        dict: A dictionary with lists of patients classified by visit type.
+    """
+    today = datetime.date.today()
+    now = datetime.datetime.now()
+
+    # Get all patients on station and initialize visit type lists
+    all_patients = get_active_patients_on_station(station_id)
+    stationary = []
+    part_stationary = []
+    acute = []
+    undefined = []  # catch possible edges cases
+
+    all_patients = get_active_patients_on_station(station_id)
+    for patient_transfer in all_patients:
+        transfer_date = patient_transfer.transfer_date.date()
+        includes_day = visited_at_daytime(transfer_date, today)
+        includes_night = visited_at_nighttime(transfer_date, today, now)
+        patient_name = f"{patient_transfer.patient.first_name} {patient_transfer.patient.last_name}"
+
+        # Check if stay includes day or night and classify patient
+        if includes_day and includes_night:
+            stationary.append(patient_name)
+        elif includes_day or includes_night:
+            part_stationary.append(patient_name)
+        elif not includes_night and includes_day:
+            acute.append(patient_name)
+        else:
+            undefined.append(patient_name)
+
+    return {
+        'stationary': stationary,
+        'part_stationary': part_stationary,
+        'acute': acute,
+        'undefined': undefined
+    }
 
 
 def handle_patients(request, station_id: int) -> JsonResponse:
@@ -73,5 +216,37 @@ def handle_patients(request, station_id: int) -> JsonResponse:
     """
     if request.method == 'GET':
         return JsonResponse(get_patients_with_additional_information(station_id), safe=False)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+
+def handle_visit_type(request, station_id: int) -> JsonResponse:
+    """Endpoint to retrieve lists of patients for a single station classified by visit type.
+
+    Args:
+        request (HttpRequest): The request object.
+        station_id (int): The ID of the station in the database.
+
+    Returns:
+        JsonResponse: The response containing the patients at station categorized by visit type.
+    """
+    if request.method == 'GET':
+        return JsonResponse(get_patients_visit_type(station_id), safe=False)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    
+def handle_current_station_of_patient(request, patient_id: int) -> JsonResponse:
+    """Endpoint to retrieve the current station of a patient.
+
+    Args:
+        request (HttpRequest): The request object.
+        patient_id (int): The ID of the patient in the database.
+
+    Returns:
+        JsonResponse: The response containing the current station of the patient.
+    """
+    if request.method == 'GET':
+        return JsonResponse({'station_id': get_current_station_for_patient(patient_id)})
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
