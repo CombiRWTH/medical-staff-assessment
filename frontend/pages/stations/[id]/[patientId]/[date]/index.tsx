@@ -7,7 +7,7 @@ import { Header } from '@/layout/Header'
 import { Page } from '@/layout/Page'
 import { useStationsAPI } from '@/api/stations'
 import { usePatientsAPI } from '@/api/patients'
-import { formatDate, formatDateBackend } from '@/util/formatDate'
+import { formatDate } from '@/util/formatDate'
 import { parseDateString } from '@/util/parseDateString'
 import { noop } from '@/util/noop'
 import { ClassificationCard } from '@/components/ClassificationCard'
@@ -28,7 +28,7 @@ export const PatientClassification = () => {
   const {
     classification,
     update
-  } = usePatientClassification(id, patientId, formatDateBackend(date))
+  } = usePatientClassification(id, patientId, formatDate(date))
 
   const nextUnclassifiedPatient = useMemo(() => {
     // Start searching from the current patient's index
@@ -54,8 +54,6 @@ export const PatientClassification = () => {
   )
 
   useEffect(noop, [router.query.date]) // reload once the date can be parsed
-
-  console.log(classification)
 
   return (
     <Page
@@ -91,13 +89,13 @@ export const PatientClassification = () => {
                 <div className="flex flex-col gap-y-1">
                   <a href={`/stations/${id}/${patientId}/${formatDate(addDays(date, 1))}`}
                      className="arrow">
-                    <Tooltip tooltip="Gestern" position="left">
+                    <Tooltip tooltip="Morgen" position="left">
                       <ChevronUp/>
                     </Tooltip>
                   </a>
                   <a href={`/stations/${id}/${patientId}/${formatDate(subDays(date, 1))}`}
                      className="arrow">
-                    <Tooltip tooltip="Morgen" position="left">
+                    <Tooltip tooltip="Gestern" position="left">
                       <ChevronDown/>
                     </Tooltip>
                   </a>
@@ -138,13 +136,14 @@ export const PatientClassification = () => {
             <div className="flex flex-row items-center gap-x-2">
               Kategorie:
               <strong className="bg-white rounded-full px-2 py-1">
-                {classification?.result.category1}/{classification?.result.category2}
+                { /* TODO fix hardcoding of A and S  */}
+                A{classification?.result?.category1 ?? '-'}/S{classification?.result?.category2 ?? ''}
               </strong>
             </div>
             <div className="flex flex-row items-center gap-x-2">
               Minutenzahl:
               <strong className="bg-white rounded-full px-2 py-1">
-                {classification?.result.minutes}min
+                {classification?.result?.minutes ?? 0}min
               </strong>
             </div>
           </div>

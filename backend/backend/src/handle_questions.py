@@ -105,6 +105,8 @@ def group_questions(questions: list) -> list:
     Returns:
         list: The questions grouped by field, category and severity.
     """
+    # Sort questions by id to always get the same order
+    questions = sorted(questions, key=lambda x: (x['id']))
     grouped_questions = []
 
     def split_by_attribute(objects, attribute):

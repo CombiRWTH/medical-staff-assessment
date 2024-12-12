@@ -39,6 +39,10 @@ DJANGO_SUPERUSER_PASSWORD=password
 DJANGO_SUPERUSER_USERNAME =admin
 DJANGO_SUPERUSER_EMAIL=''
 
+# API Config
+# Set to False for Production
+CORS_ALLOW_ALL_ORIGINS=True
+
 # Database credentials
 DB_NAME=medical-staff-assessment
 DB_USER=postgres
