@@ -74,7 +74,7 @@ def get_patients_with_additional_information(station_id: int) -> list:
         )
     ).values('id', 'lastClassification', "currentBed", name=Concat(F('patient__first_name'), Value(' '),
                                                                    F('patient__last_name')))
-    
+
     return list(patients)
 
 
@@ -235,7 +235,7 @@ def handle_visit_type(request, station_id: int) -> JsonResponse:
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-    
+
 def handle_current_station_of_patient(request, patient_id: int) -> JsonResponse:
     """Endpoint to retrieve the current station of a patient.
 
