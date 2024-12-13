@@ -1,0 +1,97 @@
+import json
+from django.http import JsonResponse
+from ..models import (StationWorkloadMonthly)
+
+
+def handle_monthly_station_minutes(request):
+    """Endpoint to get the total minutes assigned to a station for one month.
+
+     The request body should contain the following:
+    - station: The ForeignKey which identifies a station
+    - shift: The shift for which the data is requested
+    - date: The first of the month for which the toal minutes should be claculated
+
+    Args:
+        request (HttpRequest): The request object.
+
+    Returns:
+        JsonResponse: The response containing the calculated minutes.
+    """
+    if request.method == 'POST':
+        body_data = json.loads(request.body)
+        station = body_data['station']
+        shift = body_data['shift']
+        date = body_data['month']
+
+        # Filter the database entries for the correct month and shift
+        monthly_station_data = StationWorkloadMonthly.objects.filter(
+            date__month=date.month, date__year=date.year, station=station, shift=shift)
+
+        # In case no entry exists result return an error
+        if not monthly_station_data.exists():
+            return JsonResponse({'error': 'No entry for that month and station exist'}, status=400)
+
+        minutes_total = monthly_station_data['minutes_total']
+
+        return JsonResponse({'minutes_total': minutes_total}, status=200)
+
+    else:
+        return JsonResponse({'message': 'Method not allowed.'}, status=405)
+    return
+
+
+def calculate_monthly_minutes(body_data: dict) -> int:
+    """Calculate the total minutes for one whole month over all stations.
+
+    The body_data should contain the following:
+    - shift: The shift for which the data is requested
+    - date: The first of the month for which the toal minutes should be claculated
+
+    Args:
+        body_data (dict): The data to calculate the minutes from.
+
+    Returns:
+        int: The total number of care minutes for all stations during one month
+    """
+    shift = body_data['shift']
+    date = body_data['month']
+
+    # Filter the database entries for the correct month and shift
+    stations = StationWorkloadMonthly.objects.filter(
+        date__month=date.month, date__year=date.year, shift=shift)
+
+    # If no entries where found return
+    if not stations.exists():
+        return -1
+
+    # Add up the minutes of all the days filtered days to get a total for the month
+    result_minutes = 0
+    for entry in stations:
+        result_minutes += entry['minutes_total']
+
+    return result_minutes
+
+
+def handle_monthly_minutes(request):
+    """Endpoint to get the sum of total minutes for across all stations for one month .
+
+    Args:
+        request (HttpRequest): The request object.
+
+    Returns:
+        JsonResponse: The response containing the calculated minutes.
+    """
+    if request.method == 'POST':
+        body_data = json.loads(request.body)
+        result_minutes = calculate_monthly_minutes(body_data)
+
+        # In case of a negative result return an error
+        if result_minutes < 0:
+            return JsonResponse({'error': 'No entries for that month exist'}, status=400)
+
+        return JsonResponse({'minutes': result_minutes}, status=200)
+
+    else:
+        return JsonResponse({'message': 'Method not allowed.'}, status=405)
+    return
+  
