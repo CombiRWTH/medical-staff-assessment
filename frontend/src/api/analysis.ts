@@ -34,7 +34,8 @@ export const useAnalysisAPI = (frequency: AnalysisFrequency) => {
           day: 3,
           minutes: 4386
         }
-      ]
+      ],
+      sum: 10000
     },
     {
       id: 2,
@@ -52,7 +53,8 @@ export const useAnalysisAPI = (frequency: AnalysisFrequency) => {
           day: 3,
           minutes: 6781
         }
-      ]
+      ],
+      sum: 10000
     },
   ])
   const [loading, setLoading] = useState(false)
