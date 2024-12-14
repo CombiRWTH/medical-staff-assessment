@@ -39,7 +39,8 @@ export const PatientClassification = () => {
       const nextIndex = (currentIndex + i) % patientsLength
       const nextPatient = patients[nextIndex]
 
-      if (nextPatient.lastClassification) {
+      // Patients WITHOUT a lastClassification
+      if (!nextPatient.lastClassification) {
         return nextPatient
       }
     }
