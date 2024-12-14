@@ -43,10 +43,6 @@ export const AnalysisPage: NextPage = () => {
     }
   }
 
-  const toggleViewMode = () => {
-    setViewMode(prevMode => prevMode === 'daily' ? 'monthly' : 'daily')
-  }
-
   const combinedValues = stations.reduce((acc, station) => ({
     patientCount: acc.patientCount + station.patientCount,
   }), { patientCount: 0 })
@@ -56,12 +52,30 @@ export const AnalysisPage: NextPage = () => {
       header={(
         <Header
           end={(
-            <button
-              onClick={toggleViewMode}
-              className="bg-primary/60 hover:bg-primary/80 rounded px-2 py-1"
-            >
-              {viewMode === 'daily' ? 'Monatlich' : 'Täglich'}
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setViewMode('daily')}
+                disabled={viewMode === 'daily'}
+                className={`px-2 py-1 rounded ${
+                  viewMode === 'daily'
+                    ? 'bg-primary text-white'
+                    : 'bg-primary/30 text-primary/50 cursor-pointer'
+                }`}
+              >
+                Täglich
+              </button>
+              <button
+                onClick={() => setViewMode('monthly')}
+                disabled={viewMode === 'monthly'}
+                className={`px-2 py-1 rounded ${
+                  viewMode === 'monthly'
+                    ? 'bg-primary text-white'
+                    : 'bg-primary/30 text-primary/50 cursor-pointer'
+                }`}
+              >
+                Monatlich
+              </button>
+            </div>
           )}
         >
         </Header>
