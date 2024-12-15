@@ -70,13 +70,13 @@ def get_stations_analysis(frequency: str):
             stations[station_id]["sum"] += item['minutes']
             total_sum += item['minutes']
 
-        # Add one entry for the sum over all stations 
+        # Add one entry for the sum over all stations
         stations["total"] = {
-                    "id": "",
-                    "name": "",
-                    "sum": total_sum,
-                    "data": []
-                }
+            "id": "",
+            "name": "",
+            "sum": total_sum,
+            "data": []
+        }
         return list(stations.values())
 
     else:
