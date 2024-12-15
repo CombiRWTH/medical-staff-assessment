@@ -53,19 +53,30 @@ def get_stations_analysis(frequency: str):
 
         # Structure the data for the desired output
         stations = {}
+        total_sum = 0
         for item in daily_data:
             station_id = item['station__id']
             if station_id not in stations:
                 stations[station_id] = {
                     "id": station_id,
                     "name": item['station__name'],
+                    "sum": 0,
                     "data": []
                 }
             stations[station_id]["data"].append({
                 "day": item['day'],
                 "minutes": item['minutes']
             })
+            stations[station_id]["sum"] += item['minutes']
+            total_sum += item['minutes']
 
+        # Add one entry for the sum over all stations 
+        stations["total"] = {
+                    "id": "",
+                    "name": "",
+                    "sum": total_sum,
+                    "data": []
+                }
         return list(stations.values())
 
     else:
