@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react'
+import type { PropsWithChildren, ReactNode } from 'react'
 
-const DefaultStart = () => {
+export const DefaultHeader = () => {
   return (
     <div className="flex flex-row gap-x-2 items-center">
       <div className="rounded-full min-w-[64px] min-h-[64px] bg-primary"/>
@@ -9,17 +9,20 @@ const DefaultStart = () => {
   )
 }
 
-export type HeaderProps = {
+export type HeaderProps = PropsWithChildren<{
   start?: ReactNode,
   end?: ReactNode
-}
+}>
+
 export const Header = ({
-  start = (<DefaultStart/>),
+  children,
+  start = (<DefaultHeader/>),
   end
 }: HeaderProps) => {
   return (
     <div className="flex flex-row justify-between items-center h-[96px] p-4 w-full bg-container z-10 shadow">
       {start}
+      {children}
       {end}
     </div>
   )

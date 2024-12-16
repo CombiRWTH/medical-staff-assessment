@@ -1,5 +1,4 @@
-import { parseDateString } from '@/util/parseDateString'
-import { formatDate } from '@/util/formatDate'
+import { formatDateFrontendURL, parseDateString } from '@/util/date'
 
 export type LastClassifiedBadgeProps = {
   dateString?: string
@@ -34,7 +33,7 @@ export const LastClassifiedBadge = ({
   }
   return (
     <div className={`${baseStyle} border-orange-400`}>
-      {formatDate(lastDate)}
+      {formatDateFrontendURL(lastDate)}
     </div>
   )
 }
