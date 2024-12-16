@@ -1,8 +1,10 @@
-from datetime import timedelta, datetime, date
-from django.db.models import Sum, Value, Count, Subquery, OuterRef
+from datetime import date, datetime, timedelta
+
+from django.db.models import Count, OuterRef, Subquery, Sum, Value
 from django.db.models.functions import Coalesce, ExtractDay
 from django.http import JsonResponse
-from ..models import StationWorkloadDaily, Station, PatientTransfers
+
+from ..models import PatientTransfers, Station, StationWorkloadDaily
 
 
 def get_stations_analysis(frequency: str):
@@ -92,7 +94,7 @@ def get_all_stations() -> list:
     stations = Station.objects.annotate(
         patientCount=Coalesce(Subquery(patients_count_subquery), Value(0))
     ).values("id", "name", "patientCount")
-     list(stations).order_by("name")
+    list(stations).order_by("name")
     return list(stations)
 
 
