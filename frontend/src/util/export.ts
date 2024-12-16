@@ -9,7 +9,8 @@ export type StationDaily = {
 export type StationMonthly = {
   id: number,
   name: string,
-  data: { day: number, minutes: number }[]
+  data: { day: number, minutes: number }[],
+  sum: number
 }
 
 const getFormattedDate = (): string => {
@@ -47,8 +48,25 @@ export const exportDailyAnalysis = async (stations: StationDaily[]): Promise<voi
     { header: 'Minuten', key: 'minutes', width: 15 }
   ]
 
+  const totalSum = stations.reduce((total, station) => total + station.minutes, 0)
+
   stations.forEach((station) => {
     worksheet.addRow({ id: station.id, name: station.name, minutes: station.minutes })
+  })
+
+  const totalRow = worksheet.addRow({
+    id: -1,
+    name: 'Gesamt',
+    minutes: totalSum
+  })
+
+  totalRow.eachCell((cell) => {
+    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF000000' }
+    }
   })
 
   const buffer = await workbook.xlsx.writeBuffer()
@@ -66,6 +84,8 @@ export const exportMonthlyAnalysis = async (stations: StationMonthly[]): Promise
     { header: 'Minuten', key: 'minutes', width: 15 }
   ]
 
+  const totalSum = stations.reduce((total, station) => total + station.sum, 0)
+
   stations.forEach((station) => {
     station.data.forEach((dayData) => {
       worksheet.addRow({
@@ -75,6 +95,40 @@ export const exportMonthlyAnalysis = async (stations: StationMonthly[]): Promise
         minutes: dayData.minutes
       })
     })
+
+    const summaryRow = worksheet.addRow({
+      id: station.id,
+      name: `${station.name} - Summe`,
+      day: '',
+      minutes: station.sum
+    })
+
+    summaryRow.eachCell((cell) => {
+      cell.font = { bold: true }
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFEEEEEE' }
+      }
+    })
+
+    worksheet.addRow({})
+  })
+
+  const totalRow = worksheet.addRow({
+    id: -1,
+    name: 'Gesamt',
+    day: '',
+    minutes: totalSum
+  })
+
+  totalRow.eachCell((cell) => {
+    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF000000' }
+    }
   })
 
   // Generate the Excel file and trigger download
