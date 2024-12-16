@@ -137,7 +137,7 @@ export const PatientClassification = () => {
       )}
     >
       <div className="relative flex flex-col p-8 gap-y-6 w-full">
-        <div className="flex flex-row gap-x-10 sticky top-2 bg-gray-100 rounded-2xl z-10">
+        <div className="flex flex-row gap-x-10 sticky top-2 bg-gray-100 rounded-2xl z-[1]">
           <div className="flex flex-col gap-y-2 bg-container px-4 py-2 rounded-2xl flex-1">
             <h2 className="font-bold text-xl">Tagesdaten</h2>
             <div className="flex flex-row gap-x-1 justify-between">
