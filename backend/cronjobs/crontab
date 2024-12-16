@@ -1,0 +1,1 @@
+0 0 * * * /usr/local/bin/python /app/cronjobs/src/nightshift_cronjob.py >> /var/log/cron.log 2>&1

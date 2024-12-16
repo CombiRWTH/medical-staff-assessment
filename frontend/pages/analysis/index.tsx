@@ -8,8 +8,8 @@ import { Card } from '@/components/Card'
 import { useStationsAPI } from '@/api/stations'
 import type { AnalysisFrequency } from '@/api/analysis'
 import { useAnalysisAPI } from '@/api/analysis'
-import type { StationMonthly } from '@/util/export'
-import { exportMonthlyAnalysis } from '@/util/export'
+import type { StationMonthly, StationDaily } from '@/util/export'
+import { exportMonthlyAnalysis, exportDailyAnalysis } from '@/util/export'
 
 export const AnalysisPage: NextPage = () => {
   const [viewMode, setViewMode] = useState<AnalysisFrequency>('daily')
@@ -17,37 +17,65 @@ export const AnalysisPage: NextPage = () => {
   const { data } = useAnalysisAPI(viewMode)
   const [selectedStations, setSelectedStations] = useState<number[]>([])
 
+  // Special constant
+  const COMBINED_STATIONS_KEY = -1
+
   const toggleStationSelection = (stationId: number) => {
-    setSelectedStations(prev =>
-      prev.includes(stationId)
-        ? prev.filter(id => id !== stationId)
-        : [...prev, stationId]
-    )
+    setSelectedStations(prev => {
+      // If the station is already selected, remove it
+      if (prev.includes(stationId)) {
+        return prev.filter(id => id !== stationId)
+      }
+
+      // If the station is not selected, add it
+      return [...prev, stationId]
+    })
   }
 
-  const exportData = async () => exportMonthlyAnalysis(data as StationMonthly[])
+  const exportData = async () => {
+    // Filter the stations
+    const filteredData = data.filter(station => selectedStations.includes(station.id))
 
-  const toggleViewMode = () => {
-    setViewMode(prevMode => prevMode === 'daily' ? 'monthly' : 'daily')
+    if (viewMode === 'daily') {
+      await exportDailyAnalysis(filteredData as StationDaily[])
+    } else {
+      await exportMonthlyAnalysis(filteredData as StationMonthly[])
+    }
   }
 
   const combinedValues = stations.reduce((acc, station) => ({
     patientCount: acc.patientCount + station.patientCount,
   }), { patientCount: 0 })
 
-  const combinedKey = NaN // TODO use a cleaner solution here
-
   return (
     <Page
       header={(
         <Header
           end={(
-            <button
-              onClick={toggleViewMode}
-              className="bg-primary/60 hover:bg-primary/80 rounded px-2 py-1"
-            >
-              {viewMode === 'daily' ? 'Monatlich' : 'Täglich'}
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setViewMode('daily')}
+                disabled={viewMode === 'daily'}
+                className={`px-2 py-1 rounded ${
+                  viewMode === 'daily'
+                    ? 'bg-primary text-white'
+                    : 'bg-primary/30 text-primary/50 cursor-pointer'
+                }`}
+              >
+                Täglich
+              </button>
+              <button
+                onClick={() => setViewMode('monthly')}
+                disabled={viewMode === 'monthly'}
+                className={`px-2 py-1 rounded ${
+                  viewMode === 'monthly'
+                    ? 'bg-primary text-white'
+                    : 'bg-primary/30 text-primary/50 cursor-pointer'
+                }`}
+              >
+                Monatlich
+              </button>
+            </div>
           )}
         >
         </Header>
@@ -68,10 +96,10 @@ export const AnalysisPage: NextPage = () => {
         <Card
           key="combined-stations"
           className={`flex flex-col gap-y-2 bg-emerald-100 border-emerald-300 w-full cursor-pointer
-                    ${selectedStations.includes(combinedKey)
+                    ${selectedStations.includes(COMBINED_STATIONS_KEY)
             ? 'border-2 border-primary bg-primary/10'
             : ''}`}
-          onClick={() => toggleStationSelection(combinedKey)}
+          onClick={() => toggleStationSelection(COMBINED_STATIONS_KEY)}
         >
           <span className="text-xl font-semibold text-emerald-800">Alle Stationen</span>
           <div className="flex flex-row w-full justify-between gap-x-2 items-center">
@@ -108,7 +136,6 @@ export const AnalysisPage: NextPage = () => {
       <button
         onClick={exportData}
         className="bg-primary/60 hover:bg-primary/80 rounded px-2 py-1"
-        disabled={viewMode === 'daily'}
       >
         {'Daten exportieren'}
       </button>
