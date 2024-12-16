@@ -82,9 +82,16 @@ def get_all_stations() -> list:
     """
     today = date.today()
 
+    # Subquery to get the latest transfer date for each patient
+    latest_transfer_date_subquery = PatientTransfers.objects.filter(
+        patient=OuterRef('patient')
+    ).order_by('-transfer_date').values('transfer_date')[:1]
+
     # Subquery to get the count of patients for each station
     patients_count_subquery = PatientTransfers.objects.filter(
         station_new_id=OuterRef('pk'),
+        transfer_date=Subquery(latest_transfer_date_subquery),
+        transferred_to_external=False,
         discharge_date__gte=today
     ).values('station_new_id').annotate(
         patient_count=Count('patient')
