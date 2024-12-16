@@ -61,10 +61,10 @@ def get_patients_with_additional_information(station_id: int) -> list:
             else previous_classification['date'] if previous_classification
             else None
         )
-        patient['aIndexToday'] = todays_classification['a_index'] if todays_classification else None
-        patient['aIndexPrevious'] = previous_classification['a_index'] if previous_classification else None
-        patient['sIndexToday'] = todays_classification['s_index'] if todays_classification else None
-        patient['sIndexPrevious'] = previous_classification['s_index'] if previous_classification else None
+        patient['category1Today'] = todays_classification['a_index'] if todays_classification else None
+        patient['category1Previous'] = previous_classification['a_index'] if previous_classification else None
+        patient['category2Today'] = todays_classification['s_index'] if todays_classification else None
+        patient['category2Previous'] = previous_classification['s_index'] if previous_classification else None
         patient['todaysMinutes'] = todays_classification['result_minutes'] if todays_classification else 0
 
         # Add the full name to the patient
