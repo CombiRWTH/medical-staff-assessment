@@ -41,7 +41,7 @@ export const Tooltip = ({
 
   return (
     <div
-      className="relative inline-block w-full"
+      className="relative w-full"
       onMouseEnter={() => setIsVisible(true)}
       onMouseLeave={() => setIsVisible(false)}
     >
