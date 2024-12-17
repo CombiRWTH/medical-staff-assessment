@@ -30,7 +30,7 @@ export const ClassificationOptionDisplay = ({
         {usedList.length !== 0 ? (
           <>
             {usedList.map(option => (
-              <label key={option.id} className="hover:bg-primary/50 flex flex-row items-start gap-x-2 w-full rounded-md px-2 py-1 cursor-pointer">
+              <label key={option.id} className="hover:bg-primary/40 flex flex-row items-start justify-start gap-x-2 rounded-md px-2 py-1 cursor-pointer w-full">
                 <input
                   type="checkbox"
                   value={option.name}
@@ -40,8 +40,12 @@ export const ClassificationOptionDisplay = ({
                     onUpdate(option.id, !option.selected)
                   }}
                 />
-                <Tooltip tooltip={option.description} position="bottom"
-                         className="max-w-[300px] flex flex-grow">
+                <Tooltip
+                  tooltip={option.description}
+                  position="bottom"
+                  tooltipClassName="max-w-[300px] flex flex-grow"
+                  containerClassName="overflow-hidden"
+                >
                   <span className="break-words">{option.short}</span>
                 </Tooltip>
               </label>
