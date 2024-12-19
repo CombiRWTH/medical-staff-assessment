@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Info } from 'lucide-react'
 import { range } from '@/util/range'
 import type { DailyClassificationField, DailyClassificationOption } from '@/data-models/classification'
 import { Tooltip } from '@/components/Tooltip'
@@ -32,19 +33,24 @@ export const ClassificationOptionDisplay = ({
         {usedList.length !== 0 ? (
           <>
             {usedList.map(option => (
-              <label key={option.id} className="flex flex-row items-start gap-x-2 w-full">
+              <label key={option.id} className="flex flex-row items-start w-full">
                 <input
                   type="checkbox"
                   value={option.name}
                   checked={option.selected}
-                  className="mt-[6px]"
+                  className="mt-0.5 mr-2 shrink-0"
                   onChange={() => {
                     onUpdate(option.id, !option.selected)
                   }}
                 />
-                <Tooltip tooltip={option.description} position="bottom" className="max-w-[300px] !whitespace-normal w-full">
-                  <span className="w-full break-words overflow-hidden">{option.short}</span>
-                </Tooltip>
+                <div className="flex justify-between items-start w-full min-w-0">
+                  <span className="break-words pr-2">{option.short}</span>
+                  <Tooltip tooltip={option.description} position="bottom" className="max-w-[300px] !whitespace-normal">
+                    <div className="inline-flex mt-0.5 shrink-0">
+                      <Info className="h-3 w-3 text-gray-400" />
+                    </div>
+                  </Tooltip>
+                </div>
               </label>
             ))}
 
