@@ -95,16 +95,18 @@ export const AnalysisPage: NextPage = () => {
       <div className="flex flex-wrap gap-10 p-10 content-start">
         <Card
           key="combined-stations"
-          className={`flex flex-col gap-y-2 bg-emerald-100 border-emerald-300 w-full cursor-pointer
-                    ${selectedStations.includes(COMBINED_STATIONS_KEY)
-            ? 'border-2 border-primary bg-primary/10'
-            : ''}`}
+          className={`flex flex-col gap-y-2 cursor-pointer transition-colors w-full
+            ${selectedStations.includes(COMBINED_STATIONS_KEY)
+              ? 'bg-primary/10'
+              : 'bg-emerald-100 hover:bg-emerald-50'}`}
           onClick={() => toggleStationSelection(COMBINED_STATIONS_KEY)}
         >
-          <span className="text-xl font-semibold text-emerald-800">Alle Stationen</span>
-          <div className="flex flex-row w-full justify-between gap-x-2 items-center">
-            <span className="text-emerald-700">Gesamtpatientenanzahl:</span>
-            <span className="font-semibold text-emerald-800">{combinedValues.patientCount}</span>
+          <div className="p-4 flex flex-col">
+            <span className="text-xl font-semibold text-emerald-800">Alle Stationen</span>
+            <div className="flex flex-row w-full justify-between gap-x-2 items-center mt-2">
+              <span className="text-emerald-700">Gesamtpatientenanzahl:</span>
+              <span className="font-semibold text-emerald-800">{combinedValues.patientCount}</span>
+            </div>
           </div>
         </Card>
 
