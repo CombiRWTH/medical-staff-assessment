@@ -1,10 +1,10 @@
 """Calculate the minutes each patient should receive care services."""
 from datetime import date
+
 from django.http import JsonResponse
 
+from ..models import DailyClassification, Patient, Station
 from .handle_questions import get_questions
-from ..models import (DailyClassification,
-                      Patient, Station)
 
 
 def group_and_count_data(data: list) -> dict:
@@ -205,7 +205,7 @@ def calculate_result(station_id, patient_id: int, date: date) -> dict:
         station=station,
         date=date,
     ).first()
-    print(classification)
+
     if classification is None:
         return {'error': 'No classification found for the specified date.'}
 

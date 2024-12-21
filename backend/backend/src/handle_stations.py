@@ -3,6 +3,7 @@ from datetime import date, datetime, timedelta
 from django.db.models import Count, OuterRef, Subquery, Sum, Value
 from django.db.models.functions import Coalesce, ExtractDay
 from django.http import JsonResponse
+from django.utils import timezone
 
 from ..models import PatientTransfers, Station, StationWorkloadDaily
 
@@ -18,7 +19,7 @@ def get_stations_analysis(frequency: str):
     """
     if frequency == "daily":
         # If 'daily', fetch the current day's data
-        today = datetime.now().date()
+        today = timezone.now().date()
         daily_workload = (
             StationWorkloadDaily.objects
             .filter(date=today)
@@ -38,7 +39,7 @@ def get_stations_analysis(frequency: str):
 
     elif frequency == "monthly":
         # Calculate the current month's date range
-        today = datetime.now()
+        today = timezone.now()
         start_date = today.replace(day=1)
         next_month = (today.replace(day=28) + timedelta(days=4)).replace(day=1)
         end_date = next_month - timedelta(days=1)
@@ -80,7 +81,7 @@ def get_all_stations() -> list:
     Returns:
         list: Stations.
     """
-    today = date.today()
+    today = timezone.now().date()
 
     # Subquery to get the latest transfer date for each patient
     latest_transfer_date_subquery = PatientTransfers.objects.filter(

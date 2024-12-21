@@ -5,34 +5,37 @@ from datetime import time
 from django.db.models import F, Max, OuterRef, Q, QuerySet, Subquery, Value
 from django.db.models.functions import Concat
 from django.http import JsonResponse
+from django.utils import timezone
 
 from ..models import DailyClassification, Patient, PatientTransfers
 
 
-def get_active_patients_on_station(station_id: int, date: datetime.date = datetime.date.today()) -> QuerySet[Patient]:
+def get_active_patients_on_station(
+    station_id: int, datetime: datetime.datetime = timezone.now()
+) -> QuerySet[Patient]:
     """Get all patients assigned to a specific station on the given date.
 
     Args:
         station_id (int): The ID of the station in the database.
-        date (datetime.date, optional): The date for which to retrieve the patients, defaults to today's date.
+        datetime (datetime.datetime, optional): The datetime for which to retrieve the patients, defaults to now's time.
 
     Returns:
         list: The patients assigned to the station.
     """
 
     # Get the latest transfer_date for each patient
-    latest_transfers = PatientTransfers.objects.filter(
-        transfer_date__lte=date
-    ).values('patient').annotate(
-        latest_transfer_date=Max('transfer_date')
+    latest_transfers = (
+        PatientTransfers.objects.filter(transfer_date__lte=datetime)
+        .values("patient")
+        .annotate(latest_transfer_date=Max("transfer_date"))
     )
 
     # Filter the PatientTransfers based on the latest transfer_date and other conditions
     active_patients = PatientTransfers.objects.filter(
-        Q(transfer_date__in=[lt['latest_transfer_date'] for lt in latest_transfers]),
+        Q(transfer_date__in=[lt["latest_transfer_date"] for lt in latest_transfers]),
         station_new_id=station_id,
         transferred_to_external=False,
-        discharge_date__gte=date
+        discharge_date__gte=datetime,
     )
 
     return active_patients
@@ -48,7 +51,7 @@ def get_patients_with_additional_information(station_id: int) -> list:
     Returns:
         list: The patients assigned to the station.
     """
-    today = datetime.date.today()
+    now = timezone.now()
 
     # Get all patients assigned to the given station
     patients = get_active_patients_on_station(station_id)
@@ -57,23 +60,24 @@ def get_patients_with_additional_information(station_id: int) -> list:
     patients = patients.annotate(
         lastClassification=Subquery(
             DailyClassification.objects.filter(
-                patient=OuterRef('patient_id'),
-                date__lte=today,
-                station=station_id
+                patient=OuterRef("patient_id"), date__lte=now, station=station_id
             )
-            .order_by('-date')
-            .values('date')[:1]
+            .order_by("-date")
+            .values("date")[:1]
         ),
         currentBed=Subquery(
             DailyClassification.objects.filter(
-                patient=OuterRef('patient_id'),
-                date__lte=today,
-                station=station_id
-            ).order_by('-date')
-            .values('bed_number')[:1]
-        )
-    ).values('id', 'lastClassification', "currentBed", name=Concat(F('patient__first_name'), Value(' '),
-                                                                   F('patient__last_name')))
+                patient=OuterRef("patient_id"), date__lte=now, station=station_id
+            )
+            .order_by("-date")
+            .values("bed_number")[:1]
+        ),
+    ).values(
+        "id",
+        "lastClassification",
+        "currentBed",
+        name=Concat(F("patient__first_name"), Value(" "), F("patient__last_name")),
+    )
 
     return list(patients)
 
@@ -87,13 +91,13 @@ def get_current_station_for_patient(patient_id: int) -> str:
     Returns:
         int: The ID of the station the patient is currently assigned to.
     """
-    today = datetime.date.today()
+
+    now = timezone.now()
 
     # Get the latest transfer_date for the patient
     latest_transfer = PatientTransfers.objects.filter(
-        patient_id=patient_id,
-        transfer_date__lte=today
-    ).latest('transfer_date')
+        patient_id=patient_id, transfer_date__lte=now
+    ).latest("transfer_date")
 
     if latest_transfer.transferred_to_external:
         return "external"
@@ -125,38 +129,44 @@ def is_patient_new_to_station(patient_id: int, station_id: int) -> bool:
     Returns:
         bool: True if the patient is new to the station, False otherwise.
     """
-    today = datetime.date.today()
+    now = timezone.now()
 
     # Get the latest transfer_date for the patient
     latest_transfer_to_station = PatientTransfers.objects.filter(
-        patient_id=patient_id,
-        station_new_id=station_id,
-        transfer_date__lte=today
-    ).latest('transfer_date')
+        patient_id=patient_id, station_new_id=station_id, transfer_date__lte=now
+    ).latest("transfer_date")
 
-    if today - latest_transfer_to_station > 90:
+    if (now - latest_transfer_to_station.transfer_date).days > 90:
         return True
     else:
         return False
 
 
-def visited_at_daytime(transfer_date: datetime.date, today: datetime.date) -> bool:
-    """Check if the patient's stay includes at least one day."""
-    stay_duration = today - transfer_date
+def visited_at_nighttime(
+    transfer_datetime: datetime.datetime,
+    now: datetime = timezone.now(),
+) -> bool:
+    """Check if the patient's stay includes time in night shift."""
+    if timezone.is_naive(transfer_datetime):
+        transfer_datetime = timezone.make_aware(
+            transfer_datetime, timezone.get_current_timezone()
+        )
 
-    return stay_duration.days >= 1
+    # Define night shift start and end times
+    night_start = timezone.make_aware(
+        datetime.datetime.combine(now.date() - datetime.timedelta(days=1), time(22, 0)),
+        timezone.get_current_timezone(),
+    )  # 10 PM yesterday
+    night_end = timezone.make_aware(
+        datetime.datetime.combine(now.date(), time(6, 0)),
+        timezone.get_current_timezone(),
+    )  # 6 AM today
 
-
-def visited_at_nighttime(transfer_date: datetime.date, today: datetime.date, now: datetime) -> bool:
-    """Check if the patient's stay includes at least one night."""
-    night_start = time(22, 0)  # 10 PM
-    night_end = time(6, 0)  # 6 AM
-
-    if transfer_date == today:
-        if now.time() >= night_start or now.time() <= night_end:
-            return True
+    if transfer_datetime.date() == now.date():
+        if night_start <= transfer_datetime <= night_end:
+            return True  # Patient was transferred during night
     else:
-        return True
+        return True  # Patient was transferred before today and stayed overnight
     return False
 
 
@@ -169,30 +179,30 @@ def get_patients_visit_type(station_id: int) -> dict:
     Returns:
         dict: A dictionary with lists of patients classified by visit type.
     """
-    today = datetime.date.today()
-    now = datetime.datetime.now()
-
-    # Get all patients on station and initialize visit type lists
     all_patients = get_active_patients_on_station(station_id)
-    stationary = []
-    part_stationary = []
-    acute = []
+    stationary = (
+        []
+    )  # normally >= 1 day shift and >= 1 night shift, but here > 24 hours for simplicity
+    part_stationary = []  # (6 <= hours < 24) OR (overnight stay AND < 24 hours)
+    acute = []  # < 6 hours, only day shift
     undefined = []  # catch possible edges cases
+    now = timezone.now()
 
     all_patients = get_active_patients_on_station(station_id)
     for patient_transfer in all_patients:
-        transfer_date = patient_transfer.transfer_date.date()
-        includes_day = visited_at_daytime(transfer_date, today)
-        includes_night = visited_at_nighttime(transfer_date, today, now)
+        transfer_datetime = patient_transfer.transfer_date
+        includes_night_time = visited_at_nighttime(transfer_datetime, now)
         patient_name = f"{patient_transfer.patient.first_name} {patient_transfer.patient.last_name}"
+        stay_duration = now - transfer_datetime
 
-        # Check if stay includes day or night and classify patient
-        if includes_day and includes_night:
-            stationary.append(patient_name)
-        elif includes_day or includes_night:
-            part_stationary.append(patient_name)
-        elif not includes_night and includes_day:
+        if stay_duration <= datetime.timedelta(hours=6):
             acute.append(patient_name)
+        elif datetime.timedelta(hours=6) < stay_duration < datetime.timedelta(
+            hours=24
+        ) or (includes_night_time and stay_duration < datetime.timedelta(hours=24)):
+            part_stationary.append(patient_name)
+        elif stay_duration >= datetime.timedelta(hours=24):
+            stationary.append(patient_name)
         else:
             undefined.append(patient_name)
 
