@@ -1,4 +1,4 @@
-from datetime import date, datetime, timedelta
+from datetime import timedelta
 
 from django.db.models import Count, OuterRef, Subquery, Sum, Value
 from django.db.models.functions import Coalesce, ExtractDay
