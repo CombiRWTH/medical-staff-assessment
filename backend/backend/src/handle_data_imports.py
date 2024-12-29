@@ -59,7 +59,7 @@ def insert_patient_excel_into_db(df: pd.DataFrame, date: str) -> None:
     """
     # Print all names of the row
     date = datetime.strptime(date, '%Y-%m-%d').date()
-    for row in df.iterrows():
+    for _, row in df.iterrows():
         # Create missing patients
         first_name = row['Vorname']
         last_name = row['Nachname']
