@@ -7,7 +7,7 @@
       "is_intensive_care": false,
       "is_child_care_unit": false,
       "bed_count": 20,
-      "max_patients_per_caregiver": 5.0
+      "max_patients_per_caregiver": 22.0
     }
   },
   {
@@ -18,7 +18,7 @@
       "is_intensive_care": false,
       "is_child_care_unit": false,
       "bed_count": 25,
-      "max_patients_per_caregiver": 4.5
+      "max_patients_per_caregiver": 15.0
     }
   },
   {
@@ -29,7 +29,7 @@
       "is_intensive_care": false,
       "is_child_care_unit": false,
       "bed_count": 30,
-      "max_patients_per_caregiver": 6.0
+      "max_patients_per_caregiver": 22.0
     }
   },
   {
@@ -40,7 +40,7 @@
       "is_intensive_care": false,
       "is_child_care_unit": false,
       "bed_count": 15,
-      "max_patients_per_caregiver": 4.0
+      "max_patients_per_caregiver": 20.0
     }
   },
   {
@@ -51,7 +51,7 @@
       "is_intensive_care": false,
       "is_child_care_unit": false,
       "bed_count": 20,
-      "max_patients_per_caregiver": 5.0
+      "max_patients_per_caregiver": 15.0
     }
   },
   {
@@ -62,7 +62,7 @@
       "is_intensive_care": false,
       "is_child_care_unit": false,
       "bed_count": 25,
-      "max_patients_per_caregiver": 4.5
+      "max_patients_per_caregiver": 15.0
     }
   },
   {
@@ -73,7 +73,7 @@
       "is_intensive_care": false,
       "is_child_care_unit": false,
       "bed_count": 20,
-      "max_patients_per_caregiver": 5.5
+      "max_patients_per_caregiver": 20.0
     }
   },
   {
@@ -84,7 +84,7 @@
       "is_intensive_care": true,
       "is_child_care_unit": true,
       "bed_count": 10,
-      "max_patients_per_caregiver": 2.0
+      "max_patients_per_caregiver": 5.0
     }
   },
   {
@@ -95,7 +95,7 @@
       "is_intensive_care": false,
       "is_child_care_unit": true,
       "bed_count": 15,
-      "max_patients_per_caregiver": 3.5
+      "max_patients_per_caregiver": 10.0
     }
   }
 ]
