@@ -1,11 +1,12 @@
-from datetime import timedelta
+"""Endpoint to retrieve information per station."""
+from datetime import date, datetime, timedelta
 
-from django.db.models import Count, OuterRef, Subquery, Sum, Value
+from django.db.models import Count, Sum, Value, Q
 from django.db.models.functions import Coalesce, ExtractDay
 from django.http import JsonResponse
 from django.utils import timezone
 
-from ..models import PatientTransfers, Station, StationWorkloadDaily
+from ..models import Station, StationWorkloadDaily
 
 
 def get_stations_analysis(frequency: str):
@@ -87,32 +88,18 @@ def get_stations_analysis(frequency: str):
 
 
 def get_all_stations() -> list:
-    """Get all stations stored in the db.
+    """Get all stations with todays patient count.
 
     Returns:
         list: Stations.
     """
     today = timezone.now().date()
-
-    # Subquery to get the latest transfer date for each patient
-    latest_transfer_date_subquery = PatientTransfers.objects.filter(
-        patient=OuterRef('patient')
-    ).order_by('-transfer_date').values('transfer_date')[:1]
-
-    # Subquery to get the count of patients for each station
-    patients_count_subquery = PatientTransfers.objects.filter(
-        station_new_id=OuterRef('pk'),
-        transfer_date=Subquery(latest_transfer_date_subquery),
-        transferred_to_external=False,
-        discharge_date__gte=today
-    ).values('station_new_id').annotate(
-        patient_count=Count('patient')
-    ).values('patient_count')
-
-    # Annotate each station with the number of patients
     stations = (
         Station.objects.annotate(
-            patientCount=Coalesce(Subquery(patients_count_subquery), Value(0))
+            patientCount=Count(
+                'dailypatientdata__patient',
+                filter=Q(dailypatientdata__date=today),
+            )
         )
         .values("id", "name", "patientCount")
         .order_by("name")
