@@ -101,53 +101,36 @@ class Patient(models.Model):
         return f"{self.first_name} {self.last_name}"
 
 
-class PatientTransfers(models.Model):
-    """Transfers of patients between stations."""
+class DailyPatientData(models.Model):
+    """Daily patient data for all stations."""
 
-    id = models.IntegerField(primary_key=True)
-    patient = models.ForeignKey('Patient', on_delete=models.CASCADE)
-    transfer_date = models.DateTimeField()
-    admission_date = models.DateTimeField(null=True, blank=True)  # Date and time patient arrived at hospital
-    discharge_date = models.DateField(null=True, blank=True)  # Date patient will be released from hospital
-    station_old = models.ForeignKey(
-        'Station',
-        on_delete=models.CASCADE,
-        related_name='station_old',
-        null=True,
-        blank=True
-    )  # Station patient came from
-    station_new = models.ForeignKey(
-        'Station',
-        on_delete=models.CASCADE,
-        related_name='station_new'
-    )  # Station patient was transferred to
-    transferred_to_external = models.BooleanField()  # True if patient was transferred to different hospital
-
-    def __str__(self):
-        return f"{self.patient} {self.station_old}->{self.station_new} ({self.transfer_date})"
-
-
-class StationOccupancy(models.Model):
-    """Daily patient occupancies of stations."""
-
-    id = models.IntegerField(primary_key=True)
     station = models.ForeignKey('Station', on_delete=models.CASCADE)
+    patient = models.ForeignKey('Patient', on_delete=models.CASCADE)
     date = models.DateField()
-    patients_in_total = models.IntegerField()  # total patients incoming today
-    patients_in_external = models.IntegerField()  # patients with admission_date == today
-    patients_in_internal = models.IntegerField()  # patientTransfers today with station_id_new == station_id
-    patients_out_total = models.IntegerField()  # total patients outgoing today
-    patients_out_leave = models.IntegerField()  # patients with discharge_date == today
-    patients_out_external = models.IntegerField()  # patientTransfers today with transferred_to_external == True
-    patients_out_internal = models.IntegerField()  # patientTransfers today with station_id_old == station_id
-    patients_out_deceased = models.IntegerField()  # patients with deceased_date == today
-    patients_total = models.IntegerField()  # patients_in_total - patients_out_total
+    is_semi_stationary = models.BooleanField()
+    is_fully_stationary = models.BooleanField()
+    day_of_admission = models.DateTimeField()
+    day_of_discharge = models.DateTimeField()
+    is_repeating_visit = models.BooleanField()
+    uses_quarter_entry = models.BooleanField(default=False)
+
+    class Meta:
+        """Unique constraint for station, patient and date."""
+        unique_together = ('station', 'patient', 'date')
+
+
+class DailyStationData(models.Model):
+    """Station data for each day."""
+    station = models.ForeignKey('Station, on_delete=models.CASCADE')
+    date = models.DateField()
+    number_of_caregivers = models.IntegerField()
+    number_of_suggested_caregivers = models.IntegerField()
 
     class Meta:
         unique_together = ('station', 'date')
 
     def __str__(self):
-        return f"{self.station} {self.date} {self.patients_total}"
+        return f"{self.station} {self.date}"
 
 
 class StationWorkloadDaily(models.Model):
