@@ -119,20 +119,6 @@ class DailyPatientData(models.Model):
         unique_together = ('station', 'patient', 'date')
 
 
-class DailyStationData(models.Model):
-    """Station data for each day."""
-    station = models.ForeignKey('Station, on_delete=models.CASCADE')
-    date = models.DateField()
-    number_of_caregivers = models.IntegerField()
-    number_of_suggested_caregivers = models.IntegerField()
-
-    class Meta:
-        unique_together = ('station', 'date')
-
-    def __str__(self):
-        return f"{self.station} {self.date}"
-
-
 class StationWorkloadDaily(models.Model):
     """Daily workload for caregivers in all stations."""
 
@@ -145,16 +131,14 @@ class StationWorkloadDaily(models.Model):
     shift = models.CharField(max_length=100, choices=SHIFT_CHOICES)  # Day or night shift
     patients_total = models.IntegerField()  # Patients_total of station and date
     caregivers_total = models.IntegerField()  # Imported via shift plan
-    patients_per_caregiver = models.FloatField()  # patients_total / caregivers_total
     minutes_total = models.IntegerField()  # Sum of result_minutes of station and date
-    minutes_per_caregiver = models.FloatField()  # minutes_total / caregivers_total
     PPBV_suggested_caregivers = models.FloatField(null=True, blank=True)  # Suggested caregivers according to PPBV
 
     class Meta:
         unique_together = ('station', 'date', 'shift')
 
     def __str__(self):
-        return f"{self.station} {self.date} {self.shift} {self.patients_per_caregiver}"
+        return f"{self.station} {self.date} {self.shift}"
 
 
 class StationWorkloadMonthly(models.Model):
