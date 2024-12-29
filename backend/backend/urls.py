@@ -3,7 +3,7 @@
 from django.urls import path
 
 from .src import (handle_calculations, handle_patients, handle_questions,
-                  handle_stations)
+                  handle_stations, handle_data_imports)
 
 urlpatterns = [
     path(
@@ -25,4 +25,5 @@ urlpatterns = [
         handle_patients.handle_current_station_of_patient,
         name='handle_current_station_of_patient'
     ),
+    path('import/patient/<str:date>/', handle_data_imports.handle_patient_data_import, name='handle_patient_data_import'),
 ]

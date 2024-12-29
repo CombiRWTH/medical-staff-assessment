@@ -1,8 +1,10 @@
 """Provide an endpoint to retrieve all current patients for a station."""
-from datetime import date
+from datetime import date, timedelta
 from django.http import JsonResponse
 from ..models import Patient, DailyClassification, DailyPatientData
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Subquery, OuterRef, F, Value
+from django.db.models.functions import Concat
+from django.utils import timezone
 
 
 def get_active_patients_on_station(station_id: int, date: date = date.today()) -> QuerySet[Patient]:
@@ -40,7 +42,7 @@ def get_patients_with_additional_information(station_id: int) -> list:
     Returns:
         list: The patients assigned to the station.
     """
-    today = datetime.date.today()
+    today = timezone.now().date()
 
     # Get all patients assigned to the given station
     patients = get_active_patients_on_station(station_id)
@@ -66,7 +68,7 @@ def get_patients_with_additional_information(station_id: int) -> list:
         )
     ).values('id', 'lastClassification', "currentBed", name=Concat(F('first_name'), Value(' '), F('last_name')))
 
-    return patients
+    return list(patients)
 
 
 def get_current_station_for_patient(patient_id: int) -> str:
@@ -78,18 +80,13 @@ def get_current_station_for_patient(patient_id: int) -> str:
     Returns:
         int: The ID of the station the patient is currently assigned to.
     """
+    today = timezone.now().date()
+    station = DailyPatientData.objects.filter(
+        patient=patient_id,
+        date__lte=today
+    ).order_by('-date').values('station')[:1]
 
-    now = timezone.now()
-
-    # Get the latest transfer_date for the patient
-    latest_transfer = PatientTransfers.objects.filter(
-        patient_id=patient_id, transfer_date__lte=now
-    ).latest("transfer_date")
-
-    if latest_transfer.transferred_to_external:
-        return "external"
-    else:
-        return int(latest_transfer.station_new_id)
+    return station[0]['station'] if station else None
 
 
 def get_patient_count_per_station(station_id: int) -> int:
@@ -101,60 +98,7 @@ def get_patient_count_per_station(station_id: int) -> int:
     Returns:
         int: The number of patients assigned to the station.
     """
-
     return get_active_patients_on_station(station_id).count()
-
-
-def is_patient_new_to_station(patient_id: int, station_id: int) -> bool:
-    """Check if a patient was at station in the last three months.
-    If yes, the 75 minutes are not added in care calculation.
-
-    Args:
-        patient_id (int): The ID of the patient.
-        station_id (int): The ID of the station.
-
-    Returns:
-        bool: True if the patient is new to the station, False otherwise.
-    """
-    now = timezone.now()
-
-    # Get the latest transfer_date for the patient
-    latest_transfer_to_station = PatientTransfers.objects.filter(
-        patient_id=patient_id, station_new_id=station_id, transfer_date__lte=now
-    ).latest("transfer_date")
-
-    if (now - latest_transfer_to_station.transfer_date).days > 90:
-        return True
-    else:
-        return False
-
-
-def visited_at_nighttime(
-    transfer_datetime: datetime.datetime,
-    now: datetime = timezone.now(),
-) -> bool:
-    """Check if the patient's stay includes time in night shift."""
-    if timezone.is_naive(transfer_datetime):
-        transfer_datetime = timezone.make_aware(
-            transfer_datetime, timezone.get_current_timezone()
-        )
-
-    # Define night shift start and end times
-    night_start = timezone.make_aware(
-        datetime.datetime.combine(now.date() - datetime.timedelta(days=1), time(22, 0)),
-        timezone.get_current_timezone(),
-    )  # 10 PM yesterday
-    night_end = timezone.make_aware(
-        datetime.datetime.combine(now.date(), time(6, 0)),
-        timezone.get_current_timezone(),
-    )  # 6 AM today
-
-    if transfer_datetime.date() == now.date():
-        if night_start <= transfer_datetime <= night_end:
-            return True  # Patient was transferred during night
-    else:
-        return True  # Patient was transferred before today and stayed overnight
-    return False
 
 
 def get_patients_visit_type(station_id: int) -> dict:
@@ -173,22 +117,23 @@ def get_patients_visit_type(station_id: int) -> dict:
     part_stationary = []  # (6 <= hours < 24) OR (overnight stay AND < 24 hours)
     acute = []  # < 6 hours, only day shift
     undefined = []  # catch possible edges cases
-    now = timezone.now()
 
-    all_patients = get_active_patients_on_station(station_id)
-    for patient_transfer in all_patients:
-        transfer_datetime = patient_transfer.transfer_date
-        includes_night_time = visited_at_nighttime(transfer_datetime, now)
-        patient_name = f"{patient_transfer.patient.first_name} {patient_transfer.patient.last_name}"
-        stay_duration = now - transfer_datetime
+    for patient in all_patients:
+        # Get the daily patient data for the patient
+        daily_data = DailyPatientData.objects.filter(
+            patient=patient, date=timezone.now().date()
+        ).first()
 
-        if stay_duration <= datetime.timedelta(hours=6):
+        includes_night_time = daily_data.night_stay
+        patient_name = f"{patient.first_name} {patient.last_name}"
+        stay_duration = daily_data.day_of_discharge - daily_data.day_of_admission
+
+        if stay_duration <= timedelta(hours=6):
             acute.append(patient_name)
-        elif datetime.timedelta(hours=6) < stay_duration < datetime.timedelta(
-            hours=24
-        ) or (includes_night_time and stay_duration < datetime.timedelta(hours=24)):
+        elif (timedelta(hours=6) < stay_duration < timedelta(hours=24)
+              or (includes_night_time and stay_duration < timedelta(hours=24))):
             part_stationary.append(patient_name)
-        elif stay_duration >= datetime.timedelta(hours=24):
+        elif stay_duration >= timedelta(hours=24):
             stationary.append(patient_name)
         else:
             undefined.append(patient_name)

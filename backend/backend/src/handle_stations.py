@@ -1,5 +1,5 @@
 """Endpoint to retrieve information per station."""
-from datetime import date, datetime, timedelta
+from datetime import timedelta
 
 from django.db.models import Count, Sum, Value, Q
 from django.db.models.functions import Coalesce, ExtractDay

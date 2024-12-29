@@ -113,6 +113,8 @@ class DailyPatientData(models.Model):
     day_of_discharge = models.DateTimeField()
     is_repeating_visit = models.BooleanField()
     uses_quarter_entry = models.BooleanField(default=False)
+    night_stay = models.BooleanField(default=False)
+    day_stay = models.BooleanField(default=False)
 
     class Meta:
         """Unique constraint for station, patient and date."""
