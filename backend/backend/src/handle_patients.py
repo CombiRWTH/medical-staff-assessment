@@ -42,8 +42,13 @@ def get_active_patients_on_station(
 
 
 def get_patients_with_additional_information(station_id: int) -> list:
-    """Get all patients assigned to a station with the date of their last classification and the bed they are
-    assigned to.
+    """Get all patients assigned to a station.
+
+    Additional information is added to each patient:
+    - The patient's full name
+    - The bed number the patient is currently in
+    - The relevant classification information of the patient for today
+    - The relevant classification information of the patient for the previous day
 
     Args:
         station_id (int): The ID of the station.
@@ -51,7 +56,7 @@ def get_patients_with_additional_information(station_id: int) -> list:
     Returns:
         list: The patients assigned to the station.
     """
-    now = timezone.now()
+    today = datetime.date.today()
 
     # Get all patients assigned to the given station
     patients = get_active_patients_on_station(station_id)
@@ -60,26 +65,24 @@ def get_patients_with_additional_information(station_id: int) -> list:
     patients = patients.annotate(
         lastClassification=Subquery(
             DailyClassification.objects.filter(
-                patient=OuterRef("patient_id"), date__lte=now, station=station_id
+                patient=OuterRef('id'),
+                date__lte=today,
+                station=station_id
             )
-            .order_by("-date")
-            .values("date")[:1]
+            .order_by('-date')
+            .values('date')[:1]
         ),
         currentBed=Subquery(
             DailyClassification.objects.filter(
-                patient=OuterRef("patient_id"), date__lte=now, station=station_id
-            )
-            .order_by("-date")
-            .values("bed_number")[:1]
-        ),
-    ).values(
-        "id",
-        "lastClassification",
-        "currentBed",
-        name=Concat(F("patient__first_name"), Value(" "), F("patient__last_name")),
-    )
+                patient=OuterRef('id'),
+                date__lte=today,
+                station=station_id
+            ).order_by('-date')
+            .values('bed_number')[:1]
+        )
+    ).values('id', 'lastClassification', "currentBed", name=Concat(F('first_name'), Value(' '), F('last_name')))
 
-    return list(patients)
+    return patients
 
 
 def get_current_station_for_patient(patient_id: int) -> str:
