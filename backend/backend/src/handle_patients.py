@@ -1,44 +1,28 @@
 """Provide an endpoint to retrieve all current patients for a station."""
-import datetime
-from datetime import time
-
-from django.db.models import F, Max, OuterRef, Q, QuerySet, Subquery, Value
-from django.db.models.functions import Concat
+from datetime import date
 from django.http import JsonResponse
-from django.utils import timezone
+from ..models import Patient, DailyClassification, DailyPatientData
+from django.db.models import QuerySet
 
-from ..models import DailyClassification, Patient, PatientTransfers
 
-
-def get_active_patients_on_station(
-    station_id: int, datetime: datetime.datetime = timezone.now()
-) -> QuerySet[Patient]:
+def get_active_patients_on_station(station_id: int, date: date = date.today()) -> QuerySet[Patient]:
     """Get all patients assigned to a specific station on the given date.
 
     Args:
         station_id (int): The ID of the station in the database.
-        datetime (datetime.datetime, optional): The datetime for which to retrieve the patients, defaults to now's time.
+        date (date, optional): The date for which to retrieve the patients, defaults to today's date.
 
     Returns:
         list: The patients assigned to the station.
     """
+    patients = DailyPatientData.objects.filter(
+        station=station_id,
+        date=date
+    ).values('patient')
 
-    # Get the latest transfer_date for each patient
-    latest_transfers = (
-        PatientTransfers.objects.filter(transfer_date__lte=datetime)
-        .values("patient")
-        .annotate(latest_transfer_date=Max("transfer_date"))
-    )
+    patients = Patient.objects.filter(id__in=patients)
 
-    # Filter the PatientTransfers based on the latest transfer_date and other conditions
-    active_patients = PatientTransfers.objects.filter(
-        Q(transfer_date__in=[lt["latest_transfer_date"] for lt in latest_transfers]),
-        station_new_id=station_id,
-        transferred_to_external=False,
-        discharge_date__gte=datetime,
-    )
-
-    return active_patients
+    return patients
 
 
 def get_patients_with_additional_information(station_id: int) -> list:
