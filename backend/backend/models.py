@@ -84,7 +84,6 @@ class Station(models.Model):
     name = models.CharField(max_length=100)
     is_intensive_care = models.BooleanField()
     is_child_care_unit = models.BooleanField()
-    bed_count = models.IntegerField()
     max_patients_per_caregiver = models.FloatField()  # Allowed ratio of patients per caregiver
 
     def __str__(self):
