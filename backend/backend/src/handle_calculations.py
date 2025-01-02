@@ -1,10 +1,11 @@
 """Calculate the minutes each patient should receive care services."""
-from datetime import date
+from datetime import date, datetime
 from django.http import JsonResponse
+from django.utils import timezone
 
 from .handle_questions import get_questions
 from ..models import (DailyClassification,
-                      Patient, Station)
+                      Patient, Station, DailyPatientData)
 
 
 def group_and_count_data(data: list) -> dict:
@@ -103,6 +104,37 @@ def choose_specific_care_group(data: dict) -> int:
         return 1
 
 
+def has_entry_for_current_quarter(patient_id: int, date: str) -> bool:
+    """Check if there is already an entry for the current quarter.
+
+    Returns:
+        bool: True if there is already an entry for the current quarter, False otherwise.
+    """
+    # Find the current quarter
+    q_1 = (1, 2, 3)
+    q_2 = (4, 5, 6)
+    q_3 = (7, 8, 9)
+    q_4 = (10, 11, 12)
+    date = datetime.strptime(date, "%Y-%m-%d").date()
+    if date.month in q_1:
+        quarter = q_1
+    elif date.month in q_2:
+        quarter = q_2
+    elif date.month in q_3:
+        quarter = q_3
+    else:
+        quarter = q_4
+
+    # Check if there is already an entry for the current quarter of this year
+    entry = DailyPatientData.objects.filter(
+        patient=patient_id,
+        date__year=date.year,
+        date__month__in=quarter,
+        uses_quarter_entry=True
+    ).first()
+    return entry is not None
+
+
 def sum_minutes(a_value: str, s_value: str, body: dict) -> int:
     """Sum up the minutes of the provided data.
 
@@ -114,11 +146,13 @@ def sum_minutes(a_value: str, s_value: str, body: dict) -> int:
     Returns:
         int: The sum of the minutes.
     """
-    minutes = 33  # Base value
+    # In case of a day of discharge, half the minutes_per_classification of the previous day are used (§ 12 (2)).
+    # TODO: Issue
+    minutes = 33  # Base value (§ 4 (2) 1. and  § 12 Absatz 1 Satz 1)
     if body['is_in_isolation']:
-        minutes = 123  # Base value for isolation
+        minutes = 123  # Base value for isolation (§ 4 (2) 2. and § 12 Absatz 1 Satz 2)
 
-    # Data taken from the PPBV (TODO: Outsource this to somewhere else)
+    # Data taken from the PPBV (§ 12 Absatz 4 Satz 1)
     minutes_per_classification = {
         "A1": {
             "S1": 59,
@@ -145,8 +179,20 @@ def sum_minutes(a_value: str, s_value: str, body: dict) -> int:
             "S4": 427
         }
     }
-
     minutes += minutes_per_classification[f'A{a_value}'][f'S{s_value}']
+
+    if body['is_semi_stationary']:
+        minutes /= 2  # Only use half of the minutes (§ 4 (2) 3.)
+
+    # § 4 (2) 3. and § 12 Absatz 3
+    if body['is_fully_stationary'] and body['is_day_of_admission']:
+        minutes += 75
+    if body['is_semi_stationary'] and not body['is_repeating_visit']:
+        minutes += 75
+
+    # Repeating visits due to same illness lead to less minutes for admission (§ 4 (2) 4. Satz 2)
+    if body['is_semi_stationary'] and body['is_repeating_visit'] and not body['has_entry_for_current_quarter']:
+        minutes += 75
 
     return minutes
 
@@ -185,7 +231,7 @@ def calculate_care_minutes(body_data: dict) -> int:
     return sum_minutes(a_index, s_index, body_data), a_index, s_index
 
 
-def calculate_result(station_id, patient_id: int, date: date) -> dict:
+def calculate_result(station_id: int, patient_id: int, date: date) -> dict:
     """Calculate the minutes a caregiver has time for caring for a patient.
 
     Args:
@@ -205,7 +251,7 @@ def calculate_result(station_id, patient_id: int, date: date) -> dict:
         station=station,
         date=date,
     ).first()
-    print(classification)
+
     if classification is None:
         return {'error': 'No classification found for the specified date.'}
 
@@ -215,6 +261,29 @@ def calculate_result(station_id, patient_id: int, date: date) -> dict:
         option for option in entries['care_service_options']
         if option['selected']
     ]
+
+    # Add more data provided by the hospital
+    patient_data = DailyPatientData.objects.filter(
+        patient=patient,
+        station=station,
+        date=date,
+    ).values().first()
+    entries.update(patient_data)
+
+    datetime_date = datetime.strptime(date, "%Y-%m-%d").date()
+    entries['is_day_of_admission'] = datetime_date == timezone.localtime(patient_data['day_of_admission']).date()
+    entries['is_day_of_discharge'] = datetime_date == timezone.localtime(patient_data['day_of_discharge']).date()
+
+    if not entries['uses_quarter_entry']:
+        entries['has_entry_for_current_quarter'] = has_entry_for_current_quarter(patient_id, date)
+        if (entries['is_semi_stationary']
+                and entries['is_repeating_visit']
+                and not entries['has_entry_for_current_quarter']):
+            # The extra minutes will be used for the repeating visit
+            patient_data['is_repeating_visit'] = True
+    else:
+        # Use the quarter entry again for the calculation since it is already used for the patient on this day
+        entries['has_entry_for_current_quarter'] = False
 
     # Calculate the minutes accordingly
     minutes_to_take_care, a_index, s_index = calculate_care_minutes(entries)
