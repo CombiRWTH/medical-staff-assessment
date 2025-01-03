@@ -30,4 +30,9 @@ urlpatterns = [
         handle_data_imports.handle_patient_data_import,
         name='handle_patient_data_import'
     ),
+    path(
+        'import/caregiver/',
+        handle_data_imports.handle_caregiver_shift_import,
+        name='handle_caregiver_shift_import'
+    ),
 ]
