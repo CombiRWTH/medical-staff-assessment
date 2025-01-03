@@ -131,9 +131,9 @@ class StationWorkloadDaily(models.Model):
         ('NIGHT', 'Night Shift'),
     ]
     shift = models.CharField(max_length=100, choices=SHIFT_CHOICES)  # Day or night shift
-    patients_total = models.IntegerField()  # Patients_total of station and date
-    caregivers_total = models.IntegerField()  # Imported via shift plan
-    minutes_total = models.IntegerField()  # Sum of result_minutes of station and date
+    patients_total = models.IntegerField(null=True, blank=True)  # Patients_total of station and date
+    caregivers_total = models.FloatField(null=True, blank=True)  # Imported via shift plan
+    minutes_total = models.IntegerField(null=True, blank=True)  # Sum of result_minutes of station and date
     PPBV_suggested_caregivers = models.FloatField(null=True, blank=True)  # Suggested caregivers according to PPBV
 
     class Meta:
@@ -148,13 +148,17 @@ class StationWorkloadMonthly(models.Model):
 
     station = models.ForeignKey('Station', on_delete=models.CASCADE)
     month = models.DateField()  # Use first day to represent month
-    shift = models.CharField(max_length=100)  # Day or night shift
-    patients_avg = models.FloatField()  # Average daily patients; currently same for day and night
-    caregivers_avg = models.FloatField()  # Average daily caregivers
-    patients_per_caregiver_avg = models.FloatField()  # Average daily patients per caregiver
+    SHIFT_CHOICES = [
+        ('DAY', 'Day Shift'),
+        ('NIGHT', 'Night Shift'),
+    ]
+    shift = models.CharField(max_length=100, choices=SHIFT_CHOICES)  # Day or night shift
+    patients_avg = models.FloatField(null=True, blank=True)  # Average daily patients
+    actual_caregivers_avg = models.FloatField(null=True, blank=True)  # Average daily caregivers from shift plan
+    suggested_caregivers_avg = models.FloatField(null=True, blank=True)  # Average daily caregivers according to PPBV
 
     class Meta:
         unique_together = ('station', 'month', 'shift')
 
     def __str__(self):
-        return f"{self.station} {self.month} {self.shift} {self.patients_per_caregiver_avg}"
+        return f"{self.station} {self.month} {self.shift}"

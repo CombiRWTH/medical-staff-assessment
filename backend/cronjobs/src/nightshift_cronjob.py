@@ -44,16 +44,13 @@ def calculate_caregivers_per_station() -> None:
         number_of_caregivers = get_number_of_caregivers(station.id, night_shift_start)
 
         # Create a new StationWorkloadDaily object.
-        StationWorkloadDaily.objects.create(
+        StationWorkloadDaily.objects.update_or_create(
             station=station,
             date=night_shift_start,
             shift='NIGHT',
-            patients_total=0,
-            caregivers_total=0,
-            patients_per_caregiver=0,
-            minutes_total=0,
-            minutes_per_caregiver=0,
-            PPBV_suggested_caregivers=number_of_caregivers
+            defaults={
+                'PPBV_suggested_caregivers': number_of_caregivers
+            }
         )
 
 
