@@ -149,7 +149,7 @@
     "fields": {
       "patient": 4,
       "station": 1,
-      "date": "2024-01-03",
+      "date": "2025-01-03",
       "is_semi_stationary": false,
       "is_fully_stationary": true,
       "day_of_admission": "2024-12-29T00:00:00Z",
@@ -165,7 +165,7 @@
     "fields": {
       "patient": 4,
       "station": 1,
-      "date": "2024-01-04",
+      "date": "2025-01-04",
       "is_semi_stationary": false,
       "is_fully_stationary": true,
       "day_of_admission": "2024-12-29T00:00:00Z",
@@ -181,7 +181,7 @@
     "fields": {
       "patient": 4,
       "station": 1,
-      "date": "2024-01-05",
+      "date": "2025-01-05",
       "is_semi_stationary": false,
       "is_fully_stationary": true,
       "day_of_admission": "2024-12-29T00:00:00Z",
@@ -197,7 +197,7 @@
     "fields": {
       "patient": 4,
       "station": 1,
-      "date": "2024-01-06",
+      "date": "2025-01-06",
       "is_semi_stationary": false,
       "is_fully_stationary": true,
       "day_of_admission": "2024-12-29T00:00:00Z",
@@ -213,7 +213,7 @@
     "fields": {
       "patient": 4,
       "station": 1,
-      "date": "2024-01-07",
+      "date": "2025-01-07",
       "is_semi_stationary": false,
       "is_fully_stationary": true,
       "day_of_admission": "2024-12-29T00:00:00Z",
@@ -229,7 +229,7 @@
     "fields": {
       "patient": 4,
       "station": 1,
-      "date": "2024-01-08",
+      "date": "2025-01-08",
       "is_semi_stationary": false,
       "is_fully_stationary": true,
       "day_of_admission": "2024-12-29T00:00:00Z",
@@ -245,7 +245,7 @@
     "fields": {
       "patient": 4,
       "station": 1,
-      "date": "2024-01-09",
+      "date": "2025-01-09",
       "is_semi_stationary": false,
       "is_fully_stationary": true,
       "day_of_admission": "2024-12-29T00:00:00Z",
@@ -261,7 +261,7 @@
     "fields": {
       "patient": 4,
       "station": 1,
-      "date": "2024-01-10",
+      "date": "2025-01-10",
       "is_semi_stationary": false,
       "is_fully_stationary": true,
       "day_of_admission": "2024-12-29T00:00:00Z",
@@ -277,7 +277,7 @@
     "fields": {
       "patient": 4,
       "station": 1,
-      "date": "2024-01-11",
+      "date": "2025-01-11",
       "is_semi_stationary": false,
       "is_fully_stationary": true,
       "day_of_admission": "2024-12-29T00:00:00Z",
@@ -293,7 +293,7 @@
     "fields": {
       "patient": 4,
       "station": 1,
-      "date": "2024-01-12",
+      "date": "2025-01-12",
       "is_semi_stationary": false,
       "is_fully_stationary": true,
       "day_of_admission": "2024-12-29T00:00:00Z",
@@ -309,7 +309,7 @@
     "fields": {
       "patient": 4,
       "station": 1,
-      "date": "2024-01-13",
+      "date": "2025-01-13",
       "is_semi_stationary": false,
       "is_fully_stationary": true,
       "day_of_admission": "2024-12-29T00:00:00Z",
@@ -325,7 +325,7 @@
     "fields": {
       "patient": 4,
       "station": 1,
-      "date": "2024-01-14",
+      "date": "2025-01-14",
       "is_semi_stationary": false,
       "is_fully_stationary": true,
       "day_of_admission": "2024-12-29T00:00:00Z",
@@ -341,7 +341,7 @@
     "fields": {
       "patient": 4,
       "station": 1,
-      "date": "2024-01-15",
+      "date": "2025-01-15",
       "is_semi_stationary": false,
       "is_fully_stationary": true,
       "day_of_admission": "2024-12-29T00:00:00Z",
