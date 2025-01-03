@@ -6,7 +6,7 @@
       "name": "Station 3",
       "is_intensive_care": false,
       "is_child_care_unit": false,
-      "max_patients_per_caregiver": 5.0
+      "max_patients_per_caregiver": 22.0
     }
   },
   {
@@ -16,7 +16,7 @@
       "name": "Station 5",
       "is_intensive_care": false,
       "is_child_care_unit": false,
-      "max_patients_per_caregiver": 4.5
+      "max_patients_per_caregiver": 15.0
     }
   },
   {
@@ -26,7 +26,7 @@
       "name": "Station 1A",
       "is_intensive_care": false,
       "is_child_care_unit": false,
-      "max_patients_per_caregiver": 6.0
+      "max_patients_per_caregiver": 22.0
     }
   },
   {
@@ -36,7 +36,7 @@
       "name": "Station 1C",
       "is_intensive_care": false,
       "is_child_care_unit": false,
-      "max_patients_per_caregiver": 4.0
+      "max_patients_per_caregiver": 20.0
     }
   },
   {
@@ -46,7 +46,7 @@
       "name": "Station 2A",
       "is_intensive_care": false,
       "is_child_care_unit": false,
-      "max_patients_per_caregiver": 5.0
+      "max_patients_per_caregiver": 15.0
     }
   },
   {
@@ -56,7 +56,7 @@
       "name": "Station 2C",
       "is_intensive_care": false,
       "is_child_care_unit": false,
-      "max_patients_per_caregiver": 4.5
+      "max_patients_per_caregiver": 15.0
     }
   },
   {
@@ -66,7 +66,7 @@
       "name": "Station E1",
       "is_intensive_care": false,
       "is_child_care_unit": false,
-      "max_patients_per_caregiver": 5.5
+      "max_patients_per_caregiver": 20.0
     }
   },
   {
@@ -76,7 +76,7 @@
       "name": "Station K1",
       "is_intensive_care": true,
       "is_child_care_unit": true,
-      "max_patients_per_caregiver": 2.0
+      "max_patients_per_caregiver": 5.0
     }
   },
   {
@@ -86,7 +86,7 @@
       "name": "Station K3",
       "is_intensive_care": false,
       "is_child_care_unit": true,
-      "max_patients_per_caregiver": 3.5
+      "max_patients_per_caregiver": 10.0
     }
   }
 ]
