@@ -6,7 +6,7 @@ from collections import defaultdict
 from django.http import JsonResponse
 
 from ..models import (CareServiceOption, DailyClassification,
-                      IsCareServiceUsed, Patient, Station, PatientTransfers)
+                      IsCareServiceUsed, Patient, Station, DailyPatientData)
 
 
 def add_selected_attribute(care_service_options: list, classification: dict) -> list:
@@ -64,13 +64,13 @@ def get_questions(station_id: int, patient_id: int, date: datetime.date) -> dict
         )
     )
     # Get the patient's admission and discharge dates
-    try:
-        patient = PatientTransfers.objects.get(id=patient_id)
-        admission_date = patient.admission_date
-        discharge_date = patient.discharge_date
-    except PatientTransfers.DoesNotExist:
-        admission_date = None
-        discharge_date = None
+    daily_patient_data = DailyPatientData.objects.filter(
+        patient=patient_id,
+        station=station_id,
+        date=date
+    ).values('day_of_discharge', 'day_of_admission').first()
+    admission_date = daily_patient_data['day_of_admission'] if daily_patient_data else None
+    discharge_date = daily_patient_data['day_of_discharge'] if daily_patient_data else None
 
     # Get the classification of the patient for the specified date
     classification = DailyClassification.objects.filter(
