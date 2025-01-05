@@ -211,6 +211,12 @@ def submit_selected_options(station_id: int, patient_id: int, date: datetime.dat
             mini_mental_status=0,
         )
 
+    # Provide an option to update the isolation status
+    if 'is_in_isolation' in body:
+        classification.is_in_isolation = body['is_in_isolation']
+        classification.save()
+        return
+
     # Update the selected care services
     care_service = CareServiceOption.objects.get(id=body['id'])
     if care_service is None:
@@ -225,8 +231,6 @@ def submit_selected_options(station_id: int, patient_id: int, date: datetime.dat
             classification=classification,
             care_service_option=care_service,
         ).delete()
-
-    return JsonResponse(get_grouped_data(station_id, patient_id, date), safe=False)
 
 
 def handle_questions(request, station_id: int, patient_id: int, date: str) -> JsonResponse:
@@ -248,7 +252,8 @@ def handle_questions(request, station_id: int, patient_id: int, date: str) -> Js
     if request.method == 'PUT':
         # Handle the updating of questions
         body_data = json.loads(request.body)
-        return submit_selected_options(station_id, patient_id, date, body_data)
+        submit_selected_options(station_id, patient_id, date, body_data)
+        return JsonResponse(get_grouped_data(station_id, patient_id, date), safe=False)
     elif request.method == 'GET':
         # Handle the pulling of questions for a patient
         return JsonResponse(get_grouped_data(station_id, patient_id, date), safe=False)
