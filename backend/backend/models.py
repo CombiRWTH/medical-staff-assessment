@@ -155,7 +155,7 @@ class StationWorkloadMonthly(models.Model):
     shift = models.CharField(max_length=100, choices=SHIFT_CHOICES)  # Day or night shift
     patients_avg = models.FloatField(null=True, blank=True)  # Average daily patients
     actual_caregivers_avg = models.FloatField(null=True, blank=True)  # Average daily caregivers from shift plan
-    suggested_caregivers_avg = models.FloatField(null=True, blank=True)  # Average daily caregivers according to PPBV ("Vollzeitäquivalente pro Tag")
+    suggested_caregivers_avg = models.FloatField(null=True, blank=True)  # Average daily caregivers according to PPBV
     minutes_total = models.IntegerField()  # Sum of daily minutes_total of station added over all days
     shifts_per_caregiver = models.FloatField()  # suggested_caregivers_avg / actual_caregivers_avg
 
