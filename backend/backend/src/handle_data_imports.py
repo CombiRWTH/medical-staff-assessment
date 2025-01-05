@@ -3,7 +3,7 @@
 from io import BytesIO
 from django.http import JsonResponse
 import pandas as pd
-from ..models import Patient, DailyPatientData, Station
+from ..models import Patient, DailyPatientData, Station, StationWorkloadMonthly, StationWorkloadDaily
 from datetime import datetime, date, timedelta
 from django.utils import timezone
 
@@ -87,6 +87,101 @@ def insert_patient_excel_into_db(df: pd.DataFrame, date: str) -> None:
         )
 
 
+def get_month_number(month: str) -> int:
+    """Get the number of the month from its name.
+
+    Args:
+        month (str): The name of the month.
+
+    Returns:
+        int: The number of the month.
+    """
+    matchings = {
+        'Januar': 1,
+        'Februar': 2,
+        'März': 3,
+        'April': 4,
+        'Mai': 5,
+        'Juni': 6,
+        'Juli': 7,
+        'August': 8,
+        'September': 9,
+        'Oktober': 10,
+        'November': 11,
+        'Dezember': 12
+    }
+    return matchings[month]
+
+
+def add_monthly_data(row: pd.Series) -> None:
+    """Add the monthly data to the database.
+
+    Args:
+        row (Series): The row containing the data.
+    """
+    station = Station.objects.get(name=f'Station {str(row["Station"]).strip()}')
+    date = datetime.strptime(f"{get_month_number(row['Monat'])} {timezone.now().year}", "%m %Y").date()
+    shift = 'DAY' if ('Tag' == row['Schicht']) else 'NIGHT'
+    average_caregiver = float(
+        row['Durchschnittliche\nPflegepersonalausstattung\nPflegefachkräfte'].replace(',', '.'))
+    average_caregiver_helper = float(
+        row['Durchschnittliche\nPflegepersonalausstattung\nPflegehilfskräfte'].replace(',', '.'))
+    average_midwife = float(row['Durchschnittliche\nPflegepersonalausstattung\nHebammen'].replace(',', '.'))
+    average_total = average_caregiver + average_caregiver_helper + average_midwife
+    average_patient = float(row['Durchschnittliche\nPatientenbelegung'].replace(',', '.'))
+
+    # Insert data into monthly table
+    StationWorkloadMonthly.objects.update_or_create(
+        station=station,
+        month=date,
+        shift=shift,
+        defaults={
+            'actual_caregivers_avg': average_total,
+            'patients_avg': average_patient
+        }
+    )
+
+
+def add_daily_data(row: pd.Series) -> None:
+    """Add the daily data to the database.
+
+    Args:
+        row (Series): The row containing the data.
+    """
+    station = Station.objects.get(name=f'Station {str(row["Station"]).strip()}')
+    date = row['Datum'].date()
+    shift = 'DAY' if ('Tag' == row['Schicht']) else 'NIGHT'
+    total_caregiver = float(row['Summe\nPflegefachkräfte'].replace(',', '.'))
+    total_caregiver_helper = float(row['Summe\nPflegehilfskräfte'].replace(',', '.'))
+    total_midwife = float(row['Summe\nHebammen'].replace(',', '.'))
+    total_caregivers = total_caregiver + total_caregiver_helper + total_midwife
+    total_patient = float(row['Summe\nPatientenbelegung'].replace(',', '.'))
+
+    # Insert data into daily table
+    StationWorkloadDaily.objects.update_or_create(
+        station=station,
+        date=date,
+        shift=shift,
+        defaults={
+            'caregivers_total': total_caregivers,
+            'patients_total': total_patient
+        }
+    )
+
+
+def insert_caregiver_shift_excel_into_db(df: pd.DataFrame) -> None:
+    """Insert caregiver shift data from an excel file into the database.
+
+    Args:
+        df (DataFrame): The DataFrame containing the caregiver shift data.
+    """
+    for _, row in df.iterrows():
+        if 'Monat' in row.keys():
+            add_monthly_data(row)
+        else:
+            add_daily_data(row)
+
+
 def handle_patient_data_import(request, date: str) -> JsonResponse:
     """Endpoint to import patient data.
 
@@ -110,3 +205,26 @@ def handle_patient_data_import(request, date: str) -> JsonResponse:
             return JsonResponse({'error': str(e)}, status=400)
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+
+def handle_caregiver_shift_import(request) -> JsonResponse:
+    """Endpoint to import the actual occupancy of caregivers for each station.
+
+    The body of the request should contain the excel file to be imported.
+    This can either be a daily (using a date) or montly (using a month) import.
+
+    Args:
+        request (HttpRequest): The request object.
+
+    Returns:
+        JsonResponse: The response containing the success message.
+    """
+    if request.method == 'POST':
+        try:
+            file = BytesIO(request.body)
+            df = pd.read_excel(file)
+            insert_caregiver_shift_excel_into_db(df)
+            return JsonResponse({'message': 'File processed successfully'})
+        except Exception as e:
+            print('Error', e)
+            return JsonResponse({'error': str(e)}, status=400)
