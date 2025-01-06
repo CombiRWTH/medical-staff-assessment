@@ -25,8 +25,8 @@ def get_should_vs_is_analysis(start: date, end: date) -> list:
             'dataset_night': [
                 {
                     'date': entry['date'],
-                    'should': entry['PPBV_suggested_caregivers'],
-                    'is': entry['caregivers_total']
+                    'should': entry['PPBV_suggested_caregivers'] if entry['PPBV_suggested_caregivers'] else 0,
+                    'is': entry['caregivers_total'] if entry['caregivers_total'] else 0
                 }
                 for entry in workload if entry['shift'] == 'NIGHT'
             ],
