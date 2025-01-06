@@ -3,7 +3,7 @@ import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import { addDays, differenceInCalendarDays, subDays } from 'date-fns'
 import Link from 'next/link'
-import { DefaultHeader, Header } from '@/layout/Header'
+import { Header } from '@/layout/Header'
 import { Page } from '@/layout/Page'
 import { useStationsAPI } from '@/api/stations'
 import { usePatientsAPI } from '@/api/patients'
@@ -65,81 +65,91 @@ export const PatientClassification = () => {
 
   return (
     <Page
-      header={(
-        <Header
-          start={(
-            <div className="flex flex-row items-center gap-x-4 flex-shrink-0 flex-1">
-              <DefaultHeader/>
-              <div className="bg-gray-300 rounded-full min-w-1 min-h-12"/>
-              <div className="flex flex-row gap-x-1 items-center font-semibold text-lg">
-                <Link href={`/stations/${id}`}>{currentStation?.name}</Link>
-                <strong>/</strong>
-                <Link href={`/stations/${id}/${patientId}/${dateString}`}>{currentPatient?.name}</Link>
-              </div>
-            </div>
-          )}
-          end={(
-            <div className="flex flex-row items-center w-full flex-1 justify-end">
-              <div className="flex flex-row gap-x-4 items-center flex-shrink-0 justify-end">
-                {nextUnclassifiedPatient ? (
-                  <a href={`/stations/${id}/${nextUnclassifiedPatient.id}/${formatDateFrontendURL(date)}`}>
-                    <button className="flex flex-row gap-x-2 items-center">
-                      Nächsten Patienten<ArrowRight size={20}/>
-                    </button>
-                  </a>
-                ) : (
-                  <Tooltip
-                    position="left"
-                    tooltip={
-                      allPatientsClassified
-                        ? 'Alle Patienten sind klassifiziert'
-                        : 'Kein unklassifizierter Patient gefunden'
-                    }
-                  >
-                    <button
-                      disabled={true}
-                      className="flex flex-row gap-x-2 items-center opacity-50 cursor-not-allowed text-primary hover:text-primary/90"
-                    >
-                      Nächsten Patienten<ArrowRight size={20}/>
-                    </button>
-                  </Tooltip>
-                )}
-              </div>
-            </div>
-          )}
-        >
-          <div className="flex flex-col items-center justify-center">
-            <div className="flex flex-row gap-x-2 items-center flex-1 justify-center">
-              <button
-                onClick={() => router.push(`/stations/${id}/${patientId}/${formatDateFrontendURL(subDays(date, 1))}`)}
-                className="flex flex-col items-center"
-              >
-                <Tooltip tooltip="Vorheriger Tag" position="bottom">
-                  <ChevronLeft size={32}/>
-                </Tooltip>
-              </button>
-              <DatePickerButton date={date} eventList={{}} onDateClick={(_, selectedDate) =>
-                router.push(`/stations/${id}/${patientId}/${formatDateFrontendURL(selectedDate)}`)
-              }/>
-              <button
-                onClick={() => router.push(`/stations/${id}/${patientId}/${formatDateFrontendURL(addDays(date, 1))}`)}
-                className={`flex flex-col items-center ${allowsNextDate ? '' : 'text-gray-400'}`}
-                disabled={!allowsNextDate}
-              >
-                <Tooltip tooltip="Nächster Tag" position="bottom">
-                  <ChevronRight size={32}/>
-                </Tooltip>
-              </button>
-            </div>
-            <Link
-              className="text-primary hover:text-primary/90 text-sm"
-              href={`/stations/${id}/${patientId}/${formatDateFrontendURL()}`}
+    header={(
+      <Header
+        start={(
+          <div className="flex flex-row items-center gap-x-4 flex-shrink-0 flex-1">
+            <div
+              className="flex flex-row gap-x-2 items-center cursor-pointer"
+              onClick={() => router.push('/')}
             >
-              Zu Heute
-            </Link>
+              <div className="rounded-full min-w-[32px] min-h-[32px] bg-primary" />
+              <span className="text-[15px] font-medium cursor-pointer hover:text-purple-600 hover:underline">
+                Go back to homepage
+              </span>
+            </div>
+            <div className="bg-gray-300 rounded-full min-w-1 min-h-12" />
+            <div className="flex flex-row gap-x-1 items-center font-semibold text-lg">
+              <Link href={`/stations/${id}`}>{currentStation?.name}</Link>
+              <strong>/</strong>
+              <Link href={`/stations/${id}/${patientId}/${dateString}`}>
+                {currentPatient?.name}
+              </Link>
+            </div>
           </div>
-        </Header>
-      )}
+        )}
+        end={(
+          <div className="flex flex-row items-center w-full flex-1 justify-end">
+            <div className="flex flex-row gap-x-4 items-center flex-shrink-0 justify-end">
+              {nextUnclassifiedPatient ? (
+                <a href={`/stations/${id}/${nextUnclassifiedPatient.id}/${formatDateFrontendURL(date)}`}>
+                  <button className="flex flex-row gap-x-2 items-center">
+                    Nächsten Patienten<ArrowRight size={20} />
+                  </button>
+                </a>
+              ) : (
+                <Tooltip
+                  position="left"
+                  tooltip={
+                    allPatientsClassified
+                      ? 'Alle Patienten sind klassifiziert'
+                      : 'Kein unklassifizierter Patient gefunden'
+                  }
+                >
+                  <button
+                    disabled={true}
+                    className="flex flex-row gap-x-2 items-center opacity-50 cursor-not-allowed text-primary hover:text-primary/90"
+                  >
+                    Nächsten Patienten<ArrowRight size={20} />
+                  </button>
+                </Tooltip>
+              )}
+            </div>
+          </div>
+        )}
+      >
+        <div className="flex flex-col items-center justify-center">
+          <div className="flex flex-row gap-x-2 items-center flex-1 justify-center">
+            <button
+              onClick={() => router.push(`/stations/${id}/${patientId}/${formatDateFrontendURL(subDays(date, 1))}`)}
+              className="flex flex-col items-center"
+            >
+              <Tooltip tooltip="Vorheriger Tag" position="bottom">
+                <ChevronLeft size={32} />
+              </Tooltip>
+            </button>
+            <DatePickerButton date={date} eventList={{}} onDateClick={(_, selectedDate) =>
+              router.push(`/stations/${id}/${patientId}/${formatDateFrontendURL(selectedDate)}`)
+            } />
+            <button
+              onClick={() => router.push(`/stations/${id}/${patientId}/${formatDateFrontendURL(addDays(date, 1))}`)}
+              className={`flex flex-col items-center ${allowsNextDate ? '' : 'text-gray-400'}`}
+              disabled={!allowsNextDate}
+            >
+              <Tooltip tooltip="Nächster Tag" position="bottom">
+                <ChevronRight size={32} />
+              </Tooltip>
+            </button>
+          </div>
+          <Link
+            className="text-primary hover:text-primary/90 text-sm hover:underline"
+            href={`/stations/${id}/${patientId}/${formatDateFrontendURL()}`}
+          >
+            Zu Heute
+          </Link>
+        </div>
+      </Header>
+    )}
     >
       <div className="relative flex flex-col p-8 gap-y-6 w-full">
         <div className="flex flex-row gap-x-10 sticky top-2 bg-gray-100 rounded-2xl z-[1]">
