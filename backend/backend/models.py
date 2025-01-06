@@ -157,7 +157,6 @@ class StationWorkloadMonthly(models.Model):
     actual_caregivers_avg = models.FloatField(null=True, blank=True)  # Average daily caregivers from shift plan
     suggested_caregivers_avg = models.FloatField(null=True, blank=True)  # Average daily caregivers according to PPBV
     minutes_total = models.IntegerField()  # Sum of daily minutes_total of station added over all days
-    shifts_per_caregiver = models.FloatField()  # suggested_caregivers_avg / actual_caregivers_avg
 
     class Meta:
         unique_together = ('station', 'month', 'shift')
