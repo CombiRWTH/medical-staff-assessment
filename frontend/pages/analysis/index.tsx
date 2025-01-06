@@ -95,43 +95,47 @@ export const AnalysisPage: NextPage = () => {
       <div className="flex flex-wrap gap-10 p-10 content-start">
         <Card
           key="combined-stations"
-          className={`flex flex-col gap-y-2 bg-emerald-100 border-emerald-300 w-full cursor-pointer
-                    ${selectedStations.includes(COMBINED_STATIONS_KEY)
-            ? 'border-2 border-primary bg-primary/10'
-            : ''}`}
+          className={`flex flex-col gap-y-2 cursor-pointer transition-colors w-full
+            ${selectedStations.includes(COMBINED_STATIONS_KEY)
+              ? 'bg-primary/10'
+              : 'bg-emerald-100 hover:bg-emerald-50'}`}
           onClick={() => toggleStationSelection(COMBINED_STATIONS_KEY)}
         >
-          <span className="text-xl font-semibold text-emerald-800">Alle Stationen</span>
-          <div className="flex flex-row w-full justify-between gap-x-2 items-center">
-            <span className="text-emerald-700">Gesamtpatientenanzahl:</span>
-            <span className="font-semibold text-emerald-800">{combinedValues.patientCount}</span>
+          <div className="p-4 flex flex-col">
+            <span className="text-xl font-semibold text-emerald-800">Alle Stationen</span>
+            <div className="flex flex-row w-full justify-between gap-x-2 items-center mt-2">
+              <span className="text-emerald-700">Gesamtpatientenanzahl:</span>
+              <span className="font-semibold text-emerald-800">{combinedValues.patientCount}</span>
+            </div>
           </div>
         </Card>
 
-        {data.map(value => {
-          let minutes: number
-          if ('minutes' in value) {
-            minutes = value.minutes
-          } else {
-            minutes = value.data.map(value => value.minutes).reduce((pre, acc) => pre + acc, 0)
-          }
-          return (
-            <Card
-              key={value.id}
-              className={`flex flex-col gap-y-2 cursor-pointer
-              ${selectedStations.includes(value.id)
-                ? 'border-2 border-primary bg-primary/10'
-                : 'border-gray-200'}`}
-              onClick={() => toggleStationSelection(value.id)}
-            >
-              <span className="text-xl font-semibold">{value.name}</span>
-              <div className="flex flex-row w-full justify-between items-center gap-x-4">
-                <span className="text-sm text-gray-500">Minuten</span>
-                <span className="font-semibold text-emerald-800">{minutes}</span>
-              </div>
-            </Card>
-          )
-        })}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {data.map(value => {
+            const minutes = 'minutes' in value
+              ? value.minutes
+              : value.data.map(v => v.minutes).reduce((pre, acc) => pre + acc, 0)
+
+            return (
+              <Card
+                key={value.id}
+                className={`flex flex-col gap-y-2 cursor-pointer transition-colors
+                  ${selectedStations.includes(value.id)
+                    ? 'bg-primary/10'
+                    : 'bg-white hover:bg-gray-50'}`}
+                onClick={() => toggleStationSelection(value.id)}
+              >
+                <div className="p-4 flex flex-col h-full">
+                  <span className="text-xl font-semibold mb-auto">{value.name}</span>
+                  <div className="flex flex-row w-full justify-between items-center gap-x-4 mt-2">
+                    <span className="text-sm text-gray-500">Minuten</span>
+                    <span className="font-semibold text-emerald-800">{minutes}</span>
+                  </div>
+                </div>
+              </Card>
+            )
+          })}
+        </div>
       </div>
       <button
         onClick={exportData}

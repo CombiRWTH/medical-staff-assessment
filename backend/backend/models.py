@@ -84,7 +84,6 @@ class Station(models.Model):
     name = models.CharField(max_length=100)
     is_intensive_care = models.BooleanField()
     is_child_care_unit = models.BooleanField()
-    bed_count = models.IntegerField()
     max_patients_per_caregiver = models.FloatField()  # Allowed ratio of patients per caregiver
 
     def __str__(self):
@@ -97,62 +96,29 @@ class Patient(models.Model):
     id = models.IntegerField(primary_key=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    date_of_birth = models.DateField()
-    weight = models.FloatField()
-    height = models.FloatField()
-    deceased_date = models.DateField(null=True, blank=True)  # Date patient passed away
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
 
-class PatientTransfers(models.Model):
-    """Transfers of patients between stations."""
+class DailyPatientData(models.Model):
+    """Daily patient data for all stations."""
 
-    id = models.IntegerField(primary_key=True)
-    patient = models.ForeignKey('Patient', on_delete=models.CASCADE)
-    transfer_date = models.DateTimeField()
-    admission_date = models.DateTimeField(null=True, blank=True)  # Date and time patient arrived at hospital
-    discharge_date = models.DateField(null=True, blank=True)  # Date patient will be released from hospital
-    station_old = models.ForeignKey(
-        'Station',
-        on_delete=models.CASCADE,
-        related_name='station_old',
-        null=True,
-        blank=True
-    )  # Station patient came from
-    station_new = models.ForeignKey(
-        'Station',
-        on_delete=models.CASCADE,
-        related_name='station_new'
-    )  # Station patient was transferred to
-    transferred_to_external = models.BooleanField()  # True if patient was transferred to different hospital
-
-    def __str__(self):
-        return f"{self.patient} {self.station_old}->{self.station_new} ({self.transfer_date})"
-
-
-class StationOccupancy(models.Model):
-    """Daily patient occupancies of stations."""
-
-    id = models.IntegerField(primary_key=True)
     station = models.ForeignKey('Station', on_delete=models.CASCADE)
+    patient = models.ForeignKey('Patient', on_delete=models.CASCADE)
     date = models.DateField()
-    patients_in_total = models.IntegerField()  # total patients incoming today
-    patients_in_external = models.IntegerField()  # patients with admission_date == today
-    patients_in_internal = models.IntegerField()  # patientTransfers today with station_id_new == station_id
-    patients_out_total = models.IntegerField()  # total patients outgoing today
-    patients_out_leave = models.IntegerField()  # patients with discharge_date == today
-    patients_out_external = models.IntegerField()  # patientTransfers today with transferred_to_external == True
-    patients_out_internal = models.IntegerField()  # patientTransfers today with station_id_old == station_id
-    patients_out_deceased = models.IntegerField()  # patients with deceased_date == today
-    patients_total = models.IntegerField()  # patients_in_total - patients_out_total
+    is_semi_stationary = models.BooleanField()
+    is_fully_stationary = models.BooleanField()
+    day_of_admission = models.DateTimeField()
+    day_of_discharge = models.DateTimeField()
+    is_repeating_visit = models.BooleanField()
+    uses_quarter_entry = models.BooleanField(default=False)
+    night_stay = models.BooleanField(default=False)
+    day_stay = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ('station', 'date')
-
-    def __str__(self):
-        return f"{self.station} {self.date} {self.patients_total}"
+        """Unique constraint for station, patient and date."""
+        unique_together = ('station', 'patient', 'date')
 
 
 class StationWorkloadDaily(models.Model):
@@ -165,18 +131,16 @@ class StationWorkloadDaily(models.Model):
         ('NIGHT', 'Night Shift'),
     ]
     shift = models.CharField(max_length=100, choices=SHIFT_CHOICES)  # Day or night shift
-    patients_total = models.IntegerField()  # Patients_total of station and date
-    caregivers_total = models.IntegerField()  # Imported via shift plan
-    patients_per_caregiver = models.FloatField()  # patients_total / caregivers_total
-    minutes_total = models.IntegerField()  # Sum of result_minutes of station and date
-    minutes_per_caregiver = models.FloatField()  # minutes_total / caregivers_total
+    patients_total = models.IntegerField(null=True, blank=True)  # Patients_total of station and date
+    caregivers_total = models.FloatField(null=True, blank=True)  # Imported via shift plan
+    minutes_total = models.IntegerField(null=True, blank=True)  # Sum of result_minutes of station and date
     PPBV_suggested_caregivers = models.FloatField(null=True, blank=True)  # Suggested caregivers according to PPBV
 
     class Meta:
         unique_together = ('station', 'date', 'shift')
 
     def __str__(self):
-        return f"{self.station} {self.date} {self.shift} {self.patients_per_caregiver}"
+        return f"{self.station} {self.date} {self.shift}"
 
 
 class StationWorkloadMonthly(models.Model):
@@ -184,13 +148,17 @@ class StationWorkloadMonthly(models.Model):
 
     station = models.ForeignKey('Station', on_delete=models.CASCADE)
     month = models.DateField()  # Use first day to represent month
-    shift = models.CharField(max_length=100)  # Day or night shift
-    patients_avg = models.FloatField()  # Average daily patients; currently same for day and night
-    caregivers_avg = models.FloatField()  # Average daily caregivers
-    patients_per_caregiver_avg = models.FloatField()  # Average daily patients per caregiver
+    SHIFT_CHOICES = [
+        ('DAY', 'Day Shift'),
+        ('NIGHT', 'Night Shift'),
+    ]
+    shift = models.CharField(max_length=100, choices=SHIFT_CHOICES)  # Day or night shift
+    patients_avg = models.FloatField(null=True, blank=True)  # Average daily patients
+    actual_caregivers_avg = models.FloatField(null=True, blank=True)  # Average daily caregivers from shift plan
+    suggested_caregivers_avg = models.FloatField(null=True, blank=True)  # Average daily caregivers according to PPBV
 
     class Meta:
         unique_together = ('station', 'month', 'shift')
 
     def __str__(self):
-        return f"{self.station} {self.month} {self.shift} {self.patients_per_caregiver_avg}"
+        return f"{self.station} {self.month} {self.shift}"

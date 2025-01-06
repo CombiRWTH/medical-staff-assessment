@@ -1,197 +1,354 @@
 [
   {
-    "model": "backend.PatientTransfers",
+    "model": "backend.DailyPatientData",
     "pk": 1,
     "fields": {
       "patient": 1,
-      "transfer_date": "2024-11-01T10:00:00+01:00",
-      "admission_date": "2024-11-01T10:30:00+01:00",
-      "discharge_date": "2024-11-15",
-      "station_old": 2,
-      "station_new": 1,
-      "transferred_to_external": false
+      "station": 1,
+      "date": "2024-12-29",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2024-12-29T00:00:00Z",
+      "day_of_discharge": "2024-12-30T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": false,
+      "day_stay": true
     }
   },
   {
-    "model": "backend.PatientTransfers",
+    "model": "backend.DailyPatientData",
     "pk": 2,
     "fields": {
       "patient": 2,
-      "transfer_date": "2024-11-05T09:15:00+01:00",
-      "admission_date": "2024-11-05T09:45:00+01:00",
-      "discharge_date": "2024-11-20",
-      "station_old": 1,
-      "station_new": 2,
-      "transferred_to_external": false
+      "station": 1,
+      "date": "2024-12-29",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2024-12-29T00:00:00Z",
+      "day_of_discharge": "2024-12-30T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": false,
+      "day_stay": true
     }
   },
   {
-    "model": "backend.PatientTransfers",
+    "model": "backend.DailyPatientData",
     "pk": 3,
     "fields": {
       "patient": 3,
-      "transfer_date": "2024-11-10T14:20:00+01:00",
-      "admission_date": "2024-11-10T14:45:00+01:00",
-      "discharge_date": "2024-11-25",
-      "station_old": 2,
-      "station_new": 3,
-      "transferred_to_external": false
+      "station": 1,
+      "date": "2024-12-29",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2024-12-29T00:00:00Z",
+      "day_of_discharge": "2024-12-30T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": false,
+      "day_stay": true
     }
   },
   {
-    "model": "backend.PatientTransfers",
+    "model": "backend.DailyPatientData",
     "pk": 4,
     "fields": {
-      "patient": 4,
-      "transfer_date": "2024-11-12T08:00:00+01:00",
-      "admission_date": "2024-11-12T08:15:00+01:00",
-      "discharge_date": "2024-11-18",
-      "station_old": 1,
-      "station_new": 4,
-      "transferred_to_external": false
+      "patient": 1,
+      "station": 1,
+      "date": "2024-12-30",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2024-12-29T00:00:00Z",
+      "day_of_discharge": "2024-12-31T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": false,
+      "day_stay": true
     }
   },
   {
-    "model": "backend.PatientTransfers",
+    "model": "backend.DailyPatientData",
     "pk": 5,
     "fields": {
-      "patient": 5,
-      "transfer_date": "2024-11-15T12:30:00+01:00",
-      "admission_date": "2024-11-15T13:00:00+01:00",
-      "discharge_date": "2024-11-28",
-      "station_old": 2,
-      "station_new": 5,
-      "transferred_to_external": false
+      "patient": 2,
+      "station": 1,
+      "date": "2024-12-30",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2024-12-29T00:00:00Z",
+      "day_of_discharge": "2024-12-31T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": false,
+      "day_stay": true
     }
   },
   {
-    "model": "backend.PatientTransfers",
+    "model": "backend.DailyPatientData",
     "pk": 6,
     "fields": {
-      "patient": 6,
-      "transfer_date": "2024-11-01T15:45:00+01:00",
-      "admission_date": "2024-11-01T16:00:00+01:00",
-      "discharge_date": "2024-11-10",
-      "station_old": 3,
-      "station_new": 6,
-      "transferred_to_external": true
+      "patient": 3,
+      "station": 1,
+      "date": "2024-12-30",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2024-12-29T00:00:00Z",
+      "day_of_discharge": "2024-12-31T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": false,
+      "day_stay": true
     }
   },
   {
-    "model": "backend.PatientTransfers",
+    "model": "backend.DailyPatientData",
     "pk": 7,
     "fields": {
-      "patient": 7,
-      "transfer_date": "2024-11-08T10:20:00+01:00",
-      "admission_date": "2024-11-08T10:45:00+01:00",
-      "discharge_date": "2024-11-22",
-      "station_old": 4,
-      "station_new": 7,
-      "transferred_to_external": false
+      "patient": 4,
+      "station": 1,
+      "date": "2024-12-31",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2024-12-29T00:00:00Z",
+      "day_of_discharge": "2025-01-01T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": false,
+      "day_stay": true
     }
   },
   {
-    "model": "backend.PatientTransfers",
+    "model": "backend.DailyPatientData",
     "pk": 8,
     "fields": {
-      "patient": 8,
-      "transfer_date": "2024-11-03T08:50:00+01:00",
-      "admission_date": "2024-11-03T09:15:00+01:00",
-      "discharge_date": "2024-11-12",
-      "station_old": 5,
-      "station_new": 8,
-      "transferred_to_external": false
+      "patient": 4,
+      "station": 1,
+      "date": "2024-01-01",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2024-12-29T00:00:00Z",
+      "day_of_discharge": "2025-01-02T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": false,
+      "day_stay": true
     }
   },
   {
-    "model": "backend.PatientTransfers",
+    "model": "backend.DailyPatientData",
     "pk": 9,
     "fields": {
-      "patient": 9,
-      "transfer_date": "2024-11-17T14:00:00+01:00",
-      "admission_date": "2024-11-17T14:30:00+01:00",
-      "discharge_date": "2024-11-29",
-      "station_old": 6,
-      "station_new": 9,
-      "transferred_to_external": true
+      "patient": 4,
+      "station": 1,
+      "date": "2024-01-02",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2024-12-29T00:00:00Z",
+      "day_of_discharge": "2025-01-03T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": false,
+      "day_stay": true
     }
   },
   {
-    "model": "backend.PatientTransfers",
+    "model": "backend.DailyPatientData",
     "pk": 10,
     "fields": {
-      "patient": 10,
-      "transfer_date": "2024-11-06T11:00:00+01:00",
-      "admission_date": "2024-11-06T11:30:00+01:00",
-      "discharge_date": "2024-11-16",
-      "station_old": 7,
-      "station_new": 1,
-      "transferred_to_external": false
+      "patient": 4,
+      "station": 1,
+      "date": "2025-01-03",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2024-12-29T00:00:00Z",
+      "day_of_discharge": "2025-01-04T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": false,
+      "day_stay": true
     }
   },
   {
-    "model": "backend.PatientTransfers",
+    "model": "backend.DailyPatientData",
     "pk": 11,
     "fields": {
-      "patient": 11,
-      "transfer_date": "2024-11-10T09:40:00+01:00",
-      "admission_date": "2024-11-10T10:00:00+01:00",
-      "discharge_date": "2024-11-20",
-      "station_old": 8,
-      "station_new": 2,
-      "transferred_to_external": false
+      "patient": 4,
+      "station": 1,
+      "date": "2025-01-04",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2024-12-29T00:00:00Z",
+      "day_of_discharge": "2025-01-05T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": false,
+      "day_stay": true
     }
   },
   {
-    "model": "backend.PatientTransfers",
+    "model": "backend.DailyPatientData",
     "pk": 12,
     "fields": {
-      "patient": 12,
-      "transfer_date": "2024-11-18T07:15:00+01:00",
-      "admission_date": "2024-11-18T07:45:00+01:00",
-      "discharge_date": "2024-11-26",
-      "station_old": 9,
-      "station_new": 3,
-      "transferred_to_external": false
+      "patient": 4,
+      "station": 1,
+      "date": "2025-01-05",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2024-12-29T00:00:00Z",
+      "day_of_discharge": "2025-01-06T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": false,
+      "day_stay": true
     }
   },
   {
-    "model": "backend.PatientTransfers",
+    "model": "backend.DailyPatientData",
     "pk": 13,
     "fields": {
-      "patient": 13,
-      "transfer_date": "2024-11-05T12:20:00+01:00",
-      "admission_date": "2024-11-05T12:50:00+01:00",
-      "discharge_date": "2024-11-15",
-      "station_old": 7,
-      "station_new": 4,
-      "transferred_to_external": false
+      "patient": 4,
+      "station": 1,
+      "date": "2025-01-06",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2024-12-29T00:00:00Z",
+      "day_of_discharge": "2025-01-07T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": false,
+      "day_stay": true
     }
   },
   {
-    "model": "backend.PatientTransfers",
+    "model": "backend.DailyPatientData",
     "pk": 14,
     "fields": {
-      "patient": 14,
-      "transfer_date": "2024-11-09T08:30:00+01:00",
-      "admission_date": "2024-11-09T09:00:00+01:00",
-      "discharge_date": "2024-11-21",
-      "station_old": 1,
-      "station_new": 5,
-      "transferred_to_external": false
+      "patient": 4,
+      "station": 1,
+      "date": "2025-01-07",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2024-12-29T00:00:00Z",
+      "day_of_discharge": "2025-01-08T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": false,
+      "day_stay": true
     }
   },
   {
-    "model": "backend.PatientTransfers",
+    "model": "backend.DailyPatientData",
     "pk": 15,
     "fields": {
-      "patient": 15,
-      "transfer_date": "2024-11-12T14:00:00+01:00",
-      "admission_date": "2024-11-12T14:30:00+01:00",
-      "discharge_date": "2024-11-23",
-      "station_old": 2,
-      "station_new": 6,
-      "transferred_to_external": true
+      "patient": 4,
+      "station": 1,
+      "date": "2025-01-08",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2024-12-29T00:00:00Z",
+      "day_of_discharge": "2025-01-09T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": false,
+      "day_stay": true
+    }
+  },
+  {
+    "model": "backend.DailyPatientData",
+    "pk": 16,
+    "fields": {
+      "patient": 4,
+      "station": 1,
+      "date": "2025-01-09",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2024-12-29T00:00:00Z",
+      "day_of_discharge": "2025-01-10T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": false,
+      "day_stay": true
+    }
+  },
+  {
+    "model": "backend.DailyPatientData",
+    "pk": 17,
+    "fields": {
+      "patient": 4,
+      "station": 1,
+      "date": "2025-01-10",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2024-12-29T00:00:00Z",
+      "day_of_discharge": "2025-01-11T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": false,
+      "day_stay": true
+    }
+  },
+  {
+    "model": "backend.DailyPatientData",
+    "pk": 18,
+    "fields": {
+      "patient": 4,
+      "station": 1,
+      "date": "2025-01-11",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2024-12-29T00:00:00Z",
+      "day_of_discharge": "2025-01-12T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": false,
+      "day_stay": true
+    }
+  },
+  {
+    "model": "backend.DailyPatientData",
+    "pk": 19,
+    "fields": {
+      "patient": 4,
+      "station": 1,
+      "date": "2025-01-12",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2024-12-29T00:00:00Z",
+      "day_of_discharge": "2025-01-13T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": false,
+      "day_stay": true
+    }
+  },
+  {
+    "model": "backend.DailyPatientData",
+    "pk": 20,
+    "fields": {
+      "patient": 4,
+      "station": 1,
+      "date": "2025-01-13",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2024-12-29T00:00:00Z",
+      "day_of_discharge": "2025-01-14T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": false,
+      "day_stay": true
+    }
+  },
+  {
+    "model": "backend.DailyPatientData",
+    "pk": 21,
+    "fields": {
+      "patient": 4,
+      "station": 1,
+      "date": "2025-01-14",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2024-12-29T00:00:00Z",
+      "day_of_discharge": "2025-01-15T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": false,
+      "day_stay": true
+    }
+  },
+  {
+    "model": "backend.DailyPatientData",
+    "pk": 22,
+    "fields": {
+      "patient": 4,
+      "station": 1,
+      "date": "2025-01-15",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2024-12-29T00:00:00Z",
+      "day_of_discharge": "2025-01-16T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": false,
+      "day_stay": true
     }
   }
 ]

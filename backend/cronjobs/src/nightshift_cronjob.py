@@ -2,7 +2,7 @@
 # Set up Django.
 import django
 django.setup()
-from backend.models import Station, StationWorkloadDaily  # noqa: E402
+from backend.models import Station, StationWorkloadDaily, DailyPatientData  # noqa: E402
 import datetime  # noqa: E402
 
 
@@ -16,10 +16,12 @@ def get_number_of_caregivers(station_id: int, date: datetime.date) -> int:
     Returns:
         The suggested number of caregivers.
     """
-    # Get the number of patients for the station.
-    # This relies on https://github.com/CombiRWTH/medical-staff-assessment/issues/44
-    # TODO: Adjust this after this issue is closed.
-    number_of_patients = 20
+    # Get the number of patients for the station in the nightshift.
+    number_of_patients = DailyPatientData.objects.filter(
+        station=station_id,
+        date=date,
+        night_stay=True
+    ).count()
     # Get the number of caregivers for the station.
     caregiver_ratio = Station.objects.get(id=station_id).max_patients_per_caregiver
     number_of_caregivers = number_of_patients / caregiver_ratio
@@ -42,16 +44,13 @@ def calculate_caregivers_per_station() -> None:
         number_of_caregivers = get_number_of_caregivers(station.id, night_shift_start)
 
         # Create a new StationWorkloadDaily object.
-        StationWorkloadDaily.objects.create(
+        StationWorkloadDaily.objects.update_or_create(
             station=station,
             date=night_shift_start,
             shift='NIGHT',
-            patients_total=0,
-            caregivers_total=0,
-            patients_per_caregiver=0,
-            minutes_total=0,
-            minutes_per_caregiver=0,
-            PPBV_suggested_caregivers=number_of_caregivers
+            defaults={
+                'PPBV_suggested_caregivers': number_of_caregivers
+            }
         )
 
 

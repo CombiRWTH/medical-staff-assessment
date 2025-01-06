@@ -10,10 +10,9 @@ from .models import (
     DailyClassification,
     Patient,
     Station,
-    PatientTransfers,
-    StationOccupancy,
     StationWorkloadDaily,
     StationWorkloadMonthly,
+    DailyPatientData
 )
 admin.site.register(CareServiceCategory)
 admin.site.register(CareServiceField)
@@ -22,7 +21,6 @@ admin.site.register(IsCareServiceUsed)
 admin.site.register(DailyClassification)
 admin.site.register(Patient)
 admin.site.register(Station)
-admin.site.register(PatientTransfers)
-admin.site.register(StationOccupancy)
 admin.site.register(StationWorkloadDaily)
 admin.site.register(StationWorkloadMonthly)
+admin.site.register(DailyPatientData)
