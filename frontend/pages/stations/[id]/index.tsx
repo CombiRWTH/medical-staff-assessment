@@ -64,9 +64,15 @@ export const StationPatientList = () => {
     <Page
       header={(
         <Header start={(
-          <div className="flex flex-row gap-x-4 items-center">
-            <ArrowLeft size={32} onClick={() => router.push('/stations')} className="cursor-pointer"/>
-            <h2 className="text-2xl bold">{currentStation?.name}</h2>
+          <div className="flex flex-col gap-y-4">
+          <div className="flex flex-row gap-x-2 items-center cursor-pointer" onClick={() => router.push('/')}>
+              <div className="rounded-full min-w-[25px] min-h-[25px] bg-primary" />
+              <span className="text-[15px] font-medium cursor-pointer hover:text-purple-600 hover:underline">Go back to homepage</span>
+            </div>
+            <div className="flex flex-row gap-x-4 items-center">
+              <ArrowLeft size={32} onClick={() => router.push('/stations')} className="cursor-pointer" />
+              <h2 className="text-2xl bold">{currentStation?.name}</h2>
+            </div>
           </div>
         )}/>
       )}
