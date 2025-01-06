@@ -31,12 +31,15 @@ def calculate_monthly_station_minutes(station: int, date: datetime.date, shift: 
     minutes_total = 0
     patients_total = 0
     caregivers_total = 0
+    suggested_total = 0
     for entry in days:
         minutes_total += entry['minutes_total']
         patients_total += entry['patients_total']
         caregivers_total += entry['caregivers_total']
+        suggested_total += entry['PPBV_suggested_caregivers']
 
-    return {"minutes_total": minutes_total, "patients_total": patients_total, "caregivers_total": caregivers_total}
+    return {"minutes_total": minutes_total, "patients_total": patients_total,
+            "caregivers_total": caregivers_total, "suggested_total": suggested_total}
 
 
 def calculate():
@@ -45,7 +48,7 @@ def calculate():
     for station in stations:
         days_in_month = monthrange(date.year, date.month)
 
-        """Compute statistics for all the day shifts"""
+        """Compute statistics for all of the day shifts"""
 
         dict_res_day = calculate_monthly_station_minutes(station, date, 'DAY')
         patients_avg = dict_res_day['patients_total'] / days_in_month
@@ -65,18 +68,12 @@ def calculate():
             shifts_per_caregiver=suggested_caregivers_avg / caregivers_avg
         )
 
-        """Compute statistics for all the night shifts"""
+        """Compute statistics for all of the night shifts"""
 
         dict_res_day = calculate_monthly_station_minutes(station, date, 'NIGHT')
         patients_avg = dict_res_day['patients_total'] / days_in_month
         caregivers_avg = dict_res_day['caregivers_total'] / days_in_month
-        patients_pers_caregiver_avg = dict_res_day['patients_total'] / dict_res_day['caregivers_total']
-
-        # According to article 4.3 of the PPBV
-        patient_caregiver_ratio = 20  # Should be changable according to "Pflegepersonaluntergrenzen-Verordnung"
-        suggested_caregivers_avg = patients_pers_caregiver_avg / patient_caregiver_ratio
-        if suggested_caregivers_avg < 1:
-            suggested_caregivers_avg = 1
+        suggested_caregivers_avg = dict_res_day['suggested_total'] / days_in_month
 
         StationWorkloadMonthly.objects.create(
             station=station,
