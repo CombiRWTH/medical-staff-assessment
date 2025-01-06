@@ -1,6 +1,5 @@
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
-import { ArrowRight } from 'lucide-react'
 import { Page } from '@/layout/Page'
 import { Header } from '@/layout/Header'
 import { Sidebar } from '@/layout/Sidebar'
