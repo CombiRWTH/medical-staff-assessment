@@ -50,13 +50,15 @@ export const Tooltip = ({
       {children}
       {isVisible && (
         <div
-          className={`absolute z-50 bg-gray-800 text-white text-xs px-3 py-2 rounded shadow-lg whitespace-nowrap
+        className={`absolute z-50 bg-gray-800 text-white text-xs px-3 py-2 rounded shadow-lg whitespace-nowrap
             ${positionClasses[position]} ${tooltipClassName} animate-fade-in`}
-        >
-          {tooltip}
-          <div className={`absolute w-0 h-0 z-10 ${triangleClasses[position]}`} style={triangleStyle[position]}/>
-        </div>
-      )}
+    >
+      {tooltip}
+      <div className={`absolute w-0 h-0 z-10 ${triangleClasses[position]} ${isVisible ? '' : 'hidden'}`}
+           style={triangleStyle[position]}/>
     </div>
+      )
+}
+</div>
   )
 }
