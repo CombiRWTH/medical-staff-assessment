@@ -1,39 +1,38 @@
 import { useEffect, useState } from 'react'
 import { Info } from 'lucide-react'
 import { range } from '@/util/range'
-import type { DailyClassificationField, DailyClassificationOption } from '@/data-models/classification'
+import type {
+  DailyClassificationCategory,
+  DailyClassificationField,
+  DailyClassificationOption
+} from '@/data-models/classification'
 import { Tooltip } from '@/components/Tooltip'
 
 export type ClassificationOptionDisplayProps = {
   options: DailyClassificationOption[],
-  onlySelected: boolean,
-  isLastCellInCol: boolean,
+  isOpen: boolean,
+  isInLastRow: boolean,
   onUpdate: (id: number, selected: boolean) => void
 }
 
 export const ClassificationOptionDisplay = ({
   options,
-  onlySelected,
-  isLastCellInCol,
+  isOpen,
+  isInLastRow,
   onUpdate
 }: ClassificationOptionDisplayProps) => {
-  const [isOpen, setIsOpen] = useState<boolean>(!onlySelected)
-
-  useEffect(() => {
-    setIsOpen(!onlySelected)
-  }, [onlySelected])
-
   const filteredOptionList = options.filter(option => option.selected)
   const hasSelected = filteredOptionList.length !== 0
   const usedList = isOpen ? options : filteredOptionList
   return (
     <td
-      className={`px-2 py-1 align-top border-r-2 last:border-r-0 border-black ${isLastCellInCol ? 'border-b-0' : 'border-b-2'} ${hasSelected ? 'bg-primary/10' : ''}`}>
+      className={`py-1 px-1 align-top border-r-2 last:border-r-0 border-black ${isInLastRow ? 'border-b-0' : 'border-b-2'} ${hasSelected ? 'bg-primary/10' : ''}`}>
       <div className="flex flex-col gap-y-1 items-start w-full">
         {usedList.length !== 0 ? (
           <>
             {usedList.map(option => (
-              <label key={option.id} className="flex flex-row items-start w-full">
+              <label key={option.id}
+                     className="hover:bg-primary/40 flex flex-row items-start justify-start gap-x-2 rounded-md px-2 py-1 cursor-pointer w-full">
                 <input
                   type="checkbox"
                   value={option.name}
@@ -44,11 +43,14 @@ export const ClassificationOptionDisplay = ({
                   }}
                 />
                 <div className="flex justify-between items-start w-full min-w-0">
-                  <span className="break-words pr-2">{option.short}</span>
-                  <Tooltip tooltip={option.description} position="bottom" className="max-w-[300px] !whitespace-normal">
-                    <div className="inline-flex mt-0.5 shrink-0">
-                      <Info className="h-3 w-3 text-gray-400" />
-                    </div>
+                  <span className="w-full overflow-hidden break-words pr-2">{option.short}</span>
+                  <Tooltip
+                    tooltip={option.description}
+                    position="bottom"
+                    tooltipClassName="w-max max-w-[300px] flex flex-row flex-grow !whitespace-normal"
+                    containerClassName="!w-auto mt-0.5"
+                  >
+                    <Info className="!h-5 !w-5 text-gray-500"/>
                   </Tooltip>
                 </div>
               </label>
@@ -62,13 +64,57 @@ export const ClassificationOptionDisplay = ({
             </label>
           </div>
         )}
-        {isOpen ? (
-          <button onClick={() => setIsOpen(false)} className="text-primary hover:text-primary/90 w-full text-end">Weniger anzeigen</button>
-        ) : (
-          <button onClick={() => setIsOpen(true)} className="text-primary hover:text-primary/90 w-full text-end">Alle anzeigen</button>
-        )}
       </div>
     </td>
+  )
+}
+
+export type ClassificationOptionRowProps = {
+  category: DailyClassificationCategory,
+  onlySelected: boolean,
+  isLastRow: boolean,
+  onUpdate: (id: number, selected: boolean) => void
+}
+
+export const ClassificationOptionRow = ({
+  category,
+  onlySelected,
+  isLastRow,
+  onUpdate
+}: ClassificationOptionRowProps) => {
+  const [isOpen, setIsOpen] = useState<boolean>(!onlySelected)
+
+  useEffect(() => {
+    setIsOpen(!onlySelected)
+  }, [onlySelected])
+
+  return (
+    <tr key={category.short}>
+      <td
+        className={`align-top font-semibold px-2 border-r-2 border-black ${!isLastRow ? 'border-b-2' : 'border-0'}`}>
+        <div className="flex flex-row gap-x-2">
+          {category.short}
+          {isOpen ? (
+            <button onClick={() => setIsOpen(false)}
+                    className="text-primary hover:text-primary/90 w-full text-end">Weniger anzeigen</button>
+          ) : (
+            <button onClick={() => setIsOpen(true)} className="text-primary hover:text-primary/90 w-full text-end">Alle
+              anzeigen</button>
+          )}
+        </div>
+      </td>
+      {category.severities.sort((a, b) => a.severity - b.severity).slice(1).map((severity, index) => {
+        return (
+          <ClassificationOptionDisplay
+            key={index}
+            options={severity.questions}
+            isInLastRow={isLastRow}
+            isOpen={isOpen}
+            onUpdate={onUpdate}
+          />
+        )
+      })}
+    </tr>
   )
 }
 
@@ -107,23 +153,13 @@ export const ClassificationCard = ({
         </thead>
         <tbody>
         {classification.categories.map((category, categoryIndex) => (
-          <tr key={category.short}>
-            <td
-              className={`align-top font-semibold px-2 border-r-2 last:border-r-0 border-black ${categoryIndex !== classification.categories.length - 1 ? 'border-b-2' : 'border-0'}`}>
-              {category.short}
-            </td>
-            {category.severities.sort((a, b) => a.severity - b.severity).slice(1).map((severity, index) => {
-              return (
-                <ClassificationOptionDisplay
-                  key={index}
-                  options={severity.questions}
-                  isLastCellInCol={categoryIndex === classification.categories.length - 1}
-                  onlySelected={onlySelected}
-                  onUpdate={onUpdate}
-                />
-              )
-            })}
-          </tr>
+          <ClassificationOptionRow
+            key={categoryIndex}
+            category={category}
+            onlySelected={onlySelected}
+            isLastRow={categoryIndex === classification.categories.length - 1}
+            onUpdate={onUpdate}
+          />
         ))}
         </tbody>
       </table>
