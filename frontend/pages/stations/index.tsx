@@ -1,6 +1,5 @@
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
-import { ArrowRight } from 'lucide-react'
 import { Page } from '@/layout/Page'
 import { Header } from '@/layout/Header'
 import { Sidebar } from '@/layout/Sidebar'
@@ -27,23 +26,22 @@ export const StationsPage: NextPage = () => {
         </Sidebar>
       )}
     >
-      <div className="flex flex-wrap gap-10 p-10 content-start w-full">
-        {stations.map(value => (
-          <Card key={value.id} className="flex flex-col gap-y-2" onClick={() => router.push(`/stations/${value.id}`)}>
-            <span className="text-xl font-semibold">{value.name}</span>
-            <div className="flex flex-row w-full justify-between gap-x-2 items-center">
-              <span>Patientenanzahl:</span>
-              <span className="font-semibold">{value.patientCount}</span>
-            </div>
-            <div className="flex flex-row w-full justify-end gap-x-2">
-              <button className="flex flex-row gap-x-2 rounded px-2 py-1 items-center bg-primary/60 hover:bg-primary/80">
-                <span>Auswählen</span>
-                <ArrowRight size={20}/>
-              </button>
-            </div>
-          </Card>
-        ))}
-      </div>
+     <div className="flex flex-wrap gap-10 p-10 content-start w-full">
+      {stations.map(value => (
+        <Card
+          key={value.id}
+          className="flex flex-col justify-center items-center gap-y-2 p-4 hover:bg-purple-600 hover:text-white transition-colors duration-300 cursor-pointer"
+          onClick={() => router.push(`/stations/${value.id}`)}
+        >
+          <span className="text-xl font-semibold">{value.name}</span>
+          <div className="flex flex-row w-full justify-between gap-x-2 items-center">
+            <span>Patientenanzahl:</span>
+            <span className="font-semibold">{value.patientCount}</span>
+          </div>
+        </Card>
+      ))}
+    </div>
+
     </Page>
   )
 }
