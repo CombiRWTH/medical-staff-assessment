@@ -8,8 +8,6 @@ import { noop } from '@/util/noop'
 import { tailwindChoice, tailwindCombine } from '@/util/tailwind'
 
 export type TimeEvent = {
-  name: string,
-  description: string,
   date: Date
 }
 

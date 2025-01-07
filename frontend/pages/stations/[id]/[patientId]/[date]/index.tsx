@@ -19,6 +19,7 @@ import {
   parseDateStringFrontend
 } from '@/util/date'
 import { DatePickerButton } from '@/components/DatePicker/DatePickerButton'
+import { usePatientDatesAPI } from '@/api/dates'
 
 export const PatientClassification = () => {
   const router = useRouter()
@@ -28,6 +29,7 @@ export const PatientClassification = () => {
   const date = parseDateStringFrontend(dateString)
   const allowsNextDate = differenceInCalendarDays(date, new Date()) < 1
 
+  const { dates } = usePatientDatesAPI(patientId, id)
   const { stations } = useStationsAPI()
   const currentStation = stations.find(value => value.id === id)
   const { patients } = usePatientsAPI(currentStation?.id)
@@ -118,7 +120,7 @@ export const PatientClassification = () => {
                   <ChevronLeft size={32}/>
                 </Tooltip>
               </button>
-              <DatePickerButton date={date} eventList={{}} onDateClick={(_, selectedDate) =>
+              <DatePickerButton date={date} eventList={{ events: dates.map(date => ({ date })) }} onDateClick={(_, selectedDate) =>
                 router.push(`/stations/${id}/${patientId}/${formatDateFrontendURL(selectedDate)}`)
               }/>
               <button
