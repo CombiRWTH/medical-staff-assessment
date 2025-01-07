@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
-import { addDays, differenceInCalendarDays, subDays } from 'date-fns'
+import { addDays, isSameDay, subDays } from 'date-fns'
 import Link from 'next/link'
 import { DefaultHeader, Header } from '@/layout/Header'
 import { Page } from '@/layout/Page'
@@ -27,9 +27,11 @@ export const PatientClassification = () => {
   const patientId = router.query.patientId !== undefined ? parseInt(router.query.patientId as string) : undefined
   const dateString: string = (router.query.date as string | undefined) ?? ''
   const date = parseDateStringFrontend(dateString)
-  const allowsNextDate = differenceInCalendarDays(date, new Date()) < 1
 
-  const { dates } = usePatientDatesAPI(patientId, id)
+  const { dates } = usePatientDatesAPI(id, patientId)
+
+  const hasPreviousDay: boolean = dates.some(value => isSameDay(subDays(date, 1), value))
+  const hasNextDay: boolean = dates.some(value => isSameDay(addDays(date, 1), value))
   const { stations } = useStationsAPI()
   const currentStation = stations.find(value => value.id === id)
   const { patients } = usePatientsAPI(currentStation?.id)
@@ -114,19 +116,20 @@ export const PatientClassification = () => {
             <div className="flex flex-row gap-x-2 items-center flex-1 justify-center">
               <button
                 onClick={() => router.push(`/stations/${id}/${patientId}/${formatDateFrontendURL(subDays(date, 1))}`)}
-                className="flex flex-col items-center"
+                className={`flex flex-col items-center ${hasPreviousDay ? '' : 'text-gray-400'}`}
+                disabled={!hasPreviousDay}
               >
                 <Tooltip tooltip="Vorheriger Tag" position="bottom">
                   <ChevronLeft size={32}/>
                 </Tooltip>
               </button>
-              <DatePickerButton date={date} eventList={{ events: dates.map(date => ({ date })) }} onDateClick={(_, selectedDate) =>
+              <DatePickerButton date={date} eventList={{ events: dates.map(date => ({ date, color: 'green' })) }} onDateClick={(_, selectedDate) =>
                 router.push(`/stations/${id}/${patientId}/${formatDateFrontendURL(selectedDate)}`)
               }/>
               <button
                 onClick={() => router.push(`/stations/${id}/${patientId}/${formatDateFrontendURL(addDays(date, 1))}`)}
-                className={`flex flex-col items-center ${allowsNextDate ? '' : 'text-gray-400'}`}
-                disabled={!allowsNextDate}
+                className={`flex flex-col items-center ${hasNextDay ? '' : 'text-gray-400'}`}
+                disabled={!hasNextDay}
               >
                 <Tooltip tooltip="Nächster Tag" position="bottom">
                   <ChevronRight size={32}/>

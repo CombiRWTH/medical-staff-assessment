@@ -3,7 +3,9 @@ import { apiURL } from '@/config'
 import { parseDateString } from '@/util/date'
 
 type DatesData = {
-  dates: string[]
+  dates: {
+    date: string
+  }[]
 }
 
 export const usePatientDatesAPI = (stationId?: number, patientId?: number) => {
@@ -16,9 +18,7 @@ export const usePatientDatesAPI = (stationId?: number, patientId?: number) => {
     }
     const response = await (await fetch(`${apiURL}/patient/dates/${patientId}/${stationId}`)).json()
     const dateData = response as DatesData
-
-    // TODO parse classification date
-    setDates(dateData.dates.map((data) => parseDateString(data)))
+    setDates(dateData.dates.map((data) => parseDateString(data.date)))
   }, [patientId, stationId])
 
   useEffect(() => {
