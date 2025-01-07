@@ -146,6 +146,24 @@ def get_patients_visit_type(station_id: int) -> dict:
     }
 
 
+def get_dates_for_patient_classification(patient_id: int, station_id: int) -> list:
+    """Get the dates a patient needs a classification.
+
+    Args:
+        patient_id (int): The ID of the patient.
+        station_id (int): The ID of the station.
+
+    Returns:
+        list: The dates the patient needs a classification.
+    """
+    dates = DailyPatientData.objects.filter(
+        patient=patient_id,
+        station=station_id,
+    ).values('date')
+
+    return list(dates)
+
+
 def handle_patients(request, station_id: int) -> JsonResponse:
     """Endpoint to retrieve all current patients for a station.
 
@@ -190,5 +208,24 @@ def handle_current_station_of_patient(request, patient_id: int) -> JsonResponse:
     """
     if request.method == 'GET':
         return JsonResponse({'station_id': get_current_station_for_patient(patient_id)})
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+
+def handle_patient_dates(request, patient_id: int, station_id: int) -> JsonResponse:
+    """Endpoint to retrieve the dates a patient needs a classification.
+
+    This includes dates with and without already made classifications.
+
+    Args:
+        request (HttpRequest): The request object.
+        patient_id (int): The ID of the patient.
+        station_id (int): The ID of the station.
+
+    Returns:
+        JsonResponse: The response containing the dates the patient needs a classification.
+    """
+    if request.method == 'GET':
+        return JsonResponse({'dates': get_dates_for_patient_classification(patient_id, station_id)})
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
