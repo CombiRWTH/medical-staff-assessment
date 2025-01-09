@@ -1,5 +1,6 @@
 import type { NextPage } from 'next'
-import { useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
+import { Upload, CheckCircle, XCircle } from 'lucide-react'
 import { Page } from '@/layout/Page'
 import { Header } from '@/layout/Header'
 import { Sidebar } from '@/layout/Sidebar'
@@ -10,24 +11,92 @@ import type { AnalysisFrequency } from '@/api/analysis'
 import { useAnalysisAPI } from '@/api/analysis'
 import type { StationMonthly, StationDaily } from '@/util/export'
 import { exportMonthlyAnalysis, exportDailyAnalysis } from '@/util/export'
+import { apiURL } from '@/config'
+import { getCookie } from '@/util/getCookie'
 
 export const AnalysisPage: NextPage = () => {
   const [viewMode, setViewMode] = useState<AnalysisFrequency>('daily')
   const { stations } = useStationsAPI()
   const { data } = useAnalysisAPI(viewMode)
   const [selectedStations, setSelectedStations] = useState<number[]>([])
+  const [isUploading, setIsUploading] = useState(false)
+  const [error, setError] = useState<string>('')
+  const [success, setSuccess] = useState<string>('')
+  const [showNotification, setShowNotification] = useState(false)
+  const monthlyInputRef = useRef<HTMLInputElement>(null)
+  const dailyInputRef = useRef<HTMLInputElement>(null)
 
   // Special constant
   const COMBINED_STATIONS_KEY = -1
 
+  // Hide notification after 10 seconds
+  useEffect(() => {
+    if (showNotification) {
+      const timer = setTimeout(() => {
+        setShowNotification(false)
+        setError('')
+        setSuccess('')
+      }, 10000)
+      return () => clearTimeout(timer)
+    }
+  }, [showNotification])
+
+  const handleFileUpload = async (file: File, type: 'monthly' | 'daily') => {
+    const validExcelTypes = [
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.oasis.opendocument.spreadsheet'
+    ]
+
+    if (!validExcelTypes.includes(file.type)) {
+      setError('Bitte nur Excel-Dateien hochladen (.xls, .xlsx oder .ods)')
+      setShowNotification(true)
+      return
+    }
+
+    setIsUploading(true)
+    setError('')
+    setSuccess('')
+
+    try {
+      const formData = new FormData()
+      formData.append(type, file)
+
+      const cookie = getCookie('csrftoken')
+      const response = await fetch(`${apiURL}/import/caregiver/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': cookie ?? '',
+        },
+        body: formData,
+        credentials: 'include',
+      })
+
+      if (!response.ok) {
+        throw new Error('Upload fehlgeschlagen')
+      }
+
+      setSuccess(`${type === 'monthly' ? 'Monatliche' : 'Tägliche'} Daten erfolgreich hochgeladen`)
+
+      if (type === 'monthly' && monthlyInputRef.current) {
+        monthlyInputRef.current.value = ''
+      } else if (type === 'daily' && dailyInputRef.current) {
+        dailyInputRef.current.value = ''
+      }
+    } catch (err) {
+      setError('Datei-Upload fehlgeschlagen. Bitte versuchen Sie es erneut.')
+    } finally {
+      setIsUploading(false)
+      setShowNotification(true)
+    }
+  }
+
   const toggleStationSelection = (stationId: number) => {
     setSelectedStations(prev => {
-      // If the station is already selected, remove it
       if (prev.includes(stationId)) {
         return prev.filter(id => id !== stationId)
       }
-
-      // If the station is not selected, add it
       return [...prev, stationId]
     })
   }
@@ -52,7 +121,59 @@ export const AnalysisPage: NextPage = () => {
       header={(
         <Header
           end={(
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
+              {showNotification && (error || success) && (
+                <div
+                  className={`flex items-center gap-2 px-3 py-1 rounded ${
+                    error ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                  }`}
+                >
+                  {error ? (
+                    <XCircle className="w-4 h-4 text-red-500" />
+                  ) : (
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                  )}
+                  <span className="text-sm">{error || success}</span>
+                </div>
+              )}
+              <input
+                ref={monthlyInputRef}
+                type="file"
+                accept=".xlsx,.xls,.ods"
+                className="hidden"
+                id="monthly-upload"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) handleFileUpload(file, 'monthly')
+                }}
+              />
+              <button
+                onClick={() => monthlyInputRef.current?.click()}
+                disabled={isUploading}
+                className="flex items-center px-2 py-1 rounded bg-primary/30 text-primary/50 hover:bg-primary/40"
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Monatliche Daten hochladen
+              </button>
+              <input
+                ref={dailyInputRef}
+                type="file"
+                accept=".xlsx,.xls,.ods"
+                className="hidden"
+                id="daily-upload"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) handleFileUpload(file, 'daily')
+                }}
+              />
+              <button
+                onClick={() => dailyInputRef.current?.click()}
+                disabled={isUploading}
+                className="flex items-center px-2 py-1 rounded bg-primary/30 text-primary/50 hover:bg-primary/40"
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Tägliche Daten hochladen
+              </button>
               <button
                 onClick={() => setViewMode('daily')}
                 disabled={viewMode === 'daily'}
