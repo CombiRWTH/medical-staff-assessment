@@ -13,7 +13,6 @@ import { usePatientClassification } from '@/api/classification'
 import { Tooltip } from '@/components/Tooltip'
 import {
   formatDateBackend,
-  formatPrevDateBackend,
   formatDateFrontendURL,
   formatDateVisual,
   parseDateString,
@@ -37,9 +36,6 @@ export const PatientClassification = () => {
     classification,
     update
   } = usePatientClassification(id, patientId, formatDateBackend(date))
-  const {
-    classification: lastClassification
-  } = usePatientClassification(id, patientId, formatPrevDateBackend(date))
 
   const nextUnclassifiedPatient = useMemo(() => {
     // Start searching from the current patient's index
