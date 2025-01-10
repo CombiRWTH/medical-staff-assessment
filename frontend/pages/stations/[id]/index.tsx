@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { useState, useMemo } from 'react'
-import { ArrowLeft, ArrowRight, LucideArrowDown, LucideArrowUp, Search } from 'lucide-react'
+import { ArrowRight, LucideArrowDown, LucideArrowUp, Search } from 'lucide-react'
 import { Header } from '@/layout/Header'
 import { Card } from '@/components/Card'
 import { Page } from '@/layout/Page'
@@ -63,12 +63,20 @@ export const StationPatientList = () => {
   return (
     <Page
       header={(
-        <Header start={(
-          <div className="flex flex-row gap-x-4 items-center">
-            <ArrowLeft size={32} onClick={() => router.push('/stations')} className="cursor-pointer"/>
-            <h2 className="text-2xl bold">{currentStation?.name}</h2>
+        <Header start={(<></>)}>
+          <div className="grid grid-cols-3 w-full">
+            <div className="flex flex-col grow gap-y-4">
+              <div className="flex flex-row gap-x-2 items-center cursor-pointer h-full" onClick={() => router.push('/')}>
+                <div className="rounded-full min-w-[25px] min-h-[25px] bg-primary"/>
+                <span className="text-[15px] font-medium cursor-pointer hover:text-primary hover:underline">Go back to homepage</span>
+              </div>
+            </div>
+            <div className="flex flex-row justify-center">
+              <h2 className="text-4xl bold">{currentStation?.name}</h2>
+            </div>
+            <div/>
           </div>
-        )}/>
+        </Header>
       )}
     >
       <div className="flex flex-col gap-10 p-10 content-start max-w-[1200px] w-full">
