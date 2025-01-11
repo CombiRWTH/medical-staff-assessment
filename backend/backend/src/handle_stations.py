@@ -28,6 +28,8 @@ def get_stations_analysis(frequency: str):
             .values('station__id', 'station__name', 'date')
             .annotate(minutes=Sum('minutes_total'))
         )
+        if len(daily_workload) == 0:
+            return []
         return [
             {
                 "id": item['station__id'],
