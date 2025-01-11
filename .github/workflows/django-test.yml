@@ -35,5 +35,5 @@ jobs:
           WEB_PORT: "8000"
           CORS_ALLOW_ALL_ORIGINS: "True"
         run: |
-          python manage.py test
+          python manage.py test backend.src
         working-directory: ./backend
