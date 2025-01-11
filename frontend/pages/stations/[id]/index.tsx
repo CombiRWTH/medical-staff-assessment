@@ -7,6 +7,7 @@ import { Page } from '@/layout/Page'
 import { useStationsAPI } from '@/api/stations'
 import { usePatientsAPI } from '@/api/patients'
 import { LastClassifiedBadge } from '@/components/LastClassifiedBadge'
+import { usePatientClassification } from '@/api/classification'
 import { formatDateFrontendURL, parseDateString } from '@/util/date'
 
 type SortingState = {
@@ -27,6 +28,7 @@ export const StationPatientList = () => {
   const { stations } = useStationsAPI()
   const currentStation = stations.find(value => value.id === id)
   const { patients } = usePatientsAPI(currentStation?.id)
+  const { classification } = usePatientClassification(id, patientId, formatDateBackend(date))
 
   const sortedAndFilteredPatients = useMemo(() => {
     // First filter by search term
@@ -117,6 +119,7 @@ export const StationPatientList = () => {
                   </div>
                 </button>
               </th>
+
               <th className="text-center">
                 <button onClick={() => setSortingState({
                   ...sortingState,
@@ -130,6 +133,16 @@ export const StationPatientList = () => {
                   </div>
                 </button>
               </th>
+
+              <th className="text-center">
+                <div className="flex flex-row gap-x-1 items-center">
+                  <span className="text-lg">
+                    A{classification?.result?.category1 ?? '-'}/
+                    S{classification?.result?.category2 ?? ''}
+                  </span>
+                </div>
+              </th>
+
               <th/>
             </tr>
             </thead>
