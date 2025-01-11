@@ -9,11 +9,23 @@ import { usePatientsAPI } from '@/api/patients'
 import { LastClassifiedBadge } from '@/components/LastClassifiedBadge'
 import { usePatientClassification } from '@/api/classification'
 import { formatDateFrontendURL, parseDateString } from '@/util/date'
+import type { Patient } from '@/data-models/patient'
 
 type SortingState = {
   nameAscending: boolean,
   hasClassificationAscending: boolean,
   last: 'name' | 'classification'
+}
+
+const usePatientRow = (patientId: number, stationId: number | undefined) => {
+  const router = useRouter()
+  const dateString: string = (router.query.date as string | undefined) ?? ''
+  const { classification } = usePatientClassification(
+    stationId,
+    patientId,
+    dateString
+  )
+  return classification
 }
 
 export const StationPatientList = () => {
@@ -28,7 +40,6 @@ export const StationPatientList = () => {
   const { stations } = useStationsAPI()
   const currentStation = stations.find(value => value.id === id)
   const { patients } = usePatientsAPI(currentStation?.id)
-  const { classification } = usePatientClassification(id, patientId, formatDateBackend(date))
 
   const sortedAndFilteredPatients = useMemo(() => {
     // First filter by search term
@@ -61,6 +72,35 @@ export const StationPatientList = () => {
       return 1
     })
   }, [patients, searchTerm, sortingState])
+
+  const PatientRow = ({ patient }: { patient: Patient }) => {
+    const classification = usePatientRow(patient.id, id)
+
+    return (
+      <tr
+        key={patient.id}
+        onClick={() => router.push(`/stations/${id}/${patient.id}/${formatDateFrontendURL()}`)}
+        className="cursor-pointer hover:bg-gray-200 rounded-xl"
+      >
+        <td className="rounded-l-xl pl-2">{patient.name}</td>
+        <td className="flex flex-col items-center py-1">
+          <LastClassifiedBadge dateString={patient.lastClassification}/>
+        </td>
+        <td className="text-center">
+          <span className="text-lg">
+            A{classification?.result?.category1 ?? '-'}/
+            S{classification?.result?.category2 ?? '-'}
+          </span>
+        </td>
+        <td className="rounded-r-xl">
+          <button className="flex flex-row gap-x-2 rounded px-2 py-1 items-center float-end">
+            <span>Auswählen</span>
+            <ArrowRight size={20}/>
+          </button>
+        </td>
+      </tr>
+    )
+  }
 
   return (
     <Page
@@ -135,11 +175,8 @@ export const StationPatientList = () => {
               </th>
 
               <th className="text-center">
-                <div className="flex flex-row gap-x-1 items-center">
-                  <span className="text-lg">
-                    A{classification?.result?.category1 ?? '-'}/
-                    S{classification?.result?.category2 ?? ''}
-                  </span>
+                <div className="flex flex-row gap-x-1 items-center justify-center">
+                  <span className="text-lg">Klassifikation</span>
                 </div>
               </th>
 
@@ -147,25 +184,9 @@ export const StationPatientList = () => {
             </tr>
             </thead>
             <tbody>
-            {sortedAndFilteredPatients.map(patient => (
-              <tr
-                key={patient.id}
-                onClick={() => router.push(`/stations/${id}/${patient.id}/${formatDateFrontendURL()}`)}
-                className="cursor-pointer hover:bg-gray-200 rounded-xl"
-              >
-                <td className="rounded-l-xl pl-2">{patient.name}</td>
-                <td className="flex flex-col items-center py-1">
-                  <LastClassifiedBadge dateString={patient.lastClassification}/>
-                </td>
-                <td className="rounded-r-xl">
-                  <button
-                    className="flex flex-row gap-x-2 rounded px-2 py-1 items-center float-end">
-                    <span>Auswählen</span>
-                    <ArrowRight size={20}/>
-                  </button>
-                </td>
-              </tr>
-            ))}
+              {sortedAndFilteredPatients.map(patient => (
+                <PatientRow key={patient.id} patient={patient} />
+              ))}
             </tbody>
           </table>
         </Card>
