@@ -23,6 +23,8 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         working-directory: ./backend
       - name: Run Tests
+        env: # Set environment variables here
+          CORS_ALLOW_ALL_ORIGINS: "False"
         run: |
           python manage.py test
         working-directory: ./backend
