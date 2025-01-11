@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.test import TestCase
 
 from .handle_stations import get_all_stations, get_stations_analysis
@@ -10,7 +9,7 @@ class HandleStationsTestCase(TestCase):
 
     def test_get_all_stations(self):
         stations = Station.objects.all()
-        station_list = get_all_stations()  # This now contains the form [{'id': ..., 'name': ..., 'patientCount': ...}, ...]
+        station_list = get_all_stations()
 
         # Extract the names from the station_list array
         station_names_from_function = [station['name'] for station in station_list]
@@ -27,6 +26,7 @@ class HandleStationsTestCase(TestCase):
     def test_get_stations_analysis(self):
         daily_station_workload = get_stations_analysis("daily")
         self.assertEqual(len(daily_station_workload), 0,
-                         "Station count with get_stations_analysis daily result should be 0, as no stations have been imported.")
-        self.assertEqual(len(daily_station_workload), 0,
-                         "Station count with get_stations_analysis monthly result should be 0, as no stations have been imported.")
+                         "get_stations_analysis daily count should be 0 (no imports).")
+        daily_station_workload = get_stations_analysis("monthly")
+        self.assertEqual(len(daily_station_workload), 1,
+                         "get_stations_analysis monthly count should be 1 (no imports).")
