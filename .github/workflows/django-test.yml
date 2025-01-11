@@ -24,7 +24,16 @@ jobs:
         working-directory: ./backend
       - name: Run Tests
         env: # Set environment variables here
-          CORS_ALLOW_ALL_ORIGINS: "False"
+          DJANGO_SUPERUSER_PASSWORD: "test"
+          DJANGO_SUPERUSER_USERNAME: "test"
+          DJANGO_SUPERUSER_EMAIL: ""
+          DB_NAME: "test"
+          DB_USER: "postgres"
+          DB_PASSWORD: "test"
+          DB_PORT: "5432"
+          DB_HOST: "db"
+          WEB_PORT: "8000"
+          CORS_ALLOW_ALL_ORIGINS: "True"
         run: |
           python manage.py test
         working-directory: ./backend
