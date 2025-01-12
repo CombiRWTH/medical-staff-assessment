@@ -2,13 +2,8 @@
 
 from django.urls import path
 
-from .src import (
-    handle_calculations,
-    handle_data_imports,
-    handle_patients,
-    handle_questions,
-    handle_stations,
-)
+from .src import (handle_calculations, handle_patients, handle_questions,
+                  handle_stations, handle_data_imports, handle_analysis)
 
 urlpatterns = [
     path(
@@ -61,5 +56,10 @@ urlpatterns = [
         "calculate_direct/<int:station_id>/<int:patient_id>/<str:date>/<str:a_value>/<str:s_value>/",
         handle_calculations.handle_direct_classification,
         name="handle_direct_calculations",
+    ),
+    path(
+        'analysis/caregivers/<str:start>/<str:end>/',
+        handle_analysis.handle_should_vs_is_analysis,
+        name='handle_should_vs_is_analysis'
     ),
 ]
