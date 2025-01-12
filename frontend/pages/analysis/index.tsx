@@ -9,15 +9,18 @@ import { Card } from '@/components/Card'
 import { useStationsAPI } from '@/api/stations'
 import type { AnalysisFrequency } from '@/api/analysis'
 import { useAnalysisAPI } from '@/api/analysis'
+import { useGraphAPI } from '@/api/graph'
 import type { StationMonthly, StationDaily } from '@/util/export'
 import { exportMonthlyAnalysis, exportDailyAnalysis } from '@/util/export'
 import { apiURL } from '@/config'
 import { getCookie } from '@/util/getCookie'
+import { ComparisonGraph } from '@/components/graphPopup'
 
 export const AnalysisPage: NextPage = () => {
   const [viewMode, setViewMode] = useState<AnalysisFrequency>('daily')
   const { stations } = useStationsAPI()
   const { data } = useAnalysisAPI(viewMode)
+  const { data: graphData } = useGraphAPI()
   const [selectedStations, setSelectedStations] = useState<number[]>([])
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string>('')
@@ -28,6 +31,147 @@ export const AnalysisPage: NextPage = () => {
 
   // Special constant
   const COMBINED_STATIONS_KEY = -1
+
+  const exampleData: any[] = [
+    {
+      station_id: 1,
+      station_name: 'Station 3',
+      dataset_night: [
+        {
+          date: '2025-01-03',
+          should: 0,
+          is: 1.4500000000000002
+        }
+      ],
+      dataset_day: [
+        {
+          date: '2025-01-03',
+          should: null,
+          is: 3.32
+        }
+      ]
+    },
+    {
+      station_id: 2,
+      station_name: 'Station 5',
+      dataset_night: [
+        {
+          date: '2025-01-03',
+          should: 0,
+          is: 1.82
+        }
+      ],
+      dataset_day: [
+        {
+          date: '2025-01-03',
+          should: null,
+          is: 3.67
+        }
+      ]
+    },
+    {
+      station_id: 3,
+      station_name: 'Station 1A',
+      dataset_night: [
+        {
+          date: '2025-01-03',
+          should: 0,
+          is: 1.02
+        }
+      ],
+      dataset_day: [
+        {
+          date: '2025-01-03',
+          should: null,
+          is: 1.45
+        }
+      ]
+    },
+    {
+      station_id: 4,
+      station_name: 'Station 1C',
+      dataset_night: [
+        {
+          date: '2025-01-03',
+          should: 0,
+          is: 1.11
+        }
+      ],
+      dataset_day: [
+        {
+          date: '2025-01-03',
+          should: null,
+          is: 3.08
+        }
+      ]
+    },
+    {
+      station_id: 5,
+      station_name: 'Station 2A',
+      dataset_night: [
+        {
+          date: '2025-01-03',
+          should: 0,
+          is: 1.4000000000000001
+        }
+      ],
+      dataset_day: [
+        {
+          date: '2025-01-03',
+          should: null,
+          is: 2.9
+        }
+      ]
+    },
+    {
+      station_id: 6,
+      station_name: 'Station 2C',
+      dataset_night: [
+        {
+          date: '2025-01-03',
+          should: 0,
+          is: 1.55
+        }
+      ],
+      dataset_day: [
+        {
+          date: '2025-01-03',
+          should: null,
+          is: 3.15
+        }
+      ]
+    },
+    {
+      station_id: 7,
+      station_name: 'Station E1',
+      dataset_night: [
+        {
+          date: '2025-01-03',
+          should: 0,
+          is: 1.48
+        }
+      ],
+      dataset_day: [
+        {
+          date: '2025-01-03',
+          should: null,
+          is: 3.58
+        }
+      ]
+    },
+    {
+      station_id: 8,
+      station_name: 'Station K1',
+      dataset_night: [],
+      dataset_day: []
+    },
+    {
+      station_id: 9,
+      station_name: 'Station K3',
+      dataset_night: [],
+      dataset_day: []
+    }
+  ]
 
   // Hide notification after 10 seconds
   useEffect(() => {
@@ -122,6 +266,7 @@ export const AnalysisPage: NextPage = () => {
         <Header
           end={(
             <div className="flex items-center gap-2">
+              <ComparisonGraph data={exampleData} />
               {showNotification && (error || success) && (
                 <div
                   className={`flex items-center gap-2 px-3 py-1 rounded ${
