@@ -34,7 +34,7 @@ export const AnalysisPage: NextPage = () => {
 
   const exportData = async () => {
     // Filter the stations
-    const filteredData = data.filter(station => selectedStations.includes(station.id))
+    const filteredData = data.filter((station: any) => selectedStations.includes(station.id))
 
     if (viewMode === 'daily') {
       await exportDailyAnalysis(filteredData as StationDaily[])
