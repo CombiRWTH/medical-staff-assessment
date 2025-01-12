@@ -108,7 +108,7 @@ export const AnalysisPage: NextPage = () => {
           </div>
         </Card>
 
-        {data.map(value => {
+        {data.map((value: any) => {
           let minutes: number
           if ('minutes' in value) {
             minutes = value.minutes
