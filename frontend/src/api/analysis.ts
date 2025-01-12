@@ -6,6 +6,7 @@ export type AnalysisFrequency = 'daily' | 'monthly'
 
 export const useAnalysisAPI = (frequency: AnalysisFrequency) => {
   const [dataDaily, setDataDaily] = useState<StationDaily[]>([])
+  const [dataMonthly, setDataMonthly] = useState<StationMonthly[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
