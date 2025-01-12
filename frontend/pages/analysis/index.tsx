@@ -113,7 +113,7 @@ export const AnalysisPage: NextPage = () => {
           if ('minutes' in value) {
             minutes = value.minutes
           } else {
-            const minutes = value.data.map((value: any) => value.minutes).reduce((pre: any, acc: any) => pre + acc, 0)
+            minutes = value.data.map((value: any) => value.minutes).reduce((pre: any, acc: any) => pre + acc, 0)
           }
           return (
             <Card
