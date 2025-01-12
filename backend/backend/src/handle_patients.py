@@ -194,19 +194,19 @@ def get_missing_classifications_for_patient(patient_id: int, station_id: int) ->
     all_required_days = get_dates_for_patient_classification(patient_id, station_id)
     required_in_last_week = []
 
-    for date in all_required_days:
-        if seven_days_ago <= date["date"] <= today:
-            required_in_last_week.append(date["date"])
+    for classification_date in all_required_days:
+        if seven_days_ago <= classification_date["date"] <= today:
+            required_in_last_week.append(classification_date["date"])
 
     missing_classifications = []
 
-    for date in required_in_last_week:
+    for classification_date in required_in_last_week:
         classification = DailyClassification.objects.filter(
-            patient=patient_id, date=date, station=station_id
+            patient=patient_id, date=classification_date, station=station_id
         ).first()
 
         if classification is None:
-            missing_classifications.append(date)
+            missing_classifications.append(classification_date)
 
     return missing_classifications
 
