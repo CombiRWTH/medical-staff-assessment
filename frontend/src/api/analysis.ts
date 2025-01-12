@@ -5,58 +5,7 @@ import { apiURL } from '@/config'
 export type AnalysisFrequency = 'daily' | 'monthly'
 
 export const useAnalysisAPI = (frequency: AnalysisFrequency) => {
-  const [dataDaily, setDataDaily] = useState<StationDaily[]>([
-    {
-      id: 1,
-      name: 'Station A',
-      minutes: 4241
-    },
-    {
-      id: 2,
-      name: 'Station B',
-      minutes: 3524
-    },
-  ])
-  const [dataMonthly, setDataMonthly] = useState<StationMonthly[]>([
-    {
-      id: 1,
-      name: 'Station A',
-      data: [
-        {
-          day: 1,
-          minutes: 4241
-        },
-        {
-          day: 2,
-          minutes: 3917
-        },
-        {
-          day: 3,
-          minutes: 4386
-        }
-      ],
-      sum: 10000
-    },
-    {
-      id: 2,
-      name: 'Station B',
-      data: [
-        {
-          day: 1,
-          minutes: 7241
-        },
-        {
-          day: 2,
-          minutes: 6517
-        },
-        {
-          day: 3,
-          minutes: 6781
-        }
-      ],
-      sum: 10000
-    },
-  ])
+  const [dataDaily, setDataDaily] = useState<StationDaily[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
