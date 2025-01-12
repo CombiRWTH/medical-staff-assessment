@@ -1,10 +1,12 @@
 """Provide an endpoint to retrieve all current patients for a station."""
 from datetime import date, timedelta
-from django.http import JsonResponse
-from ..models import Patient, DailyClassification, DailyPatientData
-from django.db.models import QuerySet, Subquery, OuterRef, F, Value
+
+from django.db.models import F, OuterRef, QuerySet, Subquery, Value
 from django.db.models.functions import Concat
+from django.http import JsonResponse
 from django.utils import timezone
+
+from ..models import DailyClassification, DailyPatientData, Patient
 
 
 def get_active_patients_on_station(station_id: int, date: date = date.today()) -> QuerySet[Patient]:
@@ -51,22 +53,32 @@ def get_patients_with_additional_information(station_id: int) -> list:
     patients = patients.annotate(
         lastClassification=Subquery(
             DailyClassification.objects.filter(
-                patient=OuterRef('id'),
-                date__lte=today,
-                station=station_id
+                patient=OuterRef("id"), date__lte=today, station=station_id
             )
-            .order_by('-date')
-            .values('date')[:1]
+            .order_by("-date")
+            .values("date")[:1]
+        ),
+        currentRoom=Subquery(
+            DailyClassification.objects.filter(
+                patient=OuterRef("id"), date__lte=today, station=station_id
+            )
+            .order_by("-date")
+            .values("room_name")[:1]
         ),
         currentBed=Subquery(
             DailyClassification.objects.filter(
-                patient=OuterRef('id'),
-                date__lte=today,
-                station=station_id
-            ).order_by('-date')
-            .values('bed_number')[:1]
-        )
-    ).values('id', 'lastClassification', "currentBed", name=Concat(F('first_name'), Value(' '), F('last_name')))
+                patient=OuterRef("id"), date__lte=today, station=station_id
+            )
+            .order_by("-date")
+            .values("bed_number")[:1]
+        ),
+    ).values(
+        "id",
+        "lastClassification",
+        "currentRoom",
+        "currentBed",
+        name=Concat(F("first_name"), Value(" "), F("last_name")),
+    )
 
     return list(patients)
 
