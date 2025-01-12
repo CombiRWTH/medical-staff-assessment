@@ -1,12 +1,19 @@
 """Provide questions for the frontend to display and handle the submission of answers."""
-import json
+
 import datetime as datetime
+import json
 from collections import defaultdict
 
 from django.http import JsonResponse
 
-from ..models import (CareServiceOption, DailyClassification,
-                      IsCareServiceUsed, Patient, Station, DailyPatientData)
+from ..models import (
+    CareServiceOption,
+    DailyClassification,
+    DailyPatientData,
+    IsCareServiceUsed,
+    Patient,
+    Station,
+)
 
 
 def add_selected_attribute(care_service_options: list, classification: dict) -> list:
@@ -185,11 +192,10 @@ def submit_selected_options(station_id: int, patient_id: int, date: datetime.dat
     Returns:
         JsonResponse: The response containing the calculated minutes, the general and the specific care group.
     """
-    # Create the classification entry if it does not exist
     patient = Patient.objects.get(id=patient_id)
     station = Station.objects.get(id=station_id)
 
-    # Check if the classification already exists
+    # Create "default" dailyClassification if it does not exist
     classification = DailyClassification.objects.filter(
         patient=patient,
         date=date,
