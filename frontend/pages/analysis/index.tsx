@@ -31,6 +31,7 @@ export const AnalysisPage: NextPage = () => {
 
   // Special constant
   const COMBINED_STATIONS_KEY = -1
+  console.log(graphData)
 
   const exampleData: any[] = [
     {
