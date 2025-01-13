@@ -35,6 +35,7 @@ def get_patients_with_additional_information(station_id: int) -> list:
     Additional information is added to each patient:
     - The patient's full name
     - The bed number the patient is currently in
+    - The room name the patient is currently in
     - The relevant classification information of the patient for today
     - The relevant classification information of the patient for the previous day
 
