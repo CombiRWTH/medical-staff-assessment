@@ -12,7 +12,7 @@ def calculate_monthly_station_minutes(station: int, date: date, shift: str) -> d
     Args:
         station (int): The station id for which the toal minutes should be calculated
         shift: The shift for which the data is requested
-        date (datetime.date): The first of the month for which the toal minutes should be claculated
+        date (date): The first of the month for which the toal minutes should be claculated
 
     Returns:
         int: dict
