@@ -32,10 +32,10 @@ def calculate_monthly_station_minutes(station: int, date: date, shift: str) -> d
     caregivers_total = 0
     suggested_total = 0
     for entry in days:
-        minutes_total += entry['minutes_total']
-        patients_total += entry['patients_total']
-        caregivers_total += entry['caregivers_total']
-        suggested_total += entry['PPBV_suggested_caregivers']
+        minutes_total += entry['minutes_total'] if entry['minutes_total'] else 0
+        patients_total += entry['patients_total'] if entry['patients_total'] else 0
+        caregivers_total += entry['caregivers_total'] if entry['caregivers_total'] else 0
+        suggested_total += entry['PPBV_suggested_caregivers'] if entry['PPBV_suggested_caregivers'] else 0
 
     return {"minutes_total": minutes_total, "patients_total": patients_total,
             "caregivers_total": caregivers_total, "suggested_total": suggested_total}
@@ -50,45 +50,45 @@ def calculate():
 
         # Compute statistics for all of the day shifts
         dict_res_day = calculate_monthly_station_minutes(station, date, 'DAY')
-        if dict_res_day == -1:
-            continue  # Skip if no data was found
-        patients_avg = dict_res_day['patients_total'] / days_in_month
-        caregivers_avg = dict_res_day['caregivers_total'] / days_in_month
+        if not dict_res_day == -1:
+            # Skip if no data was found
+            patients_avg = dict_res_day['patients_total'] / days_in_month
+            caregivers_avg = dict_res_day['caregivers_total'] / days_in_month
 
-        # According to article 4.2 of the PPBV
-        suggested_caregivers_avg = (dict_res_day['minutes_total'] / 38.5) / days_in_month
+            # According to article 4.2 of the PPBV
+            suggested_caregivers_avg = (dict_res_day['minutes_total'] / (38.5 * 60)) / days_in_month
 
-        StationWorkloadMonthly.objects.update_or_create(
-            station=station,
-            month=date,
-            shift='DAY',
-            defaults=dict(
-                patients_avg=patients_avg,
-                actual_caregivers_avg=caregivers_avg,
-                suggested_caregivers_avg=suggested_caregivers_avg,
-                minutes_total=dict_res_day['minutes_total']
+            StationWorkloadMonthly.objects.update_or_create(
+                station=station,
+                month=date,
+                shift='DAY',
+                defaults=dict(
+                    patients_avg=patients_avg,
+                    actual_caregivers_avg=caregivers_avg,
+                    suggested_caregivers_avg=suggested_caregivers_avg,
+                    minutes_total=dict_res_day['minutes_total']
+                )
             )
-        )
 
         # Compute statistics for all of the night shifts
         dict_res_day = calculate_monthly_station_minutes(station, date, 'NIGHT')
-        if dict_res_day == -1:
-            continue  # Skip if no data was found
-        patients_avg = dict_res_day['patients_total'] / days_in_month
-        caregivers_avg = dict_res_day['caregivers_total'] / days_in_month
-        suggested_caregivers_avg = dict_res_day['suggested_total'] / days_in_month
+        if not dict_res_day == -1:
+            # Skip if no data was found
+            patients_avg = dict_res_day['patients_total'] / days_in_month
+            caregivers_avg = dict_res_day['caregivers_total'] / days_in_month
+            suggested_caregivers_avg = (dict_res_day['minutes_total'] / (38.5 * 60)) / days_in_month
 
-        StationWorkloadMonthly.objects.update_or_create(
-            station=station,
-            month=date,
-            shift='NIGHT',
-            defaults=dict(
-                patients_avg=patients_avg,
-                actual_caregivers_avg=caregivers_avg,
-                suggested_caregivers_avg=suggested_caregivers_avg,
-                minutes_total=dict_res_day['minutes_total']
+            StationWorkloadMonthly.objects.update_or_create(
+                station=station,
+                month=date,
+                shift='NIGHT',
+                defaults=dict(
+                    patients_avg=patients_avg,
+                    actual_caregivers_avg=caregivers_avg,
+                    suggested_caregivers_avg=suggested_caregivers_avg,
+                    minutes_total=dict_res_day['minutes_total']
+                )
             )
-        )
 
 
 if __name__ == '__main__':
