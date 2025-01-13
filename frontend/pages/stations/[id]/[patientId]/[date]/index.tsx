@@ -75,7 +75,7 @@ export const PatientClassification = () => {
               >
                 <div className="rounded-full min-w-[32px] min-h-[32px] bg-primary" />
                 <span className="text-[15px] font-medium cursor-pointer hover:text-purple-600 hover:underline">
-                Go back to homepage
+                Zurück zum Homepage
               </span>
               </div>
               <div className="bg-gray-300 rounded-full min-w-1 min-h-12" />

@@ -68,7 +68,7 @@ export const StationPatientList = () => {
             <div className="flex flex-col grow gap-y-4">
               <div className="flex flex-row gap-x-2 items-center cursor-pointer h-full" onClick={() => router.push('/')}>
                 <div className="rounded-full min-w-[25px] min-h-[25px] bg-primary"/>
-                <span className="text-[15px] font-medium cursor-pointer hover:text-primary hover:underline">Go back to homepage</span>
+                <span className="text-[15px] font-medium cursor-pointer hover:text-primary hover:underline">Zurück zum Homepage</span>
               </div>
             </div>
             <div className="flex flex-row justify-center">
