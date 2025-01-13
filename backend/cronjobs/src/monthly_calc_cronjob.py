@@ -45,7 +45,7 @@ def calculate():
     date = datetime.today() - datetime.timedelta(days=1)  # Get previous month
     stations = Station.objects.all()
     for station in stations:
-        days_in_month = monthrange(date.year, date.month)
+        days_in_month = monthrange(date.year, date.month)[1]
 
         """Compute statistics for all of the day shifts"""
 
