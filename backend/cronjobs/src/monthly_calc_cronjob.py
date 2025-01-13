@@ -1,9 +1,8 @@
 """Run a cronjob at the beginning of each month and calculate the statistics for the previous month."""
-# Set up Django.
 import django
 django.setup()
 from backend.models import (Station, StationWorkloadDaily, StationWorkloadMonthly)  # noqa: E402
-import datetime  # noqa: E402
+from datetime import datetime, timedelta, date  # noqa: E402
 from calendar import monthrange  # noqa: E402
 
 
