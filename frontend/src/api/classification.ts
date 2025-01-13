@@ -27,7 +27,6 @@ export const usePatientClassification = (stationId?: number, patientId?: number,
         ...prevState,
         result: result as DailyClassificationResult
       }))
-      console.log(result)
     } catch (e) {
       console.error(e)
     }

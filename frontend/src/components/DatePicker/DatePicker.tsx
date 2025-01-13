@@ -7,10 +7,11 @@ import { Grid } from '@/components/Grid'
 import { noop } from '@/util/noop'
 import { tailwindChoice, tailwindCombine } from '@/util/tailwind'
 
+type ColorOptions = 'primary' | 'green' | 'orange'
+
 export type TimeEvent = {
-  name: string,
-  description: string,
-  date: Date
+  date: Date,
+  color?: ColorOptions
 }
 
 export type EventCalendarEntries = {
@@ -40,7 +41,6 @@ export const DatePicker = ({
   ...restProps
 }: DatePickerProps) => {
   const [date, setDate] = useState<Date>(yearMonth)
-  const month = date.getMonth()
   const weeks = getWeeksForCalenderMonth(date, weekStart)
   const monthName = new Intl.DateTimeFormat('de-DE', { month: 'long' }).format(date)
 
@@ -62,17 +62,43 @@ export const DatePicker = ({
           {week.map((date) => {
             const isToday = equalDate(new Date(), date)
             const eventsForDate = getEventsForDate(date, eventList)
-            const color = 'primary'
+            const hasEvent = eventsForDate.length > 0
+
+            const shouldMarkToday = isToday && markToday
+            // required for tailwind to write the names out
+            const colorMapping: Record<ColorOptions, {event: string, todayBorder: string}> = {
+              primary: {
+                event: 'bg-primary/10 hover:bg-primary/30 hover:border-primary/80',
+                todayBorder: 'border-priamry/70'
+              },
+              green: {
+                event: 'bg-positive/10 hover:bg-positive/30 hover:border-positive/80',
+                todayBorder: 'border-positive/70'
+              },
+              orange: {
+                event: 'bg-warning/10 hover:bg-warning/30 hover:border-warning/80',
+                todayBorder: 'border-warning/70'
+              },
+            }
+            const color: ColorOptions = eventsForDate[0]?.color ?? 'primary'
+
             return (
               <div
                 key={date.getDate()}
-                className={tailwindCombine('flex flex-col justify-center cursor-pointer rounded-md hover:bg-primary/20 border-2 hover:border-primary/80 min-h-[50px]',
+                className={tailwindCombine('flex flex-col justify-center border-2 rounded-md min-h-[50px]',
                   tailwindChoice({
-                    'text-gray-500': date.getMonth() !== month,
-                    'border-gray-700 hover:border-black-base': isToday && markToday,
-                    [`bg-${color}/60 hover:!bg-${color}/70 border-${color}/80 hover:!border-${color} text-black`]: eventsForDate.length > 0,
+                    'text-gray-500 cursor-not-allowed': !hasEvent,
+                    'text-black cursor-pointer': hasEvent,
+                    [colorMapping[color].event]: hasEvent,
+                    'border-black': shouldMarkToday,
+                    [colorMapping[color].todayBorder]: hasEvent && !shouldMarkToday,
+                    'border-gray-400': !hasEvent && !shouldMarkToday,
                   }))}
-                onClick={() => onDateClick(eventsForDate, date)}
+                onClick={() => {
+                  if (hasEvent) {
+                    onDateClick(eventsForDate, date)
+                  }
+                }}
               >
                 {date.getDate()}
               </div>
