@@ -11,7 +11,36 @@ import {
   ResponsiveContainer
 } from 'recharts'
 
-export const ComparisonGraph: React.FC<{ data: any }> = ({ data }) => {
+interface TimeRangeButtonProps {
+  label: string,
+  active: boolean,
+  onClick: () => void,
+}
+
+interface ComparisonGraphProps {
+  data: any[],
+  timeRange: 'day' | 'week' | 'month',
+  onTimeRangeChange: (range: 'day' | 'week' | 'month') => void,
+}
+
+const TimeRangeButton: React.FC<TimeRangeButtonProps> = ({ label, active, onClick }) => (
+  <button
+    onClick={onClick}
+    className={`px-4 py-2 rounded ${
+      active
+        ? 'bg-primary text-white'
+        : 'bg-gray-100 hover:bg-gray-200'
+    }`}
+  >
+    {label}
+  </button>
+)
+
+export const ComparisonGraph: React.FC<ComparisonGraphProps> = ({
+  data,
+  timeRange,
+  onTimeRangeChange
+}) => {
   const [isOpen, setIsOpen] = useState(false)
 
   const processedData = data.reduce((acc: any, station: any) => {
@@ -101,6 +130,24 @@ export const ComparisonGraph: React.FC<{ data: any }> = ({ data }) => {
                   />
                 </LineChart>
               </ResponsiveContainer>
+            </div>
+
+            <div className="flex gap-4 justify-center mt-6">
+              <TimeRangeButton
+                label="Tag"
+                active={timeRange === 'day'}
+                onClick={() => onTimeRangeChange('day')}
+              />
+              <TimeRangeButton
+                label="Woche"
+                active={timeRange === 'week'}
+                onClick={() => onTimeRangeChange('week')}
+              />
+              <TimeRangeButton
+                label="Monat"
+                active={timeRange === 'month'}
+                onClick={() => onTimeRangeChange('month')}
+              />
             </div>
           </div>
         </div>
