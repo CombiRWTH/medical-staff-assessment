@@ -1,2 +1,2 @@
 0 0 * * * /usr/local/bin/python /app/cronjobs/src/nightshift_cronjob.py >> /var/log/cron.log 2>&1
-0 12 1 * * /usr/local/bin/python /app/cronjobs/src/monthly_calc_cronjob.py >> /var/log/cron.log 2>&1
+5 0 1 * * /usr/local/bin/python /app/cronjobs/src/monthly_calc_cronjob.py >> /var/log/cron.log 2>&1
