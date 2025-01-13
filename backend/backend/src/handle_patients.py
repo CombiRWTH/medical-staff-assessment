@@ -38,6 +38,7 @@ def get_patients_with_additional_information(station_id: int) -> list:
     - The room name the patient is currently in
     - The relevant classification information of the patient for today
     - The relevant classification information of the patient for the previous day
+    - The missing classifications for the patient in the last week
 
     Args:
         station_id (int): The ID of the station.
@@ -80,6 +81,17 @@ def get_patients_with_additional_information(station_id: int) -> list:
         "currentBed",
         name=Concat(F("first_name"), Value(" "), F("last_name")),
     )
+
+    # Convert the QuerySet to a list of dictionaries
+    patients_list = list(patients)
+
+    # Add missing classifications for the last week to each patient
+    for patient in patients_list:
+        patient_id = patient["id"]
+        missing_classifications = get_missing_classifications_for_patient(
+            patient_id, station_id
+        )
+        patient["missing_classifications_last_week"] = missing_classifications
 
     return list(patients)
 
@@ -175,6 +187,39 @@ def get_dates_for_patient_classification(patient_id: int, station_id: int) -> li
     ).values('date')
 
     return list(dates)
+
+
+def get_missing_classifications_for_patient(patient_id: int, station_id: int) -> int:
+    """Get the number of missing classifications for a patient in the last week.
+
+    Args:
+        patient_id (int): The ID of the patient.
+        station_id (int): The ID of the station.
+
+    Returns:
+        int: The number of missing classifications for the patient in the last week.
+    """
+    today = timezone.now().date()
+    seven_days_ago = today - timedelta(days=7)
+
+    all_required_days = get_dates_for_patient_classification(patient_id, station_id)
+    required_in_last_week = []
+
+    for classification_date in all_required_days:
+        if seven_days_ago <= classification_date["date"] <= today:
+            required_in_last_week.append(classification_date["date"])
+
+    missing_classifications = []
+
+    for classification_date in required_in_last_week:
+        classification = DailyClassification.objects.filter(
+            patient=patient_id, date=classification_date, station=station_id
+        ).first()
+
+        if classification is None:
+            missing_classifications.append(classification_date)
+
+    return missing_classifications
 
 
 def handle_patients(request, station_id: int) -> JsonResponse:
