@@ -64,7 +64,6 @@ def calculate():
             actual_caregivers_avg=caregivers_avg,
             suggested_caregivers_avg=suggested_caregivers_avg,
             minutes_total=dict_res_day['minutes_total'],
-            shifts_per_caregiver=suggested_caregivers_avg / caregivers_avg
         )
 
         """Compute statistics for all of the night shifts"""
@@ -82,7 +81,6 @@ def calculate():
             actual_caregivers_avg=caregivers_avg,
             suggested_caregivers_avg=suggested_caregivers_avg,
             minutes_total=dict_res_day['minutes_total'],
-            shifts_per_caregiver=suggested_caregivers_avg / caregivers_avg
         )
 
 
