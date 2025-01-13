@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, date  # noqa: E402
 from calendar import monthrange  # noqa: E402
 
 
-def calculate_monthly_station_minutes(station: int, date: datetime.date, shift: str) -> dict:
+def calculate_monthly_station_minutes(station: int, date: date, shift: str) -> dict:
     """Calculate the total minutes assigned for one station for one whole month.
 
     Args:
@@ -20,7 +20,7 @@ def calculate_monthly_station_minutes(station: int, date: datetime.date, shift: 
 
     # Filter the database entries for the correct month, station and shift
     days = StationWorkloadDaily.objects.filter(
-        date__month=date.month, date__year=date.year, station=station, shift=shift)
+        date__month=date.month, date__year=date.year, station=station, shift=shift).values()
 
     # If no entries where found return
     if not days.exists():
