@@ -35,6 +35,7 @@ def get_patients_with_additional_information(station_id: int) -> list:
     Additional information is added to each patient:
     - The patient's full name
     - The bed number the patient is currently in
+    - The room name the patient is currently in
     - The relevant classification information of the patient for today
     - The relevant classification information of the patient for the previous day
     - The missing classifications for the patient in the last week
@@ -54,22 +55,32 @@ def get_patients_with_additional_information(station_id: int) -> list:
     patients = patients.annotate(
         lastClassification=Subquery(
             DailyClassification.objects.filter(
-                patient=OuterRef('id'),
-                date__lte=today,
-                station=station_id
+                patient=OuterRef("id"), date__lte=today, station=station_id
             )
-            .order_by('-date')
-            .values('date')[:1]
+            .order_by("-date")
+            .values("date")[:1]
+        ),
+        currentRoom=Subquery(
+            DailyClassification.objects.filter(
+                patient=OuterRef("id"), date__lte=today, station=station_id
+            )
+            .order_by("-date")
+            .values("room_name")[:1]
         ),
         currentBed=Subquery(
             DailyClassification.objects.filter(
-                patient=OuterRef('id'),
-                date__lte=today,
-                station=station_id
-            ).order_by('-date')
-            .values('bed_number')[:1]
-        )
-    ).values('id', 'lastClassification', "currentBed", name=Concat(F('first_name'), Value(' '), F('last_name')))
+                patient=OuterRef("id"), date__lte=today, station=station_id
+            )
+            .order_by("-date")
+            .values("bed_number")[:1]
+        ),
+    ).values(
+        "id",
+        "lastClassification",
+        "currentRoom",
+        "currentBed",
+        name=Concat(F("first_name"), Value(" "), F("last_name")),
+    )
 
     # Convert the QuerySet to a list of dictionaries
     patients_list = list(patients)
