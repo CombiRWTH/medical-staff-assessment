@@ -9,15 +9,18 @@ import { Card } from '@/components/Card'
 import { useStationsAPI } from '@/api/stations'
 import type { AnalysisFrequency } from '@/api/analysis'
 import { useAnalysisAPI } from '@/api/analysis'
+import { useGraphAPI } from '@/api/graph'
 import type { StationMonthly, StationDaily } from '@/util/export'
 import { exportMonthlyAnalysis, exportDailyAnalysis } from '@/util/export'
 import { apiURL } from '@/config'
 import { getCookie } from '@/util/getCookie'
+import { ComparisonGraph } from '@/components/graphPopup'
 
 export const AnalysisPage: NextPage = () => {
   const [viewMode, setViewMode] = useState<AnalysisFrequency>('daily')
   const { stations } = useStationsAPI()
   const { data } = useAnalysisAPI(viewMode)
+  const { data: graphData, timeRange, setTimeRange } = useGraphAPI()
   const [selectedStations, setSelectedStations] = useState<number[]>([])
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string>('')
@@ -122,6 +125,11 @@ export const AnalysisPage: NextPage = () => {
         <Header
           end={(
             <div className="flex items-center gap-2">
+              <ComparisonGraph
+                data={graphData}
+                timeRange={timeRange}
+                onTimeRangeChange={setTimeRange}
+              />
               {showNotification && (error || success) && (
                 <div
                   className={`flex items-center gap-2 px-3 py-1 rounded ${
