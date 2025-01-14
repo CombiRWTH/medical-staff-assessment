@@ -66,7 +66,7 @@ export const StationPatientList = () => {
         <Header start={(<></>)}>
           <div className="grid grid-cols-3 w-full">
             <DefaultHeader/>
-            <div className="flex flex-row justify-center">
+            <div className="flex flex-row justify-center items-center">
               <h2 className="text-4xl bold">{currentStation?.name}</h2>
             </div>
             <div/>
