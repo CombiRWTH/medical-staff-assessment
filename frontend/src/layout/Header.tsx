@@ -11,16 +11,19 @@ export const DefaultHeader = () => {
 
 export type HeaderProps = PropsWithChildren<{
   start?: ReactNode,
-  end?: ReactNode
+  end?: ReactNode,
+  className?: string
 }>
 
 export const Header = ({
   children,
   start = (<DefaultHeader/>),
-  end
+  end,
+  className
 }: HeaderProps) => {
   return (
-    <div className="flex flex-row justify-between items-center h-[96px] p-4 w-full bg-container z-10 shadow">
+    <div
+      className={`flex flex-row justify-between items-center h-[96px] p-4 w-full bg-container z-10 shadow ${className}`}>
       {start}
       {children}
       {end}

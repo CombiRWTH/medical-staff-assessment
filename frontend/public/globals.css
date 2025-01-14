@@ -17,3 +17,10 @@ html, body {
   align-items: flex-start;
   display: inline-flex;
 }
+
+
+@layer components {
+  .button-full-primary {
+    @apply px-4 py-2 rounded-md text-white bg-primary hover:bg-primary/80
+  }
+}

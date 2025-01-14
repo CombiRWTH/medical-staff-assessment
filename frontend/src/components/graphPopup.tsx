@@ -6,21 +6,22 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   Legend,
+  Tooltip,
   ResponsiveContainer
 } from 'recharts'
+import { Tooltip as TooltipCustom } from '@/components/Tooltip'
 
 interface TimeRangeButtonProps {
   label: string,
   active: boolean,
-  onClick: () => void,
+  onClick: () => void
 }
 
 interface ComparisonGraphProps {
   data: any[],
   timeRange: 'day' | 'week' | 'month',
-  onTimeRangeChange: (range: 'day' | 'week' | 'month') => void,
+  onTimeRangeChange: (range: 'day' | 'week' | 'month') => void
 }
 
 const TimeRangeButton: React.FC<TimeRangeButtonProps> = ({ label, active, onClick }) => (
@@ -63,13 +64,14 @@ export const ComparisonGraph: React.FC<ComparisonGraphProps> = ({
 
   return (
     <>
-      <button
-        onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
-      >
-        <BarChart3 className="w-4 h-4" />
-        Vergleichsdiagramm anzeigen
-      </button>
+      <TooltipCustom tooltip="Vergleichsdiagramm" containerClassName="!w-auto" position="bottom">
+        <button
+          onClick={() => setIsOpen(true)}
+          className="flex items-center gap-2 px-2 button-full-primary"
+        >
+          <BarChart3 className="w-6 h-6"/>
+        </button>
+      </TooltipCustom>
 
       {isOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -80,7 +82,7 @@ export const ComparisonGraph: React.FC<ComparisonGraphProps> = ({
                 onClick={() => setIsOpen(false)}
                 className="p-1 hover:bg-gray-100 rounded"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5"/>
               </button>
             </div>
 
@@ -90,16 +92,16 @@ export const ComparisonGraph: React.FC<ComparisonGraphProps> = ({
                   data={processedData}
                   margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
+                  <CartesianGrid strokeDasharray="3 3"/>
                   <XAxis
                     dataKey="name"
                     angle={-45}
                     textAnchor="end"
                     height={80}
                   />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
+                  <YAxis/>
+                  <Tooltip/>
+                  <Legend/>
                   <Line
                     type="monotone"
                     dataKey="dayIs"

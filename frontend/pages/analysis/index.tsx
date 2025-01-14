@@ -3,7 +3,6 @@ import React, { useRef, useState, useEffect } from 'react'
 import { Upload, CheckCircle, XCircle } from 'lucide-react'
 import { Page } from '@/layout/Page'
 import { Header } from '@/layout/Header'
-import { Sidebar } from '@/layout/Sidebar'
 import { LinkTiles } from '@/components/LinkTiles'
 import { Card } from '@/components/Card'
 import { useStationsAPI } from '@/api/stations'
@@ -123,8 +122,9 @@ export const AnalysisPage: NextPage = () => {
     <Page
       header={(
         <Header
+          className="!justify-start gap-x-8"
           end={(
-            <div className="flex items-center gap-2">
+            <div className="flex justify-end w-full items-center gap-4">
               <ComparisonGraph
                 data={graphData}
                 timeRange={timeRange}
@@ -137,9 +137,9 @@ export const AnalysisPage: NextPage = () => {
                   }`}
                 >
                   {error ? (
-                    <XCircle className="w-4 h-4 text-red-500" />
+                    <XCircle className="w-4 h-4 text-red-500"/>
                   ) : (
-                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <CheckCircle className="w-4 h-4 text-green-500"/>
                   )}
                   <span className="text-sm">{error || success}</span>
                 </div>
@@ -160,7 +160,7 @@ export const AnalysisPage: NextPage = () => {
                 disabled={isUploading}
                 className="flex items-center px-2 py-1 rounded bg-primary/30 text-primary/50 hover:bg-primary/40"
               >
-                <Upload className="w-4 h-4 mr-2" />
+                <Upload className="w-4 h-4 mr-2"/>
                 Monatliche Daten hochladen
               </button>
               <input
@@ -179,7 +179,7 @@ export const AnalysisPage: NextPage = () => {
                 disabled={isUploading}
                 className="flex items-center px-2 py-1 rounded bg-primary/30 text-primary/50 hover:bg-primary/40"
               >
-                <Upload className="w-4 h-4 mr-2" />
+                <Upload className="w-4 h-4 mr-2"/>
                 Tägliche Daten hochladen
               </button>
               <button
@@ -207,10 +207,7 @@ export const AnalysisPage: NextPage = () => {
             </div>
           )}
         >
-        </Header>
-      )}
-      sideBar={(
-        <Sidebar>
+          <div className="bg-gray-200 w-1 h-10 rounded"/>
           <LinkTiles links={[{
             name: 'Stationen',
             url: '/stations'
@@ -218,7 +215,7 @@ export const AnalysisPage: NextPage = () => {
             name: 'Analyse',
             url: '/analysis'
           }]}/>
-        </Sidebar>
+        </Header>
       )}
     >
       <div className="flex flex-wrap gap-10 p-10 content-start">
@@ -226,8 +223,8 @@ export const AnalysisPage: NextPage = () => {
           key="combined-stations"
           className={`flex flex-col gap-y-2 cursor-pointer transition-colors w-full
             ${selectedStations.includes(COMBINED_STATIONS_KEY)
-              ? 'bg-primary/10'
-              : 'bg-emerald-100 hover:bg-emerald-50'}`}
+            ? 'bg-primary/10'
+            : 'bg-emerald-100 hover:bg-emerald-50'}`}
           onClick={() => toggleStationSelection(COMBINED_STATIONS_KEY)}
         >
           <div className="p-4 flex flex-col">
@@ -250,8 +247,8 @@ export const AnalysisPage: NextPage = () => {
                 key={value.id}
                 className={`flex flex-col gap-y-2 cursor-pointer transition-colors
                   ${selectedStations.includes(value.id)
-                    ? 'bg-primary/10'
-                    : 'bg-white hover:bg-gray-50'}`}
+                  ? 'bg-primary/10'
+                  : 'bg-white hover:bg-gray-50'}`}
                 onClick={() => toggleStationSelection(value.id)}
               >
                 <div className="p-4 flex flex-col h-full">
