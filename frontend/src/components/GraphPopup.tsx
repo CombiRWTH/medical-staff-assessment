@@ -11,43 +11,33 @@ import {
   ResponsiveContainer
 } from 'recharts'
 import { Tooltip as TooltipCustom } from '@/components/Tooltip'
+import { Select } from '@/components/Select'
 
-interface TimeRangeButtonProps {
-  label: string,
-  active: boolean,
-  onClick: () => void
-}
+type Frequency = 'day' | 'week' | 'month'
 
 interface ComparisonGraphProps {
   data: any[],
-  timeRange: 'day' | 'week' | 'month',
-  onTimeRangeChange: (range: 'day' | 'week' | 'month') => void
+  timeRange: Frequency,
+  onTimeRangeChange: (range: Frequency) => void
 }
 
-const TimeRangeButton: React.FC<TimeRangeButtonProps> = ({ label, active, onClick }) => (
-  <button
-    onClick={onClick}
-    className={`px-4 py-2 rounded ${
-      active
-        ? 'bg-primary text-white'
-        : 'bg-gray-100 hover:bg-gray-200'
-    }`}
-  >
-    {label}
-  </button>
-)
-
-export const ComparisonGraph: React.FC<ComparisonGraphProps> = ({
+export const ComparisonGraph = ({
   data,
   timeRange,
   onTimeRangeChange
-}) => {
+}: ComparisonGraphProps) => {
   const [isOpen, setIsOpen] = useState(false)
 
   const processedData = data.reduce((acc: any, station: any) => {
     const stationData = {
-      dayData: station.dataset_day[0] || { is: 0, should: 0 },
-      nightData: station.dataset_night[0] || { is: 0, should: 0 }
+      dayData: station.dataset_day[0] || {
+        is: 0,
+        should: 0
+      },
+      nightData: station.dataset_night[0] || {
+        is: 0,
+        should: 0
+      }
     }
 
     return [
@@ -69,7 +59,7 @@ export const ComparisonGraph: React.FC<ComparisonGraphProps> = ({
           onClick={() => setIsOpen(true)}
           className="flex items-center gap-2 px-2 button-full-primary"
         >
-          <BarChart3 className="w-6 h-6"/>
+          <BarChart3 size={24}/>
         </button>
       </TooltipCustom>
 
@@ -78,19 +68,45 @@ export const ComparisonGraph: React.FC<ComparisonGraphProps> = ({
           <div className="bg-white rounded-lg p-6 w-full max-w-4xl mx-4">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Stationsvergleich - Ist- vs Soll-Werte</h2>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="p-1 hover:bg-gray-100 rounded"
-              >
-                <X className="w-5 h-5"/>
-              </button>
+              <div className="flex flex-row items-center gap-x-4">
+                <div className="flex flex-row items-center gap-x-4">
+                  <Select<Frequency>
+                    selected={timeRange}
+                    items={[{
+                      value: 'day',
+                      label: 'Tag',
+                    },
+                    {
+                      value: 'week',
+                      label: 'Woche',
+                    },
+                    {
+                      value: 'month',
+                      label: 'Monat',
+                    },
+                    ]}
+                    onChange={value => onTimeRangeChange(value)}
+                  />
+                </div>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-1 bg-gray-200 hover:bg-gray-300 rounded-md"
+                >
+                  <X size={20}/>
+                </button>
+              </div>
             </div>
 
             <div className="h-96 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   data={processedData}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  margin={{
+                    top: 5,
+                    right: 30,
+                    left: 20,
+                    bottom: 5
+                  }}
                 >
                   <CartesianGrid strokeDasharray="3 3"/>
                   <XAxis
@@ -132,24 +148,6 @@ export const ComparisonGraph: React.FC<ComparisonGraphProps> = ({
                   />
                 </LineChart>
               </ResponsiveContainer>
-            </div>
-
-            <div className="flex gap-4 justify-center mt-6">
-              <TimeRangeButton
-                label="Tag"
-                active={timeRange === 'day'}
-                onClick={() => onTimeRangeChange('day')}
-              />
-              <TimeRangeButton
-                label="Woche"
-                active={timeRange === 'week'}
-                onClick={() => onTimeRangeChange('week')}
-              />
-              <TimeRangeButton
-                label="Monat"
-                active={timeRange === 'month'}
-                onClick={() => onTimeRangeChange('month')}
-              />
             </div>
           </div>
         </div>

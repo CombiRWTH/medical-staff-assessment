@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Info } from 'lucide-react'
+import { ChevronDown, ChevronUp, Info } from 'lucide-react'
 import { range } from '@/util/range'
 import type {
   DailyClassificationCategory,
@@ -12,54 +12,58 @@ export type ClassificationOptionDisplayProps = {
   options: DailyClassificationOption[],
   isOpen: boolean,
   isInLastRow: boolean,
-  onUpdate: (id: number, selected: boolean) => void
+  onUpdate: (id: number, selected: boolean) => void,
+  onEmptyClick: () => void
 }
 
 export const ClassificationOptionDisplay = ({
   options,
   isOpen,
   isInLastRow,
-  onUpdate
+  onUpdate,
+  onEmptyClick,
 }: ClassificationOptionDisplayProps) => {
   const filteredOptionList = options.filter(option => option.selected)
   const hasSelected = filteredOptionList.length !== 0
   const usedList = isOpen ? options : filteredOptionList
+  const isEmpty = usedList.length === 0
+
   return (
     <td
-      className={`py-1 px-1 align-top border-r-2 last:border-r-0 border-black ${isInLastRow ? 'border-b-0' : 'border-b-2'} ${hasSelected ? 'bg-primary/10' : ''}`}>
+      onClick={isEmpty ? onEmptyClick : undefined}
+      className={`py-1 px-1 align-top border-r-2 last:border-r-0 border-black ${isInLastRow ? 'border-b-0' : 'border-b-2'} ${hasSelected ? 'bg-primary/10' : ''} ${isEmpty ? 'cursor-pointer' : ''}`}
+    >
       <div className="flex flex-col gap-y-1 items-start w-full">
-        {usedList.length !== 0 ? (
+        {!isEmpty ? (
           <>
             {usedList.map(option => (
               <label key={option.id}
-                     className="hover:bg-primary/40 flex flex-row items-start justify-start gap-x-2 rounded-md px-2 py-1 cursor-pointer w-full">
+                     className="hover:bg-primary/40 flex flex-row items-start justify-between gap-x-2 rounded-md px-2 py-1 cursor-pointer w-full">
                 <input
                   type="checkbox"
                   value={option.name}
                   checked={option.selected}
-                  className="mt-0.5 mr-2 shrink-0"
+                  className="mt-1.5 shrink-0"
                   onChange={() => {
                     onUpdate(option.id, !option.selected)
                   }}
                 />
-                <div className="flex justify-between items-start w-full min-w-0">
-                  <span className="w-full overflow-hidden break-words pr-2">{option.short}</span>
-                  <Tooltip
-                    tooltip={option.description}
-                    position="bottom"
-                    tooltipClassName="w-max max-w-[300px] flex flex-row flex-grow !whitespace-normal"
-                    containerClassName="!w-auto mt-0.5"
-                  >
-                    <Info className="!h-5 !w-5 text-gray-500"/>
-                  </Tooltip>
-                </div>
+                <span className="w-full overflow-hidden break-words">{option.short}</span>
+                <Tooltip
+                  tooltip={option.description}
+                  position="bottom"
+                  tooltipClassName="w-max max-w-[300px] flex flex-row flex-grow !whitespace-normal"
+                  containerClassName="!w-auto mt-0.5"
+                >
+                  <Info size={20} className="mt-0.5 text-gray-500"/>
+                </Tooltip>
               </label>
             ))}
 
           </>
         ) : (
-          <div className="flex flex-col w-full">
-            <label key="empty" className="flex flex-row gap-x-2 w-full items-center">
+          <div className="px-2 py-1 flex flex-col w-full justify-center h-full">
+            <label key="empty" className="w-full text-gray-400 cursor-pointer">
               Nichts Ausgewählt
             </label>
           </div>
@@ -91,16 +95,13 @@ export const ClassificationOptionRow = ({
   return (
     <tr key={category.short}>
       <td
-        className={`align-top font-semibold px-2 border-r-2 border-black ${!isLastRow ? 'border-b-2' : 'border-0'}`}>
-        <div className="flex flex-row gap-x-2">
+        onClick={() => setIsOpen(!isOpen)}
+        className={`py-1 cursor-pointer align-top font-semibold px-2 border-r-2 border-black ${!isLastRow ? 'border-b-2' : 'border-0'}`}>
+        <div className="flex flex-row gap-x-2 justify-between items-center">
           {category.short}
-          {isOpen ? (
-            <button onClick={() => setIsOpen(false)}
-                    className="text-primary hover:text-primary/90 w-full text-end">Weniger anzeigen</button>
-          ) : (
-            <button onClick={() => setIsOpen(true)} className="text-primary hover:text-primary/90 w-full text-end">Alle
-              anzeigen</button>
-          )}
+          <div className="p-1 button-text-primary bg-gray-200 hover:bg-gray-300 rounded-md">
+            {isOpen ? <ChevronUp/> : <ChevronDown/>}
+          </div>
         </div>
       </td>
       {category.severities.sort((a, b) => a.severity - b.severity).slice(1).map((severity, index) => {
@@ -111,6 +112,7 @@ export const ClassificationOptionRow = ({
             isInLastRow={isLastRow}
             isOpen={isOpen}
             onUpdate={onUpdate}
+            onEmptyClick={() => setIsOpen(!isOpen)}
           />
         )
       })}

@@ -20,7 +20,22 @@ html, body {
 
 
 @layer components {
+  .button-padding {
+    @apply px-4 py-2 rounded-md
+  }
   .button-full-primary {
     @apply px-4 py-2 rounded-md text-white bg-primary hover:bg-primary/80
+  }
+  .button-text-primary {
+    @apply text-primary hover:text-primary/80
+  }
+  .button-full-disabled {
+    @apply px-4 py-2 rounded-md text-white bg-disabled
+  }
+  .button-tonal-primary {
+    @apply px-4 py-2 rounded-md text-white bg-primary/70 hover:bg-primary/80
+  }
+  .card-hover {
+    @apply text-black bg-container hover:text-white hover:bg-primary/80
   }
 }

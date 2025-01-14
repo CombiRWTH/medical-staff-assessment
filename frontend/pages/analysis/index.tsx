@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 import React, { useRef, useState, useEffect } from 'react'
-import { Upload, CheckCircle, XCircle } from 'lucide-react'
+import { Upload, CheckCircle, XCircle, Download } from 'lucide-react'
 import { Page } from '@/layout/Page'
 import { Header } from '@/layout/Header'
 import { LinkTiles } from '@/components/LinkTiles'
@@ -13,13 +13,20 @@ import type { StationMonthly, StationDaily } from '@/util/export'
 import { exportMonthlyAnalysis, exportDailyAnalysis } from '@/util/export'
 import { apiURL } from '@/config'
 import { getCookie } from '@/util/getCookie'
-import { ComparisonGraph } from '@/components/graphPopup'
+import { ComparisonGraph } from '@/components/GraphPopup'
+import { Menu } from '@/components/Menu'
+import { Select } from '@/components/Select'
+import { Tooltip } from '@/components/Tooltip'
 
 export const AnalysisPage: NextPage = () => {
   const [viewMode, setViewMode] = useState<AnalysisFrequency>('daily')
   const { stations } = useStationsAPI()
   const { data } = useAnalysisAPI(viewMode)
-  const { data: graphData, timeRange, setTimeRange } = useGraphAPI()
+  const {
+    data: graphData,
+    timeRange,
+    setTimeRange
+  } = useGraphAPI()
   const [selectedStations, setSelectedStations] = useState<number[]>([])
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string>('')
@@ -30,6 +37,8 @@ export const AnalysisPage: NextPage = () => {
 
   // Special constant
   const COMBINED_STATIONS_KEY = -1
+
+  const canExport = selectedStations.length > 0
 
   // Hide notification after 10 seconds
   useEffect(() => {
@@ -124,7 +133,7 @@ export const AnalysisPage: NextPage = () => {
         <Header
           className="!justify-start gap-x-8"
           end={(
-            <div className="flex justify-end w-full items-center gap-4">
+            <div className="flex justify-end w-full items-center gap-x-6">
               <ComparisonGraph
                 data={graphData}
                 timeRange={timeRange}
@@ -155,14 +164,46 @@ export const AnalysisPage: NextPage = () => {
                   if (file) handleFileUpload(file, 'monthly')
                 }}
               />
-              <button
-                onClick={() => monthlyInputRef.current?.click()}
-                disabled={isUploading}
-                className="flex items-center px-2 py-1 rounded bg-primary/30 text-primary/50 hover:bg-primary/40"
+              <Menu
+                display={({
+                  isDisabled,
+                  toggleOpen
+                }) => (
+                  <button
+                    className={`flex flex-row gap-x-2 items-center ${isDisabled ? 'button-full-disabled' : 'button-full-primary'}`}
+                    onClick={toggleOpen} disabled={isDisabled}>
+                    <Download size={24}/>
+                    Hochladen
+                  </button>
+                )}
+                isDisabled={isUploading}
+                menuContainerClassName="!bg-gray-100"
               >
-                <Upload className="w-4 h-4 mr-2"/>
-                Monatliche Daten hochladen
-              </button>
+                {({ toggleOpen }) => (
+                  <>
+                    <button
+                      onClick={() => {
+                        toggleOpen()
+                        monthlyInputRef.current?.click()
+                      }}
+                      disabled={isUploading}
+                      className="button-padding bg-gray-200 card-hover whitespace-nowrap"
+                    >
+                      Monatliche Daten
+                    </button>
+                    <button
+                      onClick={() => {
+                        toggleOpen()
+                        dailyInputRef.current?.click()
+                      }}
+                      disabled={isUploading}
+                      className="button-padding bg-gray-200 card-hover whitespace-nowrap"
+                    >
+                      Tägliche Daten
+                    </button>
+                  </>
+                )}
+              </Menu>
               <input
                 ref={dailyInputRef}
                 type="file"
@@ -174,36 +215,30 @@ export const AnalysisPage: NextPage = () => {
                   if (file) handleFileUpload(file, 'daily')
                 }}
               />
-              <button
-                onClick={() => dailyInputRef.current?.click()}
-                disabled={isUploading}
-                className="flex items-center px-2 py-1 rounded bg-primary/30 text-primary/50 hover:bg-primary/40"
-              >
-                <Upload className="w-4 h-4 mr-2"/>
-                Tägliche Daten hochladen
-              </button>
-              <button
-                onClick={() => setViewMode('daily')}
-                disabled={viewMode === 'daily'}
-                className={`px-2 py-1 rounded ${
-                  viewMode === 'daily'
-                    ? 'bg-primary text-white'
-                    : 'bg-primary/30 text-primary/50 cursor-pointer'
-                }`}
-              >
-                Täglich
-              </button>
-              <button
-                onClick={() => setViewMode('monthly')}
-                disabled={viewMode === 'monthly'}
-                className={`px-2 py-1 rounded ${
-                  viewMode === 'monthly'
-                    ? 'bg-primary text-white'
-                    : 'bg-primary/30 text-primary/50 cursor-pointer'
-                }`}
-              >
-                Monatlich
-              </button>
+              <Tooltip tooltip={!canExport ? 'Stationen müssen vor dem Export durch ausgewählt werden' : 'Ausgewählte Daten exportieren'} position="bottom" containerClassName="!w-auto">
+                <button
+                  onClick={exportData}
+                  disabled={!canExport}
+                  className={`flex flex-row gap-x-2 items-center ${!canExport ? 'button-full-disabled' : 'button-full-primary'}`}
+                >
+                  <Upload size={24}/>
+                  Exportieren
+                </button>
+              </Tooltip>
+
+              <Select<AnalysisFrequency>
+                selected={viewMode}
+                items={[{
+                  value: 'daily',
+                  label: 'Täglich',
+                },
+                {
+                  value: 'monthly',
+                  label: 'Monatlich',
+                },
+                ]}
+                onChange={value => setViewMode(value)}
+              />
             </div>
           )}
         >
@@ -218,20 +253,20 @@ export const AnalysisPage: NextPage = () => {
         </Header>
       )}
     >
-      <div className="flex flex-wrap gap-10 p-10 content-start">
+      <div className="flex flex-col w-full p-10 gap-y-10 content-start">
         <Card
           key="combined-stations"
-          className={`flex flex-col gap-y-2 cursor-pointer transition-colors w-full
+          className={`flex flex-col gap-y-2 cursor-pointer transition-colors w-full hover:bg-primary/40 max-w-[500px]
             ${selectedStations.includes(COMBINED_STATIONS_KEY)
-            ? 'bg-primary/10'
-            : 'bg-emerald-100 hover:bg-emerald-50'}`}
+            ? 'bg-primary/30'
+            : 'bg-white'}`}
           onClick={() => toggleStationSelection(COMBINED_STATIONS_KEY)}
         >
           <div className="p-4 flex flex-col">
-            <span className="text-xl font-semibold text-emerald-800">Alle Stationen</span>
+            <span className="text-2xl font-semibold">Alle Stationen</span>
             <div className="flex flex-row w-full justify-between gap-x-2 items-center mt-2">
-              <span className="text-emerald-700">Gesamtpatientenanzahl:</span>
-              <span className="font-semibold text-emerald-800">{combinedValues.patientCount}</span>
+              <span className="text-primary/90">Gesamtpatientenanzahl:</span>
+              <span className="font-semibold text-primary">{combinedValues.patientCount}</span>
             </div>
           </div>
         </Card>
@@ -245,17 +280,17 @@ export const AnalysisPage: NextPage = () => {
             return (
               <Card
                 key={value.id}
-                className={`flex flex-col gap-y-2 cursor-pointer transition-colors
+                className={`flex flex-col gap-y-2 cursor-pointer transition-colors hover:bg-primary/40
                   ${selectedStations.includes(value.id)
-                  ? 'bg-primary/10'
-                  : 'bg-white hover:bg-gray-50'}`}
+                  ? 'bg-primary/30'
+                  : 'bg-white'}`}
                 onClick={() => toggleStationSelection(value.id)}
               >
                 <div className="p-4 flex flex-col h-full">
                   <span className="text-xl font-semibold mb-auto">{value.name}</span>
                   <div className="flex flex-row w-full justify-between items-center gap-x-4 mt-2">
                     <span className="text-sm text-gray-500">Minuten</span>
-                    <span className="font-semibold text-emerald-800">{minutes}</span>
+                    <span className="font-semibold text-primary">{minutes}</span>
                   </div>
                 </div>
               </Card>
@@ -263,12 +298,6 @@ export const AnalysisPage: NextPage = () => {
           })}
         </div>
       </div>
-      <button
-        onClick={exportData}
-        className="bg-primary/60 hover:bg-primary/80 rounded px-2 py-1"
-      >
-        {'Daten exportieren'}
-      </button>
     </Page>
   )
 }

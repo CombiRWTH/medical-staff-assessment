@@ -29,7 +29,7 @@ export const StationsPage: NextPage = () => {
         {stations.map(value => (
           <Card
             key={value.id}
-            className="flex flex-col justify-center items-center gap-y-2 p-4 hover:bg-primary/50 hover:text-white transition-colors duration-100 cursor-pointer"
+            className="flex flex-col justify-start gap-y-2 p-4 card-hover transition-colors duration-100 cursor-pointer"
             onClick={() => router.push(`/stations/${value.id}`)}
           >
             <span className="text-xl font-semibold">{value.name}</span>

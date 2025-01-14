@@ -6,7 +6,7 @@ class MyDocument extends Document {
       <Html>
         <Head>
           <meta name="og:title" property="og:title" content="Personalbedarfsplanung"/>
-          <link rel="icon" href="/favicon.ico"/>
+          <link rel="icon" href="/favicon.png"/>
         </Head>
         <body>
           <Main/>
