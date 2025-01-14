@@ -1,16 +1,16 @@
-import { formatDateFrontendURL, parseDateString } from '@/util/date'
+import { formatDateFrontendURL } from '@/util/date'
 
 export type LastClassifiedBadgeProps = {
-  dateString?: string
+  date?: Date
 }
 
 /**
  * A Badge showing when a patient was last classified
  */
 export const LastClassifiedBadge = ({
-  dateString
+  date
 }: LastClassifiedBadgeProps) => {
-  const hasClassification = !!dateString
+  const hasClassification = !!date
   const baseStyle = 'rounded-xl w-32 text-center px-2 py-1 border-2'
   if (!hasClassification) {
     return (
@@ -19,10 +19,9 @@ export const LastClassifiedBadge = ({
       </div>
     )
   }
-  const lastDate = parseDateString(dateString)
   const today = Date.now()
-  const isToday = today - lastDate.getTime() < 24 * 60 * 60 * 1000
-  const isYesterday = today - lastDate.getTime() < 24 * 60 * 60 * 1000 * 2 && !isToday
+  const isToday = today - date.getTime() < 24 * 60 * 60 * 1000
+  const isYesterday = today - date.getTime() < 24 * 60 * 60 * 1000 * 2 && !isToday
   if (isYesterday || isToday) {
     return (
       <div
@@ -33,7 +32,7 @@ export const LastClassifiedBadge = ({
   }
   return (
     <div className={`${baseStyle} border-orange-400`}>
-      {formatDateFrontendURL(lastDate)}
+      {formatDateFrontendURL(date)}
     </div>
   )
 }
