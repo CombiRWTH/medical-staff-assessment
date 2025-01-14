@@ -3,7 +3,7 @@ import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import { addDays, isSameDay, subDays } from 'date-fns'
 import Link from 'next/link'
-import { DefaultHeader, Header } from '@/layout/Header'
+import { Header } from '@/layout/Header'
 import { Page } from '@/layout/Page'
 import { useStationsAPI } from '@/api/stations'
 import { usePatientsAPI } from '@/api/patients'
@@ -73,12 +73,22 @@ export const PatientClassification = () => {
         <Header
           start={(
             <div className="flex flex-row items-center gap-x-4 flex-shrink-0 flex-1">
-              <DefaultHeader/>
-              <div className="bg-gray-300 rounded-full min-w-1 min-h-12"/>
+              <div
+                className="flex flex-row gap-x-2 items-center cursor-pointer"
+                onClick={() => router.push('/')}
+              >
+                <div className="rounded-full min-w-[32px] min-h-[32px] bg-primary" />
+                <span className="text-[15px] font-medium cursor-pointer hover:text-purple-600 hover:underline">
+                Zurück zum Homepage
+              </span>
+              </div>
+              <div className="bg-gray-300 rounded-full min-w-1 min-h-12" />
               <div className="flex flex-row gap-x-1 items-center font-semibold text-lg">
                 <Link href={`/stations/${id}`}>{currentStation?.name}</Link>
                 <strong>/</strong>
-                <Link href={`/stations/${id}/${patientId}/${dateString}`}>{currentPatient?.name}</Link>
+                <Link href={`/stations/${id}/${patientId}/${dateString}`}>
+                  {currentPatient?.name}
+                </Link>
               </div>
             </div>
           )}
