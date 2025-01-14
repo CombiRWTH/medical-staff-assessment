@@ -13,6 +13,7 @@ export default {
         container: '#FFFFFF',
         positive: '#22C55E',
         warning: '#FFC107',
+        disabled: '#999999',
       },
       keyframes: {
         'fade-in': {
