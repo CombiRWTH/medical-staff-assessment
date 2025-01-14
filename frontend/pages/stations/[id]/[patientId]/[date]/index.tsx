@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
-import { addDays, subDays } from 'date-fns'
+import { addDays, isSameDay, subDays } from 'date-fns'
 import Link from 'next/link'
 import { DefaultHeader, Header } from '@/layout/Header'
 import { Page } from '@/layout/Page'
@@ -19,6 +19,7 @@ import {
   parseDateStringFrontend
 } from '@/util/date'
 import { DatePickerButton } from '@/components/DatePicker/DatePickerButton'
+import { usePatientDatesAPI } from '@/api/dates'
 
 export const PatientClassification = () => {
   const router = useRouter()
@@ -27,6 +28,10 @@ export const PatientClassification = () => {
   const dateString: string = (router.query.date as string | undefined) ?? ''
   const date = parseDateStringFrontend(dateString)
 
+  const { dates } = usePatientDatesAPI(id, patientId)
+
+  const hasPreviousDay: boolean = dates.some(value => isSameDay(subDays(date, 1), value))
+  const hasNextDay: boolean = dates.some(value => isSameDay(addDays(date, 1), value))
   const { stations } = useStationsAPI()
   const currentStation = stations.find(value => value.id === id)
   const { patients } = usePatientsAPI(currentStation?.id)
@@ -69,11 +74,13 @@ export const PatientClassification = () => {
           start={(
             <div className="flex flex-row items-center gap-x-4 flex-shrink-0 flex-1">
               <DefaultHeader/>
-              <div className="bg-gray-300 rounded-full min-w-1 min-h-12"/>
+              <div className="bg-gray-300 rounded-full min-w-1 min-h-12" />
               <div className="flex flex-row gap-x-1 items-center font-semibold text-lg">
                 <Link href={`/stations/${id}`}>{currentStation?.name}</Link>
                 <strong>/</strong>
-                <Link href={`/stations/${id}/${patientId}/${dateString}`}>{currentPatient?.name}</Link>
+                <Link href={`/stations/${id}/${patientId}/${dateString}`}>
+                  {currentPatient?.name}
+                </Link>
               </div>
             </div>
           )}
@@ -109,23 +116,27 @@ export const PatientClassification = () => {
         >
           <div className="flex flex-col items-center justify-center">
             <div className="flex flex-row gap-x-2 items-center flex-1 justify-center">
-              <Link href={`/stations/${id}/${patientId}/${formatDateFrontendURL(subDays(date, 1))}`}
-                    className="flex flex-col items-center">
-                <Tooltip tooltip="Gestern" position="bottom">
+              <button
+                onClick={() => router.push(`/stations/${id}/${patientId}/${formatDateFrontendURL(subDays(date, 1))}`)}
+                className={`flex flex-col items-center ${hasPreviousDay ? '' : 'text-gray-400'}`}
+                disabled={!hasPreviousDay}
+              >
+                <Tooltip tooltip="Vorheriger Tag" position="bottom">
                   <ChevronLeft size={32}/>
                 </Tooltip>
-              </Link>
-              <DatePickerButton date={date} eventList={{}} onDateClick={(_, selectedDate) => {
+              </button>
+              <DatePickerButton date={date} eventList={{ events: dates.map(date => ({ date, color: 'green' })) }} onDateClick={(_, selectedDate) =>
                 router.push(`/stations/${id}/${patientId}/${formatDateFrontendURL(selectedDate)}`)
-              }}/>
-              <Link
-                href={`/stations/${id}/${patientId}/${formatDateFrontendURL(addDays(date, 1))}`}
-                className="flex flex-col items-center"
+              }/>
+              <button
+                onClick={() => router.push(`/stations/${id}/${patientId}/${formatDateFrontendURL(addDays(date, 1))}`)}
+                className={`flex flex-col items-center ${hasNextDay ? '' : 'text-gray-400'}`}
+                disabled={!hasNextDay}
               >
-                <Tooltip tooltip="Morgen" position="bottom">
+                <Tooltip tooltip="Nächster Tag" position="bottom">
                   <ChevronRight size={32}/>
                 </Tooltip>
-              </Link>
+              </button>
             </div>
             <Link
               className="text-primary hover:text-primary/90 text-sm"
@@ -137,8 +148,8 @@ export const PatientClassification = () => {
         </Header>
       )}
     >
-      <div className="relative flex flex-col p-8 gap-y-6 w-full">
-        <div className="flex flex-row gap-x-10 sticky top-2 bg-gray-100 rounded-2xl z-[1]">
+      <div className="relative flex flex-col p-8 pt-0 w-full">
+        <div className="flex flex-row gap-x-10 sticky top-0 py-8 bg-background z-[1]">
           <div className="flex flex-col gap-y-2 bg-container px-4 py-2 rounded-2xl flex-1">
             <h2 className="font-bold text-xl">Tagesdaten</h2>
             <div className="flex flex-row gap-x-1 justify-between">
@@ -171,10 +182,11 @@ export const PatientClassification = () => {
             </div>
           </div>
         </div>
-
-        {classification.careServices.map((list, index) => (
-          <ClassificationCard key={index} classification={list} onUpdate={update}/>
-        ))}
+        <div className="flex flex-col gap-y-6">
+          {classification.careServices.map((list, index) => (
+            <ClassificationCard key={index} classification={list} onUpdate={update}/>
+          ))}
+        </div>
       </div>
     </Page>
   )

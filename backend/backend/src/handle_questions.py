@@ -1,12 +1,19 @@
 """Provide questions for the frontend to display and handle the submission of answers."""
-import json
+
 import datetime as datetime
+import json
 from collections import defaultdict
 
 from django.http import JsonResponse
 
-from ..models import (CareServiceOption, DailyClassification,
-                      IsCareServiceUsed, Patient, Station, PatientTransfers)
+from ..models import (
+    CareServiceOption,
+    DailyClassification,
+    DailyPatientData,
+    IsCareServiceUsed,
+    Patient,
+    Station,
+)
 
 
 def add_selected_attribute(care_service_options: list, classification: dict) -> list:
@@ -64,13 +71,13 @@ def get_questions(station_id: int, patient_id: int, date: datetime.date) -> dict
         )
     )
     # Get the patient's admission and discharge dates
-    try:
-        patient = PatientTransfers.objects.get(id=patient_id)
-        admission_date = patient.admission_date
-        discharge_date = patient.discharge_date
-    except PatientTransfers.DoesNotExist:
-        admission_date = None
-        discharge_date = None
+    daily_patient_data = DailyPatientData.objects.filter(
+        patient=patient_id,
+        station=station_id,
+        date=date
+    ).values('day_of_discharge', 'day_of_admission').first()
+    admission_date = daily_patient_data['day_of_admission'] if daily_patient_data else None
+    discharge_date = daily_patient_data['day_of_discharge'] if daily_patient_data else None
 
     # Get the classification of the patient for the specified date
     classification = DailyClassification.objects.filter(
@@ -185,11 +192,10 @@ def submit_selected_options(station_id: int, patient_id: int, date: datetime.dat
     Returns:
         JsonResponse: The response containing the calculated minutes, the general and the specific care group.
     """
-    # Create the classification entry if it does not exist
     patient = Patient.objects.get(id=patient_id)
     station = Station.objects.get(id=station_id)
 
-    # Check if the classification already exists
+    # Create "default" dailyClassification if it does not exist
     classification = DailyClassification.objects.filter(
         patient=patient,
         date=date,
@@ -211,6 +217,12 @@ def submit_selected_options(station_id: int, patient_id: int, date: datetime.dat
             mini_mental_status=0,
         )
 
+    # Provide an option to update the isolation status
+    if 'is_in_isolation' in body:
+        classification.is_in_isolation = body['is_in_isolation']
+        classification.save()
+        return
+
     # Update the selected care services
     care_service = CareServiceOption.objects.get(id=body['id'])
     if care_service is None:
@@ -225,8 +237,6 @@ def submit_selected_options(station_id: int, patient_id: int, date: datetime.dat
             classification=classification,
             care_service_option=care_service,
         ).delete()
-
-    return JsonResponse(get_grouped_data(station_id, patient_id, date), safe=False)
 
 
 def handle_questions(request, station_id: int, patient_id: int, date: str) -> JsonResponse:
@@ -248,7 +258,8 @@ def handle_questions(request, station_id: int, patient_id: int, date: str) -> Js
     if request.method == 'PUT':
         # Handle the updating of questions
         body_data = json.loads(request.body)
-        return submit_selected_options(station_id, patient_id, date, body_data)
+        submit_selected_options(station_id, patient_id, date, body_data)
+        return JsonResponse(get_grouped_data(station_id, patient_id, date), safe=False)
     elif request.method == 'GET':
         # Handle the pulling of questions for a patient
         return JsonResponse(get_grouped_data(station_id, patient_id, date), safe=False)

@@ -1,10 +1,11 @@
 """Calculate the minutes each patient should receive care services."""
-from datetime import date
-from django.http import JsonResponse
+from datetime import date, datetime
 
+from django.http import JsonResponse
+from django.utils import timezone
+
+from ..models import DailyClassification, DailyPatientData, Patient, Station
 from .handle_questions import get_questions
-from ..models import (DailyClassification,
-                      Patient, Station)
 
 
 def group_and_count_data(data: list) -> dict:
@@ -103,6 +104,37 @@ def choose_specific_care_group(data: dict) -> int:
         return 1
 
 
+def has_entry_for_current_quarter(patient_id: int, date: str) -> bool:
+    """Check if there is already an entry for the current quarter.
+
+    Returns:
+        bool: True if there is already an entry for the current quarter, False otherwise.
+    """
+    # Find the current quarter
+    q_1 = (1, 2, 3)
+    q_2 = (4, 5, 6)
+    q_3 = (7, 8, 9)
+    q_4 = (10, 11, 12)
+    date = datetime.strptime(date, "%Y-%m-%d").date()
+    if date.month in q_1:
+        quarter = q_1
+    elif date.month in q_2:
+        quarter = q_2
+    elif date.month in q_3:
+        quarter = q_3
+    else:
+        quarter = q_4
+
+    # Check if there is already an entry for the current quarter of this year
+    entry = DailyPatientData.objects.filter(
+        patient=patient_id,
+        date__year=date.year,
+        date__month__in=quarter,
+        uses_quarter_entry=True
+    ).first()
+    return entry is not None
+
+
 def sum_minutes(a_value: str, s_value: str, body: dict) -> int:
     """Sum up the minutes of the provided data.
 
@@ -114,11 +146,13 @@ def sum_minutes(a_value: str, s_value: str, body: dict) -> int:
     Returns:
         int: The sum of the minutes.
     """
-    minutes = 33  # Base value
-    if body['is_in_isolation']:
-        minutes = 123  # Base value for isolation
+    # In case of a day of discharge, half the minutes_per_classification of the previous day are used (§ 12 (2)).
+    # TODO: Issue
+    minutes = 33  # Base value (§ 4 (2) 1. and  § 12 Absatz 1 Satz 1)
+    if body.get("is_in_isolation", False):
+        minutes = 123  # Base value for isolation (§ 4 (2) 2. and § 12 Absatz 1 Satz 2)
 
-    # Data taken from the PPBV (TODO: Outsource this to somewhere else)
+    # Data taken from the PPBV (§ 12 Absatz 4 Satz 1)
     minutes_per_classification = {
         "A1": {
             "S1": 59,
@@ -145,8 +179,28 @@ def sum_minutes(a_value: str, s_value: str, body: dict) -> int:
             "S4": 427
         }
     }
-
     minutes += minutes_per_classification[f'A{a_value}'][f'S{s_value}']
+
+    if body.get("is_semi_stationary", False):
+        minutes /= 2  # Only use half of the minutes (§ 4 (2) 3.)
+
+    # § 4 (2) 3. and § 12 Absatz 3
+    if body.get("is_fully_stationary", False) and body.get(
+        "is_day_of_admission", False
+    ):
+        minutes += 75
+    if body.get("is_semi_stationary", False) and not body.get(
+        "is_repeating_visit", False
+    ):
+        minutes += 75
+
+    # Repeating visits due to same illness lead to less minutes for admission (§ 4 (2) 4. Satz 2)
+    if (
+        body.get("is_semi_stationary", False)
+        and body.get("is_repeating_visit", False)
+        and not body.get("has_entry_for_current_quarter", False)
+    ):
+        minutes += 75
 
     return minutes
 
@@ -185,7 +239,7 @@ def calculate_care_minutes(body_data: dict) -> int:
     return sum_minutes(a_index, s_index, body_data), a_index, s_index
 
 
-def calculate_result(station_id, patient_id: int, date: date) -> dict:
+def calculate_result(station_id: int, patient_id: int, date: date) -> dict:
     """Calculate the minutes a caregiver has time for caring for a patient.
 
     Args:
@@ -205,7 +259,7 @@ def calculate_result(station_id, patient_id: int, date: date) -> dict:
         station=station,
         date=date,
     ).first()
-    print(classification)
+
     if classification is None:
         return {'error': 'No classification found for the specified date.'}
 
@@ -215,6 +269,29 @@ def calculate_result(station_id, patient_id: int, date: date) -> dict:
         option for option in entries['care_service_options']
         if option['selected']
     ]
+
+    # Add more data provided by the hospital
+    patient_data = DailyPatientData.objects.filter(
+        patient=patient,
+        station=station,
+        date=date,
+    ).values().first()
+    entries.update(patient_data)
+
+    datetime_date = datetime.strptime(date, "%Y-%m-%d").date()
+    entries['is_day_of_admission'] = datetime_date == timezone.localtime(patient_data['day_of_admission']).date()
+    entries['is_day_of_discharge'] = datetime_date == timezone.localtime(patient_data['day_of_discharge']).date()
+
+    if not entries['uses_quarter_entry']:
+        entries['has_entry_for_current_quarter'] = has_entry_for_current_quarter(patient_id, date)
+        if (entries['is_semi_stationary']
+                and entries['is_repeating_visit']
+                and not entries['has_entry_for_current_quarter']):
+            # The extra minutes will be used for the repeating visit
+            patient_data['is_repeating_visit'] = True
+    else:
+        # Use the quarter entry again for the calculation since it is already used for the patient on this day
+        entries['has_entry_for_current_quarter'] = False
 
     # Calculate the minutes accordingly
     minutes_to_take_care, a_index, s_index = calculate_care_minutes(entries)
@@ -226,6 +303,98 @@ def calculate_result(station_id, patient_id: int, date: date) -> dict:
     classification.save()
 
     return {'minutes': minutes_to_take_care, 'category1': a_index, 'category2': s_index}
+
+
+def calculate_direct_classification(
+    station_id: int, patient_id: int, date: date, a_value: str, s_value: str
+):
+    """Calculate care minutes based on a_value and s_value alone.
+
+     Args:
+        station_id (int): The ID of the station.
+        patient_id (int): The ID of the patient.
+        date (date): The date of the classification.
+        a_value (str): The severity of the A group.
+        s_value (str): The severity of the S group.
+
+    Returns:
+        dict: The response containing the calculated minutes, the general and the specific care group.
+    """
+    patient = Patient.objects.get(id=patient_id)
+    station = Station.objects.get(id=station_id)
+
+    # Create "default" dailyClassification if it does not exist
+    classification = DailyClassification.objects.filter(
+        patient=patient,
+        station=station,
+        date=date,
+    ).first()
+
+    if classification is None:
+        classification = DailyClassification.objects.create(
+            patient=patient,
+            date=date,
+            is_in_isolation=False,
+            result_minutes=0,
+            a_index=0,
+            s_index=0,
+            station=station,
+            room_name="Test Raum",
+            bed_number=1,
+            barthel_index=0,
+            expanded_barthel_index=0,
+            mini_mental_status=0,
+        )
+
+    # If there is dailyPatientData, store information that influences the care minutes
+    direct_classification_data = {}
+
+    patient_data = (
+        DailyPatientData.objects.filter(
+            patient=patient,
+            station=station,
+            date=date,
+        )
+        .values()
+        .first()
+    )
+
+    if patient_data is not None:
+        direct_classification_data.update(patient_data)
+
+        datetime_date = datetime.strptime(date, "%Y-%m-%d").date()
+        direct_classification_data["is_day_of_admission"] = (
+            datetime_date == timezone.localtime(patient_data["day_of_admission"]).date()
+        )
+        direct_classification_data["is_day_of_discharge"] = (
+            datetime_date == timezone.localtime(patient_data["day_of_discharge"]).date()
+        )
+
+        if not direct_classification_data["uses_quarter_entry"]:
+            direct_classification_data["has_entry_for_current_quarter"] = (
+                has_entry_for_current_quarter(patient_id, date)
+            )
+            if (
+                direct_classification_data["is_semi_stationary"]
+                and direct_classification_data["is_repeating_visit"]
+                and not direct_classification_data["has_entry_for_current_quarter"]
+            ):
+                # The extra minutes will be used for the repeating visit
+                patient_data["is_repeating_visit"] = True
+        else:
+            # Use the quarter entry again for the calculation since it is already used for the patient on this day
+            direct_classification_data["has_entry_for_current_quarter"] = False
+
+    # Calculate the minutes accordingly
+    minutes_to_take_care = sum_minutes(a_value, s_value, direct_classification_data)
+
+    # Update dailyClassification
+    classification.result_minutes = minutes_to_take_care
+    classification.a_index = a_value
+    classification.s_index = s_value
+    classification.save()
+
+    return {"minutes": minutes_to_take_care, "category1": a_value, "category2": s_value}
 
 
 def handle_calculations(request, station_id, patient_id: int, date: date):
@@ -244,3 +413,35 @@ def handle_calculations(request, station_id, patient_id: int, date: date):
         return JsonResponse(calculate_result(station_id, patient_id, date), status=200)
     else:
         return JsonResponse({'message': 'Method not allowed.'}, status=405)
+
+
+def handle_direct_classification(
+    request,
+    station_id: int,
+    patient_id: int,
+    date: date,
+    a_value: str,
+    s_value: str,
+):
+    """Endpoint to directly classify a patient.
+
+    Args:
+        request (HttpRequest): The request object.
+        station_id (int): The ID of the station.
+        patient_id (int): The ID of the patient.
+        date (str): The date of the classification ('YYYY-MM-DD').
+        a_value (str): The severity of the A group.
+        s_value (str): The severity of the S group.
+
+    Returns:
+        JsonResponse: The response containing the calculated minutes.
+    """
+    if request.method == "GET":
+        return JsonResponse(
+            calculate_direct_classification(
+                station_id, patient_id, date, a_value, s_value
+            ),
+            status=200,
+        )
+    else:
+        return JsonResponse({"message": "Method not allowed."}, status=405)

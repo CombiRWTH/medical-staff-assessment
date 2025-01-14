@@ -1,10 +1,13 @@
-from datetime import date, datetime, timedelta
+"""Endpoint to retrieve information per station."""
+from datetime import timedelta
 
-from django.db.models import Count, OuterRef, Subquery, Sum, Value
+from django.db.models import Count, Q, Sum, Value
 from django.db.models.functions import Coalesce, ExtractDay
 from django.http import JsonResponse
+from django.utils import timezone
 
-from ..models import PatientTransfers, Station, StationWorkloadDaily
+from ..models import DailyPatientData, Station, StationWorkloadDaily
+from .handle_patients import get_missing_classifications_for_patient
 
 
 def get_stations_analysis(frequency: str):
@@ -18,7 +21,7 @@ def get_stations_analysis(frequency: str):
     """
     if frequency == "daily":
         # If 'daily', fetch the current day's data
-        today = datetime.now().date()
+        today = timezone.now().date()
         daily_workload = (
             StationWorkloadDaily.objects
             .filter(date=today)
@@ -38,7 +41,7 @@ def get_stations_analysis(frequency: str):
 
     elif frequency == "monthly":
         # Calculate the current month's date range
-        today = datetime.now()
+        today = timezone.now()
         start_date = today.replace(day=1)
         next_month = (today.replace(day=28) + timedelta(days=4)).replace(day=1)
         end_date = next_month - timedelta(days=1)
@@ -85,30 +88,57 @@ def get_stations_analysis(frequency: str):
         raise ValueError("Invalid frequency. Use 'daily' or 'monthly'.")
 
 
+def get_missing_classifications_for_station(station_id: int) -> int:
+    """Get number of missing classifications for station in last week.
+
+    Args:
+        station_id (int): The ID of the station in the database.
+
+    Returns:
+        int: The number of missing classifications.
+    """
+    today = timezone.now().date()
+    seven_days_ago = today - timedelta(days=7)
+    sum = 0
+
+    patients = (
+        DailyPatientData.objects.filter(
+            station=station_id, date__range=[seven_days_ago, today]
+        )
+        .values_list("patient", flat=True)
+        .distinct()
+    )
+
+    for patient in patients:
+        sum += len(get_missing_classifications_for_patient(patient, station_id))
+
+    return sum
+
+
 def get_all_stations() -> list:
-    """Get all stations stored in the db.
+    """Get all stations with todays patient count and missing classifications.
 
     Returns:
         list: Stations.
     """
-    today = date.today()
-
-    # Subquery to get the count of patients for each station
-    patients_count_subquery = PatientTransfers.objects.filter(
-        station_new_id=OuterRef('pk'),
-        discharge_date__gte=today
-    ).values('station_new_id').annotate(
-        patient_count=Count('patient')
-    ).values('patient_count')
-
-    # Annotate each station with the number of patients
+    today = timezone.now().date()
     stations = (
         Station.objects.annotate(
-            patientCount=Coalesce(Subquery(patients_count_subquery), Value(0))
+            patientCount=Count(
+                'dailypatientdata__patient',
+                filter=Q(dailypatientdata__date=today),
+            )
         )
         .values("id", "name", "patientCount")
         .order_by("name")
     )
+
+    stations_list = list(stations)
+
+    for station in stations_list:
+        station_id = station["id"]
+        missing_classifications = get_missing_classifications_for_station(station_id)
+        station["missing_classifications"] = missing_classifications
 
     return list(stations)
 

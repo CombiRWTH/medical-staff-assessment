@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 import { useState, useMemo } from 'react'
-import { ArrowLeft, ArrowRight, LucideArrowDown, LucideArrowUp, Search } from 'lucide-react'
-import { Header } from '@/layout/Header'
+import { ArrowRight, LucideArrowDown, LucideArrowUp, Search } from 'lucide-react'
+import { DefaultHeader, Header } from '@/layout/Header'
 import { Card } from '@/components/Card'
 import { Page } from '@/layout/Page'
 import { useStationsAPI } from '@/api/stations'
@@ -63,12 +63,15 @@ export const StationPatientList = () => {
   return (
     <Page
       header={(
-        <Header start={(
-          <div className="flex flex-row gap-x-4 items-center">
-            <ArrowLeft size={32} onClick={() => router.push('/stations')} className="cursor-pointer"/>
-            <h2 className="text-2xl bold">{currentStation?.name}</h2>
+        <Header start={(<></>)}>
+          <div className="grid grid-cols-3 w-full">
+            <DefaultHeader/>
+            <div className="flex flex-row justify-center items-center">
+              <h2 className="text-4xl bold">{currentStation?.name}</h2>
+            </div>
+            <div/>
           </div>
-        )}/>
+        </Header>
       )}
     >
       <div className="flex flex-col gap-10 p-10 content-start max-w-[1200px] w-full">

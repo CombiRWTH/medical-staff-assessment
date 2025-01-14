@@ -10,7 +10,10 @@ export default {
       colors: {
         primary: '#527AFF',
         background: '#EEEEEE',
-        container: '#FFFFFF'
+        container: '#FFFFFF',
+        positive: '#22C55E',
+        warning: '#FFC107',
+        disabled: '#999999',
       },
       keyframes: {
         'fade-in': {
