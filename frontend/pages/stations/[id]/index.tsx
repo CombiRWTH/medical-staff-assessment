@@ -7,12 +7,16 @@ import { Page } from '@/layout/Page'
 import { useStationsAPI } from '@/api/stations'
 import { usePatientsAPI } from '@/api/patients'
 import { LastClassifiedBadge } from '@/components/LastClassifiedBadge'
-import { formatDateFrontendURL, parseDateString } from '@/util/date'
+import { formatDateFrontendURL } from '@/util/date'
+import type { Patient } from '@/data-models/patient'
+
+type SortingOptions = 'name' | 'classification' | 'location'
 
 type SortingState = {
   nameAscending: boolean,
   hasClassificationAscending: boolean,
-  last: 'name' | 'classification'
+  hasLocationAscending: boolean,
+  last: SortingOptions[]
 }
 
 export const StationPatientList = () => {
@@ -22,11 +26,19 @@ export const StationPatientList = () => {
   const [sortingState, setSortingState] = useState<SortingState>({
     hasClassificationAscending: true,
     nameAscending: true,
-    last: 'name',
+    hasLocationAscending: true,
+    last: ['name', 'classification', 'location'],
   })
   const { stations } = useStationsAPI()
   const currentStation = stations.find(value => value.id === id)
   const { patients } = usePatientsAPI(currentStation?.id)
+
+  const bedRoom = (patient: Patient) => {
+    if (!patient.currentRoom || !patient.currentBed) {
+      return '-'
+    }
+    return `${patient.currentRoom}-${patient.currentBed}`
+  }
 
   const sortedAndFilteredPatients = useMemo(() => {
     // First filter by search term
@@ -38,23 +50,29 @@ export const StationPatientList = () => {
     return filteredPatients.sort((a, b) => {
       const nameCompare = a.name.localeCompare(b.name) * (sortingState.nameAscending ? 1 : -1)
       let classificationCompare = sortingState.hasClassificationAscending ? 1 : -1
+      const locationCompare = bedRoom(a).localeCompare(bedRoom(b)) * (sortingState.hasLocationAscending ? 1 : -1)
       if (!!a.lastClassification && !!b.lastClassification) {
-        classificationCompare = classificationCompare * (parseDateString(a.lastClassification).getTime() - parseDateString(b.lastClassification).getTime())
+        classificationCompare = classificationCompare * (a.lastClassification.getTime() - b.lastClassification.getTime())
       } else if (b.lastClassification) {
         classificationCompare *= -1
       }
 
-      if (sortingState.last === 'name') {
-        if (nameCompare !== 0) {
-          return nameCompare
+      for (const sortingType of sortingState.last) {
+        if (sortingType === 'name') {
+          if (nameCompare !== 0) {
+            return nameCompare
+          }
         }
-        return classificationCompare
-      }
-      if (sortingState.last === 'classification') {
-        if (classificationCompare !== 0) {
-          return classificationCompare
+        if (sortingType === 'classification') {
+          if (classificationCompare !== 0) {
+            return classificationCompare
+          }
         }
-        return nameCompare
+        if (sortingType === 'location') {
+          if (locationCompare !== 0) {
+            return locationCompare
+          }
+        }
       }
       return 1
     })
@@ -103,7 +121,7 @@ export const StationPatientList = () => {
                 <button onClick={() => setSortingState({
                   ...sortingState,
                   nameAscending: !sortingState.nameAscending,
-                  last: 'name'
+                  last: ['name', ...sortingState.last.filter(value => value !== 'name')]
                 })}>
                   <div className="flex flex-row gap-x-1 items-center">
                     <span className="text-lg">Name</span>
@@ -112,11 +130,24 @@ export const StationPatientList = () => {
                   </div>
                 </button>
               </th>
-              <th className="text-center">
+              <th>
+                <button onClick={() => setSortingState({
+                  ...sortingState,
+                  hasLocationAscending: !sortingState.hasLocationAscending,
+                  last: ['location', ...sortingState.last.filter(value => value !== 'location')]
+                })}>
+                  <div className="flex flex-row gap-x-1 items-center">
+                    <span className="text-lg">Raum & Bett</span>
+                    {sortingState.hasLocationAscending ? <LucideArrowDown size={18}/> :
+                      <LucideArrowUp size={18}/>}
+                  </div>
+                </button>
+              </th>
+              <th>
                 <button onClick={() => setSortingState({
                   ...sortingState,
                   hasClassificationAscending: !sortingState.hasClassificationAscending,
-                  last: 'classification'
+                  last: ['classification', ...sortingState.last.filter(value => value !== 'classification')]
                 })}>
                   <div className="flex flex-row gap-x-1 items-center">
                     <span className="text-lg">Letzter Eintrag</span>
@@ -136,8 +167,9 @@ export const StationPatientList = () => {
                 className="cursor-pointer hover:bg-gray-200 rounded-xl"
               >
                 <td className="rounded-l-xl pl-2">{patient.name}</td>
-                <td className="flex flex-col items-center py-1">
-                  <LastClassifiedBadge dateString={patient.lastClassification}/>
+                <td className="py-1">{bedRoom(patient)}</td>
+                <td className="py-1">
+                  <LastClassifiedBadge date={patient.lastClassification}/>
                 </td>
                 <td className="rounded-r-xl">
                   <button
