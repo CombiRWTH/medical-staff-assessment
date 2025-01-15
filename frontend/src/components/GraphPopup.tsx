@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { BarChart3, X } from 'lucide-react'
 import {
   LineChart,
@@ -12,6 +12,7 @@ import {
 } from 'recharts'
 import { Tooltip as TooltipCustom } from '@/components/Tooltip'
 import { Select } from '@/components/Select'
+import { useOutsideClick } from '@/util/hooks/useOutsideClick'
 
 type Frequency = 'day' | 'week' | 'month'
 
@@ -27,6 +28,8 @@ export const ComparisonGraph = ({
   onTimeRangeChange
 }: ComparisonGraphProps) => {
   const [isOpen, setIsOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  useOutsideClick([ref], () => setIsOpen(false))
 
   const processedData = data.reduce((acc: any, station: any) => {
     const stationData = {
@@ -65,7 +68,7 @@ export const ComparisonGraph = ({
 
       {isOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-4xl mx-4">
+          <div ref={ref} className="bg-white rounded-lg p-6 w-full max-w-4xl mx-4">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Stationsvergleich - Ist- vs Soll-Werte</h2>
               <div className="flex flex-row items-center gap-x-4">

@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 import { useCallback, useState, useMemo } from 'react'
 import { ArrowRight, LucideArrowDown, LucideArrowUp, Search } from 'lucide-react'
-import { Header } from '@/layout/Header'
+import { DefaultHeader, Header } from '@/layout/Header'
 import { Card } from '@/components/Card'
 import { Page } from '@/layout/Page'
 import type { Patient } from '@/data-models/patient'
@@ -116,13 +116,8 @@ export const StationPatientList = () => {
       header={(
         <Header start={(<></>)}>
           <div className="grid grid-cols-3 w-full">
-            <div className="flex flex-col grow gap-y-4">
-              <div className="flex flex-row gap-x-2 items-center cursor-pointer h-full" onClick={() => router.push('/')}>
-                <div className="rounded-full min-w-[25px] min-h-[25px] bg-primary"/>
-                <span className="text-[15px] font-medium cursor-pointer hover:text-primary hover:underline">Go back to homepage</span>
-              </div>
-            </div>
-            <div className="flex flex-row justify-center">
+            <DefaultHeader/>
+            <div className="flex flex-row justify-center items-center">
               <h2 className="text-4xl bold">{currentStation?.name}</h2>
             </div>
             <div/>
