@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { useCallback, useState, useMemo } from 'react'
-import { ArrowRight, LucideArrowDown, LucideArrowUp, Search } from 'lucide-react'
+import { ArrowRight, LucideArrowDown, LucideArrowUp, Search, X } from 'lucide-react'
 import { DefaultHeader, Header } from '@/layout/Header'
 import { Card } from '@/components/Card'
 import { Page } from '@/layout/Page'
@@ -37,7 +37,7 @@ const PatientRow = ({
   patient,
   stationId,
   onSelect
-} : PatientRowProps) => {
+}: PatientRowProps) => {
   const today = new Date()
   const { classification } = usePatientClassification(
     stationId,
@@ -73,12 +73,13 @@ const PatientRow = ({
 export const StationPatientList = () => {
   const router = useRouter()
   const id = router.query.id !== undefined ? parseInt(router.query.id as string) : undefined
+  const [hasDismissedMissingEntries, setHasDismissedMissingEntries] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [sortingState, setSortingState] = useState<SortingState>({
     hasClassificationAscending: true,
     nameAscending: true,
     hasLocationAscending: true,
-    last: ['name', 'classification', 'location'],
+    last: ['classification', 'name', 'location'],
   })
   const { stations } = useStationsAPI()
   const currentStation = stations.find(value => value.id === id)
@@ -126,6 +127,10 @@ export const StationPatientList = () => {
     router.push(`/stations/${id}/${patientId}/${formatDateFrontendURL()}`)
   }, [router, id])
 
+  const missingEntriesCount = patients.filter(patient => !patient.lastClassification).length
+  const missingEntriesWeek = patients.reduce((cur, patient) => (patient.missingClassificationsLastWeek ?? []).length + cur, 0)
+  const shouldShowMissingEntries = (missingEntriesCount > 0 || missingEntriesWeek > 0) && !hasDismissedMissingEntries
+
   return (
     <Page
       header={(
@@ -141,9 +146,33 @@ export const StationPatientList = () => {
       )}
     >
       <div className="flex flex-col gap-10 p-10 content-start max-w-[1200px] w-full">
+        {shouldShowMissingEntries && (
+          <Card className="bg-warning/20">
+            <div className="flex flex-row gap-x-2 justify-between">
+              <h3 className="font-bold text-lg">Fehlende Einträge</h3>
+              <div onClick={() => setHasDismissedMissingEntries(true)}
+                   className="bg-white hover:bg-gray-100 p-1 rounded-md">
+                <X size={20}/>
+              </div>
+            </div>
+            {missingEntriesCount > 0 && (
+              <div className="flex flex-row gap-x-2">
+                Heute:
+                <span className="font-bold">{missingEntriesCount}</span>
+              </div>
+            )}
+            {missingEntriesWeek > 0 && (
+              <div className="flex flex-row gap-x-2">
+                In den letzten 7 Tagen:
+                <span className="font-bold">{missingEntriesWeek}</span>
+              </div>
+            )}
+            { /* TODO add indication for missing entries today */}
+          </Card>
+        )}
+
         <Card>
           <h3 className="pl-2 pb-3 text-2xl font-bold">Patientenliste</h3>
-
           <div className="px-2 pb-4">
             <div className="relative flex items-center">
               <Search size={20} className="absolute left-3 text-gray-400 pointer-events-none"/>
