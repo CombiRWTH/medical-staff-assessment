@@ -8,7 +8,7 @@ import { useStationsAPI } from '@/api/stations'
 import { usePatientsAPI } from '@/api/patients'
 import { usePatientClassification } from '@/api/classification'
 import { LastClassifiedBadge } from '@/components/LastClassifiedBadge'
-import { formatDateFrontendURL, formatDateBackend, parseDateStringFrontend } from '@/util/date'
+import { formatDateFrontendURL, formatDateBackend } from '@/util/date'
 import type { Patient } from '@/data-models/patient'
 
 type SortingOptions = 'name' | 'classification' | 'location'
@@ -16,8 +16,6 @@ type SortingOptions = 'name' | 'classification' | 'location'
 type SortingState = {
   nameAscending: boolean,
   hasClassificationAscending: boolean,
-  hasLocationAscending: boolean,
-  last: SortingOptions[]
   hasLocationAscending: boolean,
   last: SortingOptions[]
 }
