@@ -8,7 +8,7 @@ import { useStationsAPI } from '@/api/stations'
 import { usePatientsAPI } from '@/api/patients'
 import { usePatientClassification } from '@/api/classification'
 import { LastClassifiedBadge } from '@/components/LastClassifiedBadge'
-import { formatDateFrontendURL, formatDateBackend, parseDateString, parseDateStringFrontend } from '@/util/date'
+import { formatDateFrontendURL, formatDateBackend, parseDateStringFrontend } from '@/util/date'
 import type { Patient } from '@/data-models/patient'
 
 type SortingOptions = 'name' | 'classification' | 'location'
@@ -23,7 +23,6 @@ type SortingState = {
 type PatientRowProps = {
   patient: Patient,
   stationId?: number,
-  date: Date,
   onSelect: () => void
 }
 
@@ -37,13 +36,13 @@ const bedRoom = (patient: Patient) => {
 const PatientRow = ({
   patient,
   stationId,
-  date,
   onSelect
 } : PatientRowProps) => {
+  const today = new Date()
   const { classification } = usePatientClassification(
     stationId,
     patient.id,
-    formatDateBackend(date)
+    formatDateBackend(today)
   )
 
   return (
@@ -53,8 +52,8 @@ const PatientRow = ({
     >
       <td className="rounded-l-xl pl-2">{patient.name}</td>
       <td className="py-1">{bedRoom(patient)}</td>
-      <td className="flex flex-col items-center py-1">
-        <LastClassifiedBadge dateString={patient.lastClassification}/>
+      <td className="py-1">
+        <LastClassifiedBadge date={patient.lastClassification}/>
       </td>
       <td className="text-center">
         <strong className="bg-white rounded-full px-2 py-1">
@@ -74,8 +73,6 @@ const PatientRow = ({
 export const StationPatientList = () => {
   const router = useRouter()
   const id = router.query.id !== undefined ? parseInt(router.query.id as string) : undefined
-  const dateString: string = (router.query.date as string | undefined) ?? ''
-  const date = parseDateStringFrontend(dateString)
   const [searchTerm, setSearchTerm] = useState('')
   const [sortingState, setSortingState] = useState<SortingState>({
     hasClassificationAscending: true,
@@ -219,7 +216,6 @@ export const StationPatientList = () => {
                 key={patient.id}
                 patient={patient}
                 stationId={id}
-                date={date}
                 onSelect={() => handleSelectPatient(patient.id)}
               />
             ))}
