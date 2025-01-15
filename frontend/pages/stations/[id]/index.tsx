@@ -18,6 +18,8 @@ type SortingState = {
   hasClassificationAscending: boolean,
   hasLocationAscending: boolean,
   last: SortingOptions[]
+  hasLocationAscending: boolean,
+  last: SortingOptions[]
 }
 
 type PatientRowProps = {
