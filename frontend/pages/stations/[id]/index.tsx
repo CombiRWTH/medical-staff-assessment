@@ -24,12 +24,12 @@ interface PatientRowProps {
   onSelect: () => void
 }
 
-const PatientRow: React.FC<PatientRowProps> = ({
+const PatientRow = ({
   patient,
   stationId,
   date,
   onSelect
-}) => {
+} : PatientRowProps) => {
   const { classification } = usePatientClassification(
     stationId,
     patient.id,
@@ -47,7 +47,7 @@ const PatientRow: React.FC<PatientRowProps> = ({
       </td>
       <td className="text-center">
         <strong className="bg-white rounded-full px-2 py-1">
-          A{classification?.result?.category1 ?? '-'}/S{classification?.result?.category2 ?? ''}
+          A{classification?.result?.category1 ?? '-'}/S{classification?.result?.category2 ?? '-'}
         </strong>
       </td>
       <td className="rounded-r-xl">
@@ -107,7 +107,7 @@ export const StationPatientList = () => {
     })
   }, [patients, searchTerm, sortingState])
 
-  const handleSelectPatient = useCallback((patientId: any) => {
+  const handleSelectPatient = useCallback((patientId: number) => {
     router.push(`/stations/${id}/${patientId}/${formatDateFrontendURL()}`)
   }, [router, id])
 
