@@ -3,6 +3,16 @@ import { apiURL } from '@/config'
 import type { DailyClassification, DailyClassificationResult } from '@/data-models/classification'
 import { getCookie } from '@/util/getCookie'
 
+type QuestionUpdate = {
+  id: number,
+  selected: boolean
+}
+
+type UpdateType = {
+  questionUpdates?: QuestionUpdate,
+  isolationUpdate?: boolean
+}
+
 export const usePatientClassification = (stationId?: number, patientId?: number, date?: string) => {
   const [classification, setClassification] = useState<DailyClassification>({
     is_in_isolation: false,
@@ -21,6 +31,7 @@ export const usePatientClassification = (stationId?: number, patientId?: number,
     if (!stationId || !patientId || !date) {
       return
     }
+
     try {
       const result = await (await fetch(`${apiURL}/calculate/${stationId}/${patientId}/${date}/`)).json()
       setClassification(prevState => ({
@@ -48,10 +59,19 @@ export const usePatientClassification = (stationId?: number, patientId?: number,
     }
   }, [date, loadResult, patientId, stationId])
 
-  const update = useCallback(async (id: number, selected: boolean) => {
+  const update = useCallback(async (update: UpdateType) => {
     if (!stationId || !patientId || !date) {
       return
     }
+    let body: Record<string, unknown> = {}
+    if (update.questionUpdates !== undefined) {
+      body = update.questionUpdates
+    }
+    if (update.isolationUpdate !== undefined) {
+      body.is_in_isolation = update.isolationUpdate
+    }
+
+    console.log(body)
     try {
       const response = await (await fetch(`${apiURL}/questions/${stationId}/${patientId}/${date}/`, {
         method: 'PUT',
@@ -60,10 +80,7 @@ export const usePatientClassification = (stationId?: number, patientId?: number,
           'Content-Type': 'application/json',
           'X-CSRFToken': getCookie('csrftoken') ?? '',
         },
-        body: JSON.stringify({
-          id,
-          selected
-        }),
+        body: JSON.stringify(body),
         credentials: 'include'
       })).json()
       setClassification(prevState => ({

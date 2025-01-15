@@ -74,7 +74,7 @@ export const PatientClassification = () => {
           start={(
             <div className="flex flex-row items-center gap-x-4 flex-shrink-0 flex-1">
               <DefaultHeader/>
-              <div className="bg-gray-300 rounded-full min-w-1 min-h-12" />
+              <div className="bg-gray-300 rounded-full min-w-1 min-h-12"/>
               <div className="flex flex-row gap-x-1 items-center font-semibold text-lg">
                 <Link href={`/stations/${id}`}>{currentStation?.name}</Link>
                 <strong>/</strong>
@@ -125,7 +125,12 @@ export const PatientClassification = () => {
                   <ChevronLeft size={32}/>
                 </Tooltip>
               </button>
-              <DatePickerButton date={date} eventList={{ events: dates.map(date => ({ date, color: 'green' })) }} onDateClick={(_, selectedDate) =>
+              <DatePickerButton date={date} eventList={{
+                events: dates.map(date => ({
+                  date,
+                  color: 'green'
+                }))
+              }} onDateClick={(_, selectedDate) =>
                 router.push(`/stations/${id}/${patientId}/${formatDateFrontendURL(selectedDate)}`)
               }/>
               <button
@@ -162,7 +167,11 @@ export const PatientClassification = () => {
             </div>
             <div className="flex flex-row gap-x-1 justify-between">
               <span>In Isolation</span>
-              <span>{classification.is_in_isolation ? 'Ja' : 'Nein'}</span>
+              <input
+                type="checkbox"
+                checked={classification.is_in_isolation}
+                onChange={() => update({ isolationUpdate: !classification.is_in_isolation })}
+              />
             </div>
           </div>
           <div className="bg-primary/30 rounded-2xl px-4 py-2 flex flex-col justify-between flex-1">
@@ -184,7 +193,14 @@ export const PatientClassification = () => {
         </div>
         <div className="flex flex-col gap-y-6">
           {classification.careServices.map((list, index) => (
-            <ClassificationCard key={index} classification={list} onUpdate={update}/>
+            <ClassificationCard key={index} classification={list} onUpdate={(id, selected) => {
+              update({
+                questionUpdates: {
+                  id,
+                  selected
+                }
+              })
+            }}/>
           ))}
         </div>
       </div>
