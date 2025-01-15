@@ -1,13 +1,15 @@
 import { useRouter } from 'next/router'
-import { useState, useMemo } from 'react'
+import { useCallback, useState, useMemo } from 'react'
 import { ArrowRight, LucideArrowDown, LucideArrowUp, Search } from 'lucide-react'
 import { DefaultHeader, Header } from '@/layout/Header'
 import { Card } from '@/components/Card'
 import { Page } from '@/layout/Page'
+import type { Patient } from '@/data-models/patient'
 import { useStationsAPI } from '@/api/stations'
 import { usePatientsAPI } from '@/api/patients'
+import { usePatientClassification } from '@/api/classification'
 import { LastClassifiedBadge } from '@/components/LastClassifiedBadge'
-import { formatDateFrontendURL, parseDateString } from '@/util/date'
+import { formatDateFrontendURL, formatDateBackend, parseDateString, parseDateStringFrontend } from '@/util/date'
 
 type SortingState = {
   nameAscending: boolean,
@@ -15,9 +17,54 @@ type SortingState = {
   last: 'name' | 'classification'
 }
 
+interface PatientRowProps {
+  patient: Patient,
+  stationId?: number,
+  date: Date,
+  onSelect: () => void
+}
+
+const PatientRow = ({
+  patient,
+  stationId,
+  date,
+  onSelect
+} : PatientRowProps) => {
+  const { classification } = usePatientClassification(
+    stationId,
+    patient.id,
+    formatDateBackend(date)
+  )
+
+  return (
+    <tr
+      onClick={onSelect}
+      className="cursor-pointer hover:bg-gray-200 rounded-xl"
+    >
+      <td className="rounded-l-xl pl-2">{patient.name}</td>
+      <td className="flex flex-col items-center py-1">
+        <LastClassifiedBadge dateString={patient.lastClassification}/>
+      </td>
+      <td className="text-center">
+        <strong className="bg-white rounded-full px-2 py-1">
+          A{classification?.result?.category1 ?? '-'}/S{classification?.result?.category2 ?? '-'}
+        </strong>
+      </td>
+      <td className="rounded-r-xl">
+        <button className="flex flex-row gap-x-2 rounded px-2 py-1 items-center float-end">
+          <span>Auswählen</span>
+          <ArrowRight size={20}/>
+        </button>
+      </td>
+    </tr>
+  )
+}
+
 export const StationPatientList = () => {
   const router = useRouter()
   const id = router.query.id !== undefined ? parseInt(router.query.id as string) : undefined
+  const dateString: string = (router.query.date as string | undefined) ?? ''
+  const date = parseDateStringFrontend(dateString)
   const [searchTerm, setSearchTerm] = useState('')
   const [sortingState, setSortingState] = useState<SortingState>({
     hasClassificationAscending: true,
@@ -59,6 +106,10 @@ export const StationPatientList = () => {
       return 1
     })
   }, [patients, searchTerm, sortingState])
+
+  const handleSelectPatient = useCallback((patientId: number) => {
+    router.push(`/stations/${id}/${patientId}/${formatDateFrontendURL()}`)
+  }, [router, id])
 
   return (
     <Page
@@ -125,28 +176,21 @@ export const StationPatientList = () => {
                   </div>
                 </button>
               </th>
+              <th className="text-center">
+                <span className="text-lg">Kategorien</span>
+              </th>
               <th/>
             </tr>
             </thead>
             <tbody>
             {sortedAndFilteredPatients.map(patient => (
-              <tr
+              <PatientRow
                 key={patient.id}
-                onClick={() => router.push(`/stations/${id}/${patient.id}/${formatDateFrontendURL()}`)}
-                className="cursor-pointer hover:bg-gray-200 rounded-xl"
-              >
-                <td className="rounded-l-xl pl-2">{patient.name}</td>
-                <td className="flex flex-col items-center py-1">
-                  <LastClassifiedBadge dateString={patient.lastClassification}/>
-                </td>
-                <td className="rounded-r-xl">
-                  <button
-                    className="flex flex-row gap-x-2 rounded px-2 py-1 items-center float-end">
-                    <span>Auswählen</span>
-                    <ArrowRight size={20}/>
-                  </button>
-                </td>
-              </tr>
+                patient={patient}
+                stationId={id}
+                date={date}
+                onSelect={() => handleSelectPatient(patient.id)}
+              />
             ))}
             </tbody>
           </table>
