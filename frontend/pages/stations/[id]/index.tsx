@@ -7,8 +7,10 @@ import { Page } from '@/layout/Page'
 import { useStationsAPI } from '@/api/stations'
 import { usePatientsAPI } from '@/api/patients'
 import { usePatientClassification } from '@/api/classification'
+import { useClassificationAPI } from '@/api/directClassification'
 import { LastClassifiedBadge } from '@/components/LastClassifiedBadge'
 import { formatDateFrontendURL, formatDateBackend } from '@/util/date'
+import { Select } from '@/components/Select'
 import type { Patient } from '@/data-models/patient'
 
 type SortingOptions = 'name' | 'classification' | 'location'
@@ -25,6 +27,13 @@ type PatientRowProps = {
   stationId?: number,
   onSelect: () => void
 }
+
+const CLASSIFICATION_OPTIONS = [
+  { value: '1', label: '1' },
+  { value: '2', label: '2' },
+  { value: '3', label: '3' },
+  { value: '4', label: '4' },
+]
 
 const bedRoom = (patient: Patient) => {
   if (!patient.currentRoom || !patient.currentBed) {
@@ -44,6 +53,28 @@ const PatientRow = ({
     patient.id,
     formatDateBackend(today)
   )
+  const { addClassification } = useClassificationAPI()
+  const [category1, setCategory1] = useState<string>(classification?.result?.category1?.toString() ?? '1')
+  const [category2, setCategory2] = useState<string>(classification?.result?.category2?.toString() ?? '1')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleClassificationUpdate = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!stationId || isSubmitting) return
+
+    setIsSubmitting(true)
+    try {
+      await addClassification(
+        stationId,
+        patient.id,
+        formatDateBackend(today),
+        parseInt(category1),
+        parseInt(category2)
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <tr
@@ -60,10 +91,40 @@ const PatientRow = ({
           A{classification?.result?.category1 ?? '-'}/S{classification?.result?.category2 ?? '-'}
         </strong>
       </td>
+      <td className="py-1 px-2 min-w-[250px]" onClick={(e) => e.stopPropagation()}>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="min-w-[12px] text-sm">A</span>
+          <Select
+            selected={category1}
+            onChange={setCategory1}
+            items={CLASSIFICATION_OPTIONS}
+            isDisabled={isSubmitting}
+            containerClassName="w-[40px] sm:w-[30px]"
+          />
+          <span className="min-w-[12px] text-sm">S</span>
+          <Select
+            selected={category2}
+            onChange={setCategory2}
+            items={CLASSIFICATION_OPTIONS}
+            isDisabled={isSubmitting}
+            containerClassName="w-[40px] sm:w-[30px]"
+          />
+          <button
+            onClick={handleClassificationUpdate}
+            disabled={isSubmitting}
+            className="px-2 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
+          >
+            {isSubmitting ? 'Speichern...' : 'Speichern'}
+          </button>
+        </div>
+      </td>
+
       <td className="rounded-r-xl">
-        <button className="flex flex-row gap-x-2 rounded px-2 py-1 items-center float-end">
+        <button
+          className="flex flex-row gap-x-2 rounded px-2 py-1 items-center float-end"
+        >
           <span>Auswählen</span>
-          <ArrowRight size={20}/>
+          <ArrowRight size={16}/>
         </button>
       </td>
     </tr>
@@ -193,61 +254,61 @@ export const StationPatientList = () => {
 
           <table className="w-full table-auto border-collapse">
             <thead>
-            <tr className="text-left">
-              <th className="pl-2">
-                <button onClick={() => setSortingState({
-                  ...sortingState,
-                  nameAscending: !sortingState.nameAscending,
-                  last: ['name', ...sortingState.last.filter(value => value !== 'name')]
-                })}>
-                  <div className="flex flex-row gap-x-1 items-center">
-                    <span className="text-lg">Name</span>
-                    {sortingState.nameAscending ? <LucideArrowDown size={18}/> :
-                      <LucideArrowUp size={18}/>}
-                  </div>
-                </button>
-              </th>
-              <th>
-                <button onClick={() => setSortingState({
-                  ...sortingState,
-                  hasLocationAscending: !sortingState.hasLocationAscending,
-                  last: ['location', ...sortingState.last.filter(value => value !== 'location')]
-                })}>
-                  <div className="flex flex-row gap-x-1 items-center">
-                    <span className="text-lg">Raum & Bett</span>
-                    {sortingState.hasLocationAscending ? <LucideArrowDown size={18}/> :
-                      <LucideArrowUp size={18}/>}
-                  </div>
-                </button>
-              </th>
-              <th>
-                <button onClick={() => setSortingState({
-                  ...sortingState,
-                  hasClassificationAscending: !sortingState.hasClassificationAscending,
-                  last: ['classification', ...sortingState.last.filter(value => value !== 'classification')]
-                })}>
-                  <div className="flex flex-row gap-x-1 items-center">
-                    <span className="text-lg">Letzter Eintrag</span>
-                    {sortingState.hasClassificationAscending ? <LucideArrowDown size={18}/> :
-                      <LucideArrowUp size={18}/>}
-                  </div>
-                </button>
-              </th>
-              <th className="text-center">
-                <span className="text-lg">Kategorien</span>
-              </th>
-              <th/>
-            </tr>
+              <tr className="text-left">
+                <th className="pl-2">
+                  <button onClick={() => setSortingState({
+                    ...sortingState,
+                    nameAscending: !sortingState.nameAscending,
+                    last: ['name', ...sortingState.last.filter(value => value !== 'name')]
+                  })}>
+                    <div className="flex flex-row gap-x-1 items-center">
+                      <span className="text-lg">Name</span>
+                      {sortingState.nameAscending ? <LucideArrowDown size={18}/> : <LucideArrowUp size={18}/>}
+                    </div>
+                  </button>
+                </th>
+                <th>
+                  <button onClick={() => setSortingState({
+                    ...sortingState,
+                    hasLocationAscending: !sortingState.hasLocationAscending,
+                    last: ['location', ...sortingState.last.filter(value => value !== 'location')]
+                  })}>
+                    <div className="flex flex-row gap-x-1 items-center">
+                      <span className="text-lg">Raum & Bett</span>
+                      {sortingState.hasLocationAscending ? <LucideArrowDown size={18}/> : <LucideArrowUp size={18}/>}
+                    </div>
+                  </button>
+                </th>
+                <th>
+                  <button onClick={() => setSortingState({
+                    ...sortingState,
+                    hasClassificationAscending: !sortingState.hasClassificationAscending,
+                    last: ['classification', ...sortingState.last.filter(value => value !== 'classification')]
+                  })}>
+                    <div className="flex flex-row gap-x-1 items-center">
+                      <span className="text-lg">Letzter Eintrag</span>
+                      {sortingState.hasClassificationAscending ? <LucideArrowDown size={18}/> : <LucideArrowUp size={18}/>}
+                    </div>
+                  </button>
+                </th>
+                <th className="text-center">
+                  <span className="text-lg">Kategorien</span>
+                </th>
+                <th className="text-center">
+                  <span className="text-lg">Klassifikation</span>
+                </th>
+                <th/>
+              </tr>
             </thead>
             <tbody>
-            {sortedAndFilteredPatients.map(patient => (
-              <PatientRow
-                key={patient.id}
-                patient={patient}
-                stationId={id}
-                onSelect={() => handleSelectPatient(patient.id)}
-              />
-            ))}
+              {sortedAndFilteredPatients.map(patient => (
+                <PatientRow
+                  key={patient.id}
+                  patient={patient}
+                  stationId={id}
+                  onSelect={() => handleSelectPatient(patient.id)}
+                />
+              ))}
             </tbody>
           </table>
         </Card>
