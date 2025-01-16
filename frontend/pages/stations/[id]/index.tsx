@@ -147,7 +147,7 @@ export const StationPatientList = () => {
     >
       <div className="flex flex-col gap-10 p-10 content-start max-w-[1200px] w-full">
         {shouldShowMissingEntries && (
-          <Card className="bg-warning/20">
+          <Card className="bg-warning/70">
             <div className="flex flex-row gap-x-2 justify-between">
               <h3 className="font-bold text-lg">Fehlende Einträge</h3>
               <div onClick={() => setHasDismissedMissingEntries(true)}
