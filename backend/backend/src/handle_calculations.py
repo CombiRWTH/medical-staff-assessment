@@ -10,7 +10,7 @@ from cronjobs.src.daily_calculation_cronjob import calculate_minutes_per_station
 from cronjobs.src.monthly_calc_cronjob import calculate_total_minutes_per_station
 
 
-def recompute_daily_data(station_id: int, date: date) -> None:
+def recompute_station_data(station_id: int, date: date) -> None:
     """In case of a change in the patient's data, the daily/monthly data has to be recomputed.
 
     Additionally once all patients are classified for the day, the daily data has to be recomputed.
@@ -351,7 +351,7 @@ def calculate_result(station_id: int, patient_id: int, date: date) -> dict:
     classification.save()
 
     # Check for possible recomputation of daily and monthly data
-    recompute_daily_data(station_id, date)
+    recompute_station_data(station_id, date)
 
     return {'minutes': minutes_to_take_care, 'category1': a_index, 'category2': s_index}
 
@@ -446,7 +446,7 @@ def calculate_direct_classification(
     classification.save()
 
     # Check for possible recomputation of daily and monthly data
-    recompute_daily_data(station_id, date)
+    recompute_station_data(station_id, date)
 
     return {"minutes": minutes_to_take_care, "category1": a_value, "category2": s_value}
 
