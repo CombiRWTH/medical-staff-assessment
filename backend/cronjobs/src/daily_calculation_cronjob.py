@@ -22,31 +22,42 @@ def get_classifications_per_station(date: date, station: str) -> list:
     return list(classifications)
 
 
-def calculate_minutes_per_station() -> None:
-    """Run the daily calculation cronjob.
+def calculate_minutes_per_station(station_id: int, date: date) -> None:
+    """Calculate the amount of minutes needed for each station on that day.
 
-    Calculate the amount of minutes needed for each station on that day.
+    Args:
+        station_id (int): The ID of the station to calculate the minutes for.
+
+    Returns:
+        None
     """
-    print("Running daily calculation cronjob...")
-    stations = Station.objects.all()
-    for station in stations:
-        # Calculate the amount of minutes for today.
-        today = date.today()
-        classifications = get_classifications_per_station(today, station.id)
-        minutes = 0
-        for classification in classifications:
-            minutes += classification['result_minutes']
+    classifications = get_classifications_per_station(date, station_id)
+    minutes = 0
+    for classification in classifications:
+        minutes += classification['result_minutes']
 
-        # Create a new StationWorkloadDaily object.
-        StationWorkloadDaily.objects.update_or_create(
-            station=station,
-            date=today,
-            shift='DAY',
-            defaults={
-                'minutes_total': minutes,
-            }
-        )
+    # Compute the 'Vollzeitäquivalente' (VZÄ) according to the PPBV
+    suggested_caregivers = minutes / (38.5 * 60)
+
+    # Create a new StationWorkloadDaily object.
+    StationWorkloadDaily.objects.update_or_create(
+        station=station_id,
+        date=date,
+        shift='DAY',
+        defaults={
+            'minutes_total': minutes,
+            'PPBV_suggested_caregivers': suggested_caregivers
+        }
+    )
+
+
+def calculate_minutes_for_all_stations() -> None:
+    """Calculate the amount of minutes needed for each station on that day."""
+    stations = Station.objects.all()
+    today = date.today()
+    for station in stations:
+        calculate_minutes_per_station(station.id, today)
 
 
 if __name__ == '__main__':
-    calculate_minutes_per_station()
+    calculate_minutes_for_all_stations()

@@ -6,6 +6,54 @@ from django.utils import timezone
 
 from ..models import DailyClassification, DailyPatientData, Patient, Station
 from .handle_questions import get_questions
+from cronjobs.src.daily_calculation_cronjob import calculate_minutes_per_station
+from cronjobs.src.monthly_calc_cronjob import calculate_total_minutes_per_station
+
+
+def recompute_daily_data(station_id: int, date: date) -> None:
+    """In case of a change in the patient's data, the daily/monthly data has to be recomputed.
+
+    Additionally once all patients are classified for the day, the daily data has to be recomputed.
+    Same goes for the monthly data.
+
+    Args:
+        station_id (int): The ID of the station.
+        date (date): The date of the classification.
+    """
+    date = datetime.strptime(date, "%Y-%m-%d").date()
+    station = Station.objects.get(id=station_id)
+
+    # Check if all patients are classified for the day (compare daily patient data and daily classification)
+    classifications_daily = DailyClassification.objects.filter(
+        station=station,
+        date=date,
+    )
+    patients_daily = DailyPatientData.objects.filter(
+        station=station,
+        date=date,
+    )
+    recompute_daily = classifications_daily.count() >= patients_daily.count()
+
+    # Recompute the daily data if the date is in the past or all patients are classified
+    if date < datetime.now().date() or recompute_daily:
+        calculate_minutes_per_station(station, date)
+
+    # Check if all patients are classified for the month (compare monthly patient data and monthly classification)
+    classifications_monthly = DailyClassification.objects.filter(
+        station=station,
+        date__month=date.month,
+        date__year=date.year,
+    )
+    patients_monthly = DailyPatientData.objects.filter(
+        station=station,
+        date__month=date.month,
+        date__year=date.year,
+    )
+    recompute_monthly = classifications_monthly.count() >= patients_monthly.count()
+
+    # Recompute the monthly data if the month is over
+    if (date.month < datetime.now().month and date.year <= datetime.now().year) or recompute_monthly:
+        calculate_total_minutes_per_station(station, date, 'DAY')
 
 
 def group_and_count_data(data: list) -> dict:
@@ -302,6 +350,9 @@ def calculate_result(station_id: int, patient_id: int, date: date) -> dict:
     classification.s_index = s_index
     classification.save()
 
+    # Check for possible recomputation of daily and monthly data
+    recompute_daily_data(station_id, date)
+
     return {'minutes': minutes_to_take_care, 'category1': a_index, 'category2': s_index}
 
 
@@ -393,6 +444,9 @@ def calculate_direct_classification(
     classification.a_index = a_value
     classification.s_index = s_value
     classification.save()
+
+    # Check for possible recomputation of daily and monthly data
+    recompute_daily_data(station_id, date)
 
     return {"minutes": minutes_to_take_care, "category1": a_value, "category2": s_value}
 
