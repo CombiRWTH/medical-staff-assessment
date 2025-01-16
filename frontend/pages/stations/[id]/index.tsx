@@ -1,39 +1,48 @@
 import { useRouter } from 'next/router'
 import { useCallback, useState, useMemo } from 'react'
-import { ArrowRight, LucideArrowDown, LucideArrowUp, Search } from 'lucide-react'
+import { ArrowRight, LucideArrowDown, LucideArrowUp, Search, X } from 'lucide-react'
 import { DefaultHeader, Header } from '@/layout/Header'
 import { Card } from '@/components/Card'
 import { Page } from '@/layout/Page'
-import type { Patient } from '@/data-models/patient'
 import { useStationsAPI } from '@/api/stations'
 import { usePatientsAPI } from '@/api/patients'
 import { usePatientClassification } from '@/api/classification'
 import { LastClassifiedBadge } from '@/components/LastClassifiedBadge'
-import { formatDateFrontendURL, formatDateBackend, parseDateString, parseDateStringFrontend } from '@/util/date'
+import { formatDateFrontendURL, formatDateBackend } from '@/util/date'
+import type { Patient } from '@/data-models/patient'
+
+type SortingOptions = 'name' | 'classification' | 'location'
 
 type SortingState = {
   nameAscending: boolean,
   hasClassificationAscending: boolean,
-  last: 'name' | 'classification'
+  hasLocationAscending: boolean,
+  last: SortingOptions[]
 }
 
-interface PatientRowProps {
+type PatientRowProps = {
   patient: Patient,
   stationId?: number,
-  date: Date,
   onSelect: () => void
+}
+
+const bedRoom = (patient: Patient) => {
+  if (!patient.currentRoom || !patient.currentBed) {
+    return '-'
+  }
+  return `${patient.currentRoom}-${patient.currentBed}`
 }
 
 const PatientRow = ({
   patient,
   stationId,
-  date,
   onSelect
-} : PatientRowProps) => {
+}: PatientRowProps) => {
+  const today = new Date()
   const { classification } = usePatientClassification(
     stationId,
     patient.id,
-    formatDateBackend(date)
+    formatDateBackend(today)
   )
 
   return (
@@ -42,8 +51,9 @@ const PatientRow = ({
       className="cursor-pointer hover:bg-gray-200 rounded-xl"
     >
       <td className="rounded-l-xl pl-2">{patient.name}</td>
-      <td className="flex flex-col items-center py-1">
-        <LastClassifiedBadge dateString={patient.lastClassification}/>
+      <td className="py-1">{bedRoom(patient)}</td>
+      <td className="py-1">
+        <LastClassifiedBadge date={patient.lastClassification}/>
       </td>
       <td className="text-center">
         <strong className="bg-white rounded-full px-2 py-1">
@@ -63,13 +73,13 @@ const PatientRow = ({
 export const StationPatientList = () => {
   const router = useRouter()
   const id = router.query.id !== undefined ? parseInt(router.query.id as string) : undefined
-  const dateString: string = (router.query.date as string | undefined) ?? ''
-  const date = parseDateStringFrontend(dateString)
+  const [hasDismissedMissingEntries, setHasDismissedMissingEntries] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [sortingState, setSortingState] = useState<SortingState>({
     hasClassificationAscending: true,
     nameAscending: true,
-    last: 'name',
+    hasLocationAscending: true,
+    last: ['classification', 'name', 'location'],
   })
   const { stations } = useStationsAPI()
   const currentStation = stations.find(value => value.id === id)
@@ -85,23 +95,29 @@ export const StationPatientList = () => {
     return filteredPatients.sort((a, b) => {
       const nameCompare = a.name.localeCompare(b.name) * (sortingState.nameAscending ? 1 : -1)
       let classificationCompare = sortingState.hasClassificationAscending ? 1 : -1
+      const locationCompare = bedRoom(a).localeCompare(bedRoom(b)) * (sortingState.hasLocationAscending ? 1 : -1)
       if (!!a.lastClassification && !!b.lastClassification) {
-        classificationCompare = classificationCompare * (parseDateString(a.lastClassification).getTime() - parseDateString(b.lastClassification).getTime())
+        classificationCompare = classificationCompare * (a.lastClassification.getTime() - b.lastClassification.getTime())
       } else if (b.lastClassification) {
         classificationCompare *= -1
       }
 
-      if (sortingState.last === 'name') {
-        if (nameCompare !== 0) {
-          return nameCompare
+      for (const sortingType of sortingState.last) {
+        if (sortingType === 'name') {
+          if (nameCompare !== 0) {
+            return nameCompare
+          }
         }
-        return classificationCompare
-      }
-      if (sortingState.last === 'classification') {
-        if (classificationCompare !== 0) {
-          return classificationCompare
+        if (sortingType === 'classification') {
+          if (classificationCompare !== 0) {
+            return classificationCompare
+          }
         }
-        return nameCompare
+        if (sortingType === 'location') {
+          if (locationCompare !== 0) {
+            return locationCompare
+          }
+        }
       }
       return 1
     })
@@ -110,6 +126,10 @@ export const StationPatientList = () => {
   const handleSelectPatient = useCallback((patientId: number) => {
     router.push(`/stations/${id}/${patientId}/${formatDateFrontendURL()}`)
   }, [router, id])
+
+  const missingEntriesCount = patients.filter(patient => !patient.lastClassification).length
+  const missingEntriesWeek = patients.reduce((cur, patient) => (patient.missingClassificationsLastWeek ?? []).length + cur, 0)
+  const shouldShowMissingEntries = (missingEntriesCount > 0 || missingEntriesWeek > 0) && !hasDismissedMissingEntries
 
   return (
     <Page
@@ -126,9 +146,33 @@ export const StationPatientList = () => {
       )}
     >
       <div className="flex flex-col gap-10 p-10 content-start max-w-[1200px] w-full">
+        {shouldShowMissingEntries && (
+          <Card className="bg-warning/20">
+            <div className="flex flex-row gap-x-2 justify-between">
+              <h3 className="font-bold text-lg">Fehlende Einträge</h3>
+              <div onClick={() => setHasDismissedMissingEntries(true)}
+                   className="bg-white hover:bg-gray-100 p-1 rounded-md">
+                <X size={20}/>
+              </div>
+            </div>
+            {missingEntriesCount > 0 && (
+              <div className="flex flex-row gap-x-2">
+                Heute:
+                <span className="font-bold">{missingEntriesCount}</span>
+              </div>
+            )}
+            {missingEntriesWeek > 0 && (
+              <div className="flex flex-row gap-x-2">
+                In den letzten 7 Tagen:
+                <span className="font-bold">{missingEntriesWeek}</span>
+              </div>
+            )}
+            { /* TODO add indication for missing entries today */}
+          </Card>
+        )}
+
         <Card>
           <h3 className="pl-2 pb-3 text-2xl font-bold">Patientenliste</h3>
-
           <div className="px-2 pb-4">
             <div className="relative flex items-center">
               <Search size={20} className="absolute left-3 text-gray-400 pointer-events-none"/>
@@ -154,7 +198,7 @@ export const StationPatientList = () => {
                 <button onClick={() => setSortingState({
                   ...sortingState,
                   nameAscending: !sortingState.nameAscending,
-                  last: 'name'
+                  last: ['name', ...sortingState.last.filter(value => value !== 'name')]
                 })}>
                   <div className="flex flex-row gap-x-1 items-center">
                     <span className="text-lg">Name</span>
@@ -163,11 +207,24 @@ export const StationPatientList = () => {
                   </div>
                 </button>
               </th>
-              <th className="text-center">
+              <th>
+                <button onClick={() => setSortingState({
+                  ...sortingState,
+                  hasLocationAscending: !sortingState.hasLocationAscending,
+                  last: ['location', ...sortingState.last.filter(value => value !== 'location')]
+                })}>
+                  <div className="flex flex-row gap-x-1 items-center">
+                    <span className="text-lg">Raum & Bett</span>
+                    {sortingState.hasLocationAscending ? <LucideArrowDown size={18}/> :
+                      <LucideArrowUp size={18}/>}
+                  </div>
+                </button>
+              </th>
+              <th>
                 <button onClick={() => setSortingState({
                   ...sortingState,
                   hasClassificationAscending: !sortingState.hasClassificationAscending,
-                  last: 'classification'
+                  last: ['classification', ...sortingState.last.filter(value => value !== 'classification')]
                 })}>
                   <div className="flex flex-row gap-x-1 items-center">
                     <span className="text-lg">Letzter Eintrag</span>
@@ -188,7 +245,6 @@ export const StationPatientList = () => {
                 key={patient.id}
                 patient={patient}
                 stationId={id}
-                date={date}
                 onSelect={() => handleSelectPatient(patient.id)}
               />
             ))}
