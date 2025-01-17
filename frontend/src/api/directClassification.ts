@@ -1,22 +1,23 @@
 import { useCallback } from 'react'
 import { apiURL } from '@/config'
+import { getCookie } from '@/util/getCookie'
 
 export const useClassificationAPI = () => {
   const addClassification = useCallback(async (stationId: number, patientId: number, date: string, category1: number, category2: number) => {
     try {
-      const response = await fetch(`${apiURL}/calculate_direct/${stationId}/${patientId}/${date}`, {
+      const response = await fetch(`${apiURL}/calculate_direct/${stationId}/${patientId}/${date}/${category1}/${category2}/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken') ?? '',
         },
-        body: JSON.stringify({
-          category1,
-          category2,
-        }),
+        credentials: 'include'
       })
-      return await response.json()
+      console.debug(response)
+      return true
     } catch (error) {
       console.error('Failed to add classification:', error)
+      return false
     }
   }, [])
 

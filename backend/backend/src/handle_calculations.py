@@ -436,7 +436,7 @@ def handle_direct_classification(
     Returns:
         JsonResponse: The response containing the calculated minutes.
     """
-    if request.method == "GET":
+    if request.method == "POST":
         return JsonResponse(
             calculate_direct_classification(
                 station_id, patient_id, date, a_value, s_value
