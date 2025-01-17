@@ -104,7 +104,7 @@ export const ClassificationOptionRow = ({
           </div>
         </div>
       </td>
-      {category.severities.sort((a, b) => a.severity - b.severity).slice(1).map((severity, index) => {
+      {category.severities.sort((a, b) => a.severity - b.severity).map((severity, index) => {
         return (
           <ClassificationOptionDisplay
             key={index}
@@ -147,7 +147,7 @@ export const ClassificationCard = ({
         <thead>
         <tr>
           <th className="text-left bold border-b-2 border-r-2 border-black px-2">Bereich</th>
-          {range(2, categorySeverityCount + 1).map(value => (
+          {range(2, categorySeverityCount + 2).map(value => (
             <th key={value}
                 className="text-left bold px-2 border-b-2 border-r-2 border-black last:border-r-0">{`${classification.short}${value}`}</th>
           ))}
