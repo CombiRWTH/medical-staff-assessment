@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { useCallback, useState, useMemo } from 'react'
+import { useCallback, useState, useMemo, useEffect } from 'react'
 import { ArrowRight, LucideArrowDown, LucideArrowUp, Search, X } from 'lucide-react'
 import { DefaultHeader, Header } from '@/layout/Header'
 import { Card } from '@/components/Card'
@@ -7,8 +7,11 @@ import { Page } from '@/layout/Page'
 import { useStationsAPI } from '@/api/stations'
 import { usePatientsAPI } from '@/api/patients'
 import { usePatientClassification } from '@/api/classification'
+import { useClassificationAPI } from '@/api/directClassification'
 import { LastClassifiedBadge } from '@/components/LastClassifiedBadge'
 import { formatDateFrontendURL, formatDateBackend } from '@/util/date'
+import type { SelectItem } from '@/components/Select'
+import { Select } from '@/components/Select'
 import type { Patient } from '@/data-models/patient'
 
 type SortingOptions = 'name' | 'classification' | 'location'
@@ -20,11 +23,24 @@ type SortingState = {
   last: SortingOptions[]
 }
 
-type PatientRowProps = {
-  patient: Patient,
-  stationId?: number,
-  onSelect: () => void
-}
+const classificationOptions: SelectItem<number>[] = [
+  {
+    value: 1,
+    label: '1'
+  },
+  {
+    value: 2,
+    label: '2'
+  },
+  {
+    value: 3,
+    label: '3'
+  },
+  {
+    value: 4,
+    label: '4'
+  },
+]
 
 const bedRoom = (patient: Patient) => {
   if (!patient.currentRoom || !patient.currentBed) {
@@ -33,24 +49,58 @@ const bedRoom = (patient: Patient) => {
   return `${patient.currentRoom}-${patient.currentBed}`
 }
 
+type PatientRowProps = {
+  patient: Patient,
+  stationId?: number,
+  onSelect: () => void
+}
+
 const PatientRow = ({
   patient,
   stationId,
   onSelect
 }: PatientRowProps) => {
   const today = new Date()
-  const { classification } = usePatientClassification(
+  const { classification, reload } = usePatientClassification(
     stationId,
     patient.id,
     formatDateBackend(today)
   )
+  const { addClassification } = useClassificationAPI()
+  const [category1, setCategory1] = useState(classification?.result?.category1)
+  const [category2, setCategory2] = useState(classification?.result?.category2)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const hasValidValuesForClassification = category1 !== undefined && category2 !== undefined
+
+  const handleClassificationUpdate = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!stationId || isSubmitting || !hasValidValuesForClassification || category1 === undefined || category2 === undefined) return
+
+    setIsSubmitting(true)
+    await addClassification(
+      stationId,
+      patient.id,
+      formatDateBackend(today),
+      category1,
+      category2
+    ).then(
+      reload
+    )
+    setIsSubmitting(false)
+  }
+
+  useEffect(() => {
+    setCategory1(classification?.result?.category1)
+    setCategory2(classification?.result?.category2)
+  }, [classification?.result?.category1, classification?.result?.category2])
 
   return (
     <tr
       onClick={onSelect}
       className="cursor-pointer hover:bg-gray-200 rounded-xl"
     >
-      <td className="rounded-l-xl pl-2">{patient.name}</td>
+      <td className="rounded-l-xl pl-2 font-semibold">{patient.name}</td>
       <td className="py-1">{bedRoom(patient)}</td>
       <td className="py-1">
         <LastClassifiedBadge date={patient.lastClassification}/>
@@ -60,10 +110,46 @@ const PatientRow = ({
           A{classification?.result?.category1 ?? '-'}/S{classification?.result?.category2 ?? '-'}
         </strong>
       </td>
+      <td className="py-1 px-2 min-w-[250px]" onClick={(e) => e.stopPropagation()}>
+        <div className="flex flex-wrap items-center gap-2">
+          <Select
+            selected={category1}
+            onChange={setCategory1}
+            items={classificationOptions.map(value => ({
+              ...value,
+              label: `A${value.label}`
+            }))}
+            isDisabled={isSubmitting}
+            noneLabel="A-"
+            buttonClassName="!min-w-[85px]"
+          />
+          <Select
+            selected={category2}
+            onChange={setCategory2}
+            items={classificationOptions.map(value => ({
+              ...value,
+              label: `S${value.label}`
+            }))}
+            isDisabled={isSubmitting}
+            noneLabel="S-"
+            buttonClassName="!min-w-[85px]"
+          />
+          <button
+            onClick={handleClassificationUpdate}
+            disabled={isSubmitting}
+            className={`${hasValidValuesForClassification ? 'button-full-primary' : 'button-full-disabled'}`}
+          >
+            {isSubmitting ? 'Speichern...' : 'Speichern'}
+          </button>
+        </div>
+      </td>
+
       <td className="rounded-r-xl">
-        <button className="flex flex-row gap-x-2 rounded px-2 py-1 items-center float-end">
+        <button
+          className="flex flex-row gap-x-2 rounded px-2 py-1 items-center float-end"
+        >
           <span>Auswählen</span>
-          <ArrowRight size={20}/>
+          <ArrowRight size={16}/>
         </button>
       </td>
     </tr>
@@ -202,8 +288,7 @@ export const StationPatientList = () => {
                 })}>
                   <div className="flex flex-row gap-x-1 items-center">
                     <span className="text-lg">Name</span>
-                    {sortingState.nameAscending ? <LucideArrowDown size={18}/> :
-                      <LucideArrowUp size={18}/>}
+                    {sortingState.nameAscending ? <LucideArrowDown size={18}/> : <LucideArrowUp size={18}/>}
                   </div>
                 </button>
               </th>
@@ -215,8 +300,7 @@ export const StationPatientList = () => {
                 })}>
                   <div className="flex flex-row gap-x-1 items-center">
                     <span className="text-lg">Raum & Bett</span>
-                    {sortingState.hasLocationAscending ? <LucideArrowDown size={18}/> :
-                      <LucideArrowUp size={18}/>}
+                    {sortingState.hasLocationAscending ? <LucideArrowDown size={18}/> : <LucideArrowUp size={18}/>}
                   </div>
                 </button>
               </th>
@@ -235,6 +319,9 @@ export const StationPatientList = () => {
               </th>
               <th className="text-center">
                 <span className="text-lg">Kategorien</span>
+              </th>
+              <th className="text-center">
+                <span className="text-lg">Klassifikation setzen</span>
               </th>
               <th/>
             </tr>
