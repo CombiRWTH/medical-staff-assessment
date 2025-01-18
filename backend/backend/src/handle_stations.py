@@ -12,7 +12,6 @@ from ..models import (
     Station,
     StationWorkloadDaily,
 )
-from .handle_patients import get_missing_classifications_for_patient
 
 
 def get_stations_analysis(frequency: str):
