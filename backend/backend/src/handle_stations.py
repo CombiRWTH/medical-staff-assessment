@@ -6,7 +6,12 @@ from django.db.models.functions import Coalesce, ExtractDay
 from django.http import JsonResponse
 from django.utils import timezone
 
-from ..models import DailyPatientData, Station, StationWorkloadDaily
+from ..models import (
+    DailyClassification,
+    DailyPatientData,
+    Station,
+    StationWorkloadDaily,
+)
 from .handle_patients import get_missing_classifications_for_patient
 
 
@@ -89,7 +94,7 @@ def get_stations_analysis(frequency: str):
 
 
 def get_missing_classifications_for_station(station_id: int) -> int:
-    """Get number of missing classifications for station in last week.
+    """Get number of todays missing classifications for station.
 
     Args:
         station_id (int): The ID of the station in the database.
@@ -98,21 +103,23 @@ def get_missing_classifications_for_station(station_id: int) -> int:
         int: The number of missing classifications.
     """
     today = timezone.now().date()
-    seven_days_ago = today - timedelta(days=7)
-    sum = 0
+    missing_classifications = 0
 
     patients = (
-        DailyPatientData.objects.filter(
-            station=station_id, date__range=[seven_days_ago, today]
-        )
+        DailyPatientData.objects.filter(station=station_id, date=today)
         .values_list("patient", flat=True)
         .distinct()
     )
 
-    for patient in patients:
-        sum += len(get_missing_classifications_for_patient(patient, station_id))
+    for patient_id in patients:
+        classification = DailyClassification.objects.filter(
+            patient=patient_id, date=today, station=station_id
+        ).first()
 
-    return sum
+        if classification is None:
+            missing_classifications += 1
+
+    return missing_classifications
 
 
 def get_all_stations() -> list:
