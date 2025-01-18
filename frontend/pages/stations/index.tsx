@@ -1,11 +1,11 @@
-import type { NextPage } from 'next'
-import { useRouter } from 'next/router'
-import { Page } from '@/layout/Page'
-import { Header } from '@/layout/Header'
-import { LinkTiles } from '@/components/LinkTiles'
 import { useStationsAPI } from '@/api/stations'
 import { Card } from '@/components/Card'
+import { LinkTiles } from '@/components/LinkTiles'
 import type { Station } from '@/data-models/station'
+import { Header } from '@/layout/Header'
+import { Page } from '@/layout/Page'
+import type { NextPage } from 'next'
+import { useRouter } from 'next/router'
 
 export const StationsPage: NextPage = () => {
   const { stations } = useStationsAPI()
@@ -45,11 +45,11 @@ export const StationsPage: NextPage = () => {
           >
             <span className="text-xl font-semibold">{value.name}</span>
             <div className="flex flex-row w-full justify-between gap-x-4 items-center">
-              <span>Patientenanzahl:</span>
+              <span>Patienten:</span>
               <span className="font-semibold">{value.patientCount}</span>
             </div>
             <div className="flex flex-row w-full justify-between gap-x-4 items-center">
-              <span>Fehlende Einträge:</span>
+              <span>Fehlende Einstufungen:</span>
               <span className="font-semibold">{value.missing_classifications}</span>
             </div>
           </Card>
