@@ -171,7 +171,6 @@ def get_patients_visit_type(station_id: int) -> dict:
     }
 
 
-
 def get_dates_for_patient_classification(patient_id: int, station_id: int) -> list:
     """Get the dates a patient needs a classification, along with the classification status.
 
@@ -189,20 +188,19 @@ def get_dates_for_patient_classification(patient_id: int, station_id: int) -> li
 
     result = []
 
-    for date in dates:
+    for dateValue in dates:
         has_classification = DailyClassification.objects.filter(
-            patient=patient_id, 
-            station=station_id, 
-            date=date
+            patient=patient_id,
+            station=station_id,
+            date=dateValue
         ).exists()
-        
+
         result.append({
-            "date": date,
+            "date": dateValue,
             "hasClassification": has_classification
         })
 
     return result
-
 
 
 def get_missing_classifications_for_patient(patient_id: int, station_id: int) -> int:
@@ -303,5 +301,3 @@ def handle_patient_dates(request, patient_id: int, station_id: int) -> JsonRespo
         return JsonResponse({'dates': get_dates_for_patient_classification(patient_id, station_id)})
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
-    
-
