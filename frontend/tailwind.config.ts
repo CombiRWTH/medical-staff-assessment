@@ -13,6 +13,7 @@ export default {
         container: '#FFFFFF',
         positive: '#22C55E',
         warning: '#FFC107',
+        negative: '#ff0d0d',
         disabled: '#999999',
       },
       keyframes: {
