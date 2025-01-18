@@ -130,7 +130,7 @@ def group_questions(questions: list) -> list:
     for field in fields:
         field_name = field[0]["field__name"]
         field_value = {
-            "id": 1,  # TODO not accessible here
+            "id": 1,
             "name": field_name,
             "short": field[0]["field__short"],
             "categories": []
@@ -141,14 +141,21 @@ def group_questions(questions: list) -> list:
         for category in categories:
             category_name = category[0]['category__name']
             category_value = {
-                "id": 1,  # TODO not accessible here
+                "id": 1,
                 "name": category_name,
-                "short": category[0]['category__short'],  # TODO not accessible here
+                "short": category[0]['category__short'],
                 "severities": []
             }
             severities = split_by_attribute(category, "severity")
 
             for severity in severities:
+                # Skip the questions that are not needed
+                if field[0]["field__short"] == 'A' and severity[0]['severity'] == 1:
+                    continue
+                if field[0]["field__short"] == 'S' and severity[0]['severity'] == 1:
+                    continue
+                if field[0]["field__short"] == 'S' and severity[0]['severity'] == 4:
+                    continue
                 severity_index = severity[0]['severity']
                 severity_value = {
                     "severity": severity_index,
