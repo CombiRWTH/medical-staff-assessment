@@ -24,8 +24,8 @@ export const AnalysisPage: NextPage = () => {
   const { data } = useAnalysisAPI(viewMode)
   const {
     data: graphData,
-    timeRange,
-    setTimeRange
+    date,
+    setDate
   } = useGraphAPI()
   const [selectedStations, setSelectedStations] = useState<number[]>([])
   const [isUploading, setIsUploading] = useState(false)
@@ -136,8 +136,9 @@ export const AnalysisPage: NextPage = () => {
             <div className="flex justify-end w-full items-center gap-x-6">
               <ComparisonGraph
                 data={graphData}
-                timeRange={timeRange}
-                onTimeRangeChange={setTimeRange}
+                date={date}
+                onDateChange={setDate}
+                dates={[]}
               />
               {showNotification && (error || success) && (
                 <div

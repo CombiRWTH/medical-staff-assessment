@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import { BarChart3, X } from 'lucide-react'
+import { BarChart3, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import {
   LineChart,
   Line,
@@ -10,22 +10,23 @@ import {
   Tooltip,
   ResponsiveContainer
 } from 'recharts'
+import { addDays, subDays } from 'date-fns'
 import { Tooltip as TooltipCustom } from '@/components/Tooltip'
-import { Select } from '@/components/Select'
+import { DatePickerButton } from '@/components/DatePicker/DatePickerButton'
 import { useOutsideClick } from '@/util/hooks/useOutsideClick'
-
-type Frequency = 'day' | 'week' | 'month'
 
 interface ComparisonGraphProps {
   data: any[],
-  timeRange: Frequency,
-  onTimeRangeChange: (range: Frequency) => void
+  date: Date,
+  onDateChange: (date: Date) => void,
+  dates: Date[]
 }
 
 export const ComparisonGraph = ({
   data,
-  timeRange,
-  onTimeRangeChange
+  date,
+  onDateChange,
+  dates,
 }: ComparisonGraphProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -72,24 +73,33 @@ export const ComparisonGraph = ({
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Stationsvergleich - Ist- vs Soll-Werte</h2>
               <div className="flex flex-row items-center gap-x-4">
-                <div className="flex flex-row items-center gap-x-4">
-                  <Select<Frequency>
-                    selected={timeRange}
-                    items={[{
-                      value: 'day',
-                      label: 'Tag',
-                    },
-                    {
-                      value: 'week',
-                      label: 'Woche',
-                    },
-                    {
-                      value: 'month',
-                      label: 'Monat',
-                    },
-                    ]}
-                    onChange={value => onTimeRangeChange(value)}
+                <div className="flex flex-row gap-x-2 items-center flex-1 justify-center">
+                  <button
+                    onClick={() => onDateChange(subDays(date, 1))}
+                    className="flex flex-col items-center"
+                  >
+                    <TooltipCustom tooltip="Vorheriger Tag" position="bottom">
+                      <ChevronLeft size={32}/>
+                    </TooltipCustom>
+                  </button>
+                  <DatePickerButton
+                    date={date}
+                    eventList={{
+                      events: dates.map(date => ({
+                        date,
+                        color: 'green'
+                      }))
+                    }}
+                    onDateClick={(_, selectedDate) => onDateChange(selectedDate)}
                   />
+                  <button
+                    onClick={() => onDateChange(addDays(date, 1))}
+                    className="flex flex-col items-center"
+                  >
+                    <TooltipCustom tooltip="Nächster Tag" position="bottom">
+                      <ChevronRight size={32}/>
+                    </TooltipCustom>
+                  </button>
                 </div>
                 <button
                   onClick={() => setIsOpen(false)}
