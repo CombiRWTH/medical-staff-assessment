@@ -24,8 +24,8 @@ export const AnalysisPage: NextPage = () => {
   const { data } = useAnalysisAPI(viewMode)
   const {
     data: graphData,
-    timeRange,
-    setTimeRange
+    date,
+    setDate
   } = useGraphAPI()
   const [selectedStations, setSelectedStations] = useState<number[]>([])
   const [isUploading, setIsUploading] = useState(false)
@@ -52,7 +52,7 @@ export const AnalysisPage: NextPage = () => {
     }
   }, [showNotification])
 
-  const handleFileUpload = async (file: File, type: 'monthly' | 'daily') => {
+  const handleFileUpload = async (file: File, type: 'caregiver' | 'patient') => {
     const validExcelTypes = [
       'application/vnd.ms-excel',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -60,7 +60,7 @@ export const AnalysisPage: NextPage = () => {
     ]
 
     if (!validExcelTypes.includes(file.type)) {
-      setError('Bitte nur Excel-Dateien hochladen (.xls, .xlsx oder .ods)')
+      setError('Bitte nur Excel-Dateien hochladen (.xls oder .xlsx)')
       setShowNotification(true)
       return
     }
@@ -74,7 +74,7 @@ export const AnalysisPage: NextPage = () => {
       formData.append(type, file)
 
       const cookie = getCookie('csrftoken')
-      const response = await fetch(`${apiURL}/import/caregiver/`, {
+      const response = await fetch(`${apiURL}/import/${type}/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -88,11 +88,11 @@ export const AnalysisPage: NextPage = () => {
         throw new Error('Upload fehlgeschlagen')
       }
 
-      setSuccess(`${type === 'monthly' ? 'Monatliche' : 'Tägliche'} Daten erfolgreich hochgeladen`)
+      setSuccess(`${type === 'caregiver' ? 'Schichtplan' : 'Patientendaten'} erfolgreich hochgeladen`)
 
-      if (type === 'monthly' && monthlyInputRef.current) {
+      if (type === 'caregiver' && monthlyInputRef.current) {
         monthlyInputRef.current.value = ''
-      } else if (type === 'daily' && dailyInputRef.current) {
+      } else if (type === 'patient' && dailyInputRef.current) {
         dailyInputRef.current.value = ''
       }
     } catch (err) {
@@ -136,8 +136,9 @@ export const AnalysisPage: NextPage = () => {
             <div className="flex justify-end w-full items-center gap-x-6">
               <ComparisonGraph
                 data={graphData}
-                timeRange={timeRange}
-                onTimeRangeChange={setTimeRange}
+                date={date}
+                onDateChange={setDate}
+                dates={[]}
               />
               {showNotification && (error || success) && (
                 <div
@@ -156,12 +157,12 @@ export const AnalysisPage: NextPage = () => {
               <input
                 ref={monthlyInputRef}
                 type="file"
-                accept=".xlsx,.xls,.ods"
+                accept=".xlsx,.xls"
                 className="hidden"
                 id="monthly-upload"
                 onChange={(e) => {
                   const file = e.target.files?.[0]
-                  if (file) handleFileUpload(file, 'monthly')
+                  if (file) handleFileUpload(file, 'caregiver')
                 }}
               />
               <Menu
@@ -189,7 +190,7 @@ export const AnalysisPage: NextPage = () => {
                       disabled={isUploading}
                       className="button-padding bg-gray-200 card-hover whitespace-nowrap"
                     >
-                      Monatliche Daten
+                      Schichtplan
                     </button>
                     <button
                       onClick={() => {
@@ -199,7 +200,7 @@ export const AnalysisPage: NextPage = () => {
                       disabled={isUploading}
                       className="button-padding bg-gray-200 card-hover whitespace-nowrap"
                     >
-                      Tägliche Daten
+                      Patientendaten
                     </button>
                   </>
                 )}
@@ -207,12 +208,12 @@ export const AnalysisPage: NextPage = () => {
               <input
                 ref={dailyInputRef}
                 type="file"
-                accept=".xlsx,.xls,.ods"
+                accept=".xlsx,.xls"
                 className="hidden"
                 id="daily-upload"
                 onChange={(e) => {
                   const file = e.target.files?.[0]
-                  if (file) handleFileUpload(file, 'daily')
+                  if (file) handleFileUpload(file, 'patient')
                 }}
               />
               <Tooltip tooltip={!canExport ? 'Stationen müssen vor dem Export durch ausgewählt werden' : 'Ausgewählte Daten exportieren'} position="bottom" containerClassName="!w-auto">

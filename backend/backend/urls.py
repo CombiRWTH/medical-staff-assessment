@@ -38,7 +38,7 @@ urlpatterns = [
         name="handle_current_station_of_patient",
     ),
     path(
-        "import/patient/<str:date>/",
+        "import/patient/",
         handle_data_imports.handle_patient_data_import,
         name="handle_patient_data_import",
     ),
