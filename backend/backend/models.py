@@ -50,11 +50,6 @@ class DailyClassification(models.Model):
     a_index = models.IntegerField(default=1)  # Index of care group A
     s_index = models.IntegerField(default=1)  # Index of care group S
     station = models.ForeignKey('Station', on_delete=models.CASCADE)
-    room_name = models.CharField(max_length=100)
-    bed_number = models.CharField(max_length=100)
-    barthel_index = models.IntegerField()
-    expanded_barthel_index = models.IntegerField()
-    mini_mental_status = models.IntegerField()
 
     class Meta:
         unique_together = ('patient', 'date')
@@ -115,6 +110,11 @@ class DailyPatientData(models.Model):
     uses_quarter_entry = models.BooleanField(default=False)
     night_stay = models.BooleanField(default=False)
     day_stay = models.BooleanField(default=False)
+    room_name = models.CharField(max_length=100)
+    bed_number = models.CharField(max_length=100)
+    barthel_index = models.IntegerField()
+    expanded_barthel_index = models.IntegerField()
+    mini_mental_status = models.IntegerField()
 
     class Meta:
         """Unique constraint for station, patient and date."""
