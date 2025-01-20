@@ -3,7 +3,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react'
 import { noop } from '@/util/noop'
 import { Menu } from '@/components/Menu'
 
-type SelectItem<T> = {
+export type SelectItem<T> = {
   value: T,
   label: string
 }
@@ -14,13 +14,17 @@ type SelectProps<T> = {
   items: SelectItem<T>[],
   isDisabled?: boolean,
   containerClassName?: string,
-  menuContainerClassName?: string
+  menuContainerClassName?: string,
+  buttonClassName?: string,
+  noneLabel?: string
 }
 
 export const Select = <T, >({
   items,
   selected,
   onChange = noop,
+  buttonClassName,
+  noneLabel,
   ...props
 }: SelectProps<T>) => {
   const selectedItem = items.find((it) => it.value === selected)
@@ -34,9 +38,9 @@ export const Select = <T, >({
       <button
         onClick={toggleOpen}
         disabled={isDisabled}
-        className={`flex flex-row justify-between gap-x-2 min-w-[120px] ${isDisabled ? 'button-full-disabled' : 'button-full-primary'}`}
+        className={`flex flex-row justify-between gap-x-2 min-w-[120px] ${isDisabled ? 'button-full-disabled' : 'button-full-primary'} ${buttonClassName}`}
       >
-        {selectedItem?.label ?? 'Nichts Ausgewählt'}
+        {selectedItem?.label ?? noneLabel ?? 'Nichts Ausgewählt'}
         {isOpen ? <ChevronUp size={24}/> : <ChevronDown size={24}/>}
       </button>
     )}>
