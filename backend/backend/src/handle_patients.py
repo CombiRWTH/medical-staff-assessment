@@ -61,17 +61,15 @@ def get_patients_with_additional_information(station_id: int) -> list:
             .values("date")[:1]
         ),
         currentRoom=Subquery(
-            DailyClassification.objects.filter(
-                patient=OuterRef("id"), date__lte=today, station=station_id
+            DailyPatientData.objects.filter(
+                patient=OuterRef("id"), date=today, station=station_id
             )
-            .order_by("-date")
             .values("room_name")[:1]
         ),
         currentBed=Subquery(
-            DailyClassification.objects.filter(
-                patient=OuterRef("id"), date__lte=today, station=station_id
+            DailyPatientData.objects.filter(
+                patient=OuterRef("id"), date=today, station=station_id
             )
-            .order_by("-date")
             .values("bed_number")[:1]
         ),
     ).values(
@@ -188,15 +186,15 @@ def get_dates_for_patient_classification(patient_id: int, station_id: int) -> li
 
     result = []
 
-    for dateValue in dates:
+    for date_value in dates:
         has_classification = DailyClassification.objects.filter(
             patient=patient_id,
             station=station_id,
-            date=dateValue
+            date=date_value
         ).exists()
 
         result.append({
-            "date": dateValue,
+            "date": date_value,
             "hasClassification": has_classification
         })
 
