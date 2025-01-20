@@ -390,11 +390,6 @@ def calculate_direct_classification(
             a_index=0,
             s_index=0,
             station=station,
-            room_name="Test Raum",
-            bed_number=1,
-            barthel_index=0,
-            expanded_barthel_index=0,
-            mini_mental_status=0,
         )
 
     # If there is dailyPatientData, store information that influences the care minutes

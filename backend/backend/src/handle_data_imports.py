@@ -50,20 +50,18 @@ def is_day_stay(date: date, admission_date: datetime, discharge_date: datetime) 
     return False
 
 
-def insert_patient_excel_into_db(df: pd.DataFrame, date: str) -> None:
+def insert_patient_excel_into_db(df: pd.DataFrame) -> None:
     """Insert patient data from an excel file into the database.
 
     Args:
         df (DataFrame): The DataFrame containing the patient data.
-        date (str): The date of the data.
     """
-    # Print all names of the row
-    date = datetime.strptime(date, '%Y-%m-%d').date()
     for _, row in df.iterrows():
         # Create missing patients
         first_name = row['Vorname']
         last_name = row['Nachname']
         patient_id = row['Patienten-ID']
+        date = row['Datum'].date()
         # Check if patient already exists
         if not Patient.objects.filter(id=patient_id).exists():
             Patient.objects.create(
@@ -83,7 +81,12 @@ def insert_patient_excel_into_db(df: pd.DataFrame, date: str) -> None:
             day_of_discharge=timezone.make_aware(row['Entlassungstag']),
             is_repeating_visit=row['Wiederkehrend'] == 'Ja',
             night_stay=is_night_stay(date, row['Aufnahmetag'], row['Entlassungstag']),
-            day_stay=is_day_stay(date, row['Aufnahmetag'], row['Entlassungstag'])
+            day_stay=is_day_stay(date, row['Aufnahmetag'], row['Entlassungstag']),
+            room_name=row['Zimmer'],
+            bed_number=row['Bett'],
+            barthel_index=row['Barthel-Index'],
+            expanded_barthel_index=row['Erweiterter Barthel-Index'],
+            mini_mental_status=row['Mini-Mental-Status-Test']
         )
 
 
@@ -182,14 +185,13 @@ def insert_caregiver_shift_excel_into_db(df: pd.DataFrame) -> None:
             add_daily_data(row)
 
 
-def handle_patient_data_import(request, date: str) -> JsonResponse:
+def handle_patient_data_import(request) -> JsonResponse:
     """Endpoint to import patient data.
 
     The body of the request should contain the excel file to be imported.
 
     Args:
         request (HttpRequest): The request object.
-        date (str): The date of the data.
 
     Returns:
         JsonResponse: The response containing the success message.
@@ -197,8 +199,8 @@ def handle_patient_data_import(request, date: str) -> JsonResponse:
     if request.method == 'POST':
         try:
             file = BytesIO(request.body)
-            df = pd.read_excel(file)
-            insert_patient_excel_into_db(df, date)
+            df = pd.read_excel(file, engine='openpyxl')
+            insert_patient_excel_into_db(df)
             return JsonResponse({'message': 'File processed successfully'})
         except Exception as e:
             print('Error', e)
@@ -222,7 +224,7 @@ def handle_caregiver_shift_import(request) -> JsonResponse:
     if request.method == 'POST':
         try:
             file = BytesIO(request.body)
-            df = pd.read_excel(file)
+            df = pd.read_excel(file, engine='openpyxl')
             insert_caregiver_shift_excel_into_db(df)
             return JsonResponse({'message': 'File processed successfully'})
         except Exception as e:
