@@ -28,10 +28,10 @@ export const PatientClassification = () => {
   const dateString: string = (router.query.date as string | undefined) ?? ''
   const date = parseDateStringFrontend(dateString)
 
-  const { dates } = usePatientDatesAPI(id, patientId)
+  const { dates, reload } = usePatientDatesAPI(id, patientId)
 
-  const hasPreviousDay: boolean = dates.some(value => isSameDay(subDays(date, 1), value))
-  const hasNextDay: boolean = dates.some(value => isSameDay(addDays(date, 1), value))
+  const hasPreviousDay: boolean = dates.some(value => isSameDay(subDays(date, 1), value.date))
+  const hasNextDay: boolean = dates.some(value => isSameDay(addDays(date, 1), value.date))
   const { stations } = useStationsAPI()
   const currentStation = stations.find(value => value.id === id)
   const { patients } = usePatientsAPI(currentStation?.id)
@@ -127,8 +127,8 @@ export const PatientClassification = () => {
               </button>
               <DatePickerButton date={date} eventList={{
                 events: dates.map(date => ({
-                  date,
-                  color: 'green'
+                  date: date.date,
+                  color: date.hasClassification ? 'green' : 'orange'
                 }))
               }} onDateClick={(_, selectedDate) =>
                 router.push(`/stations/${id}/${patientId}/${formatDateFrontendURL(selectedDate)}`)
@@ -170,7 +170,7 @@ export const PatientClassification = () => {
               <input
                 type="checkbox"
                 checked={classification.is_in_isolation}
-                onChange={() => update({ isolationUpdate: !classification.is_in_isolation })}
+                onChange={() => update({ isolationUpdate: !classification.is_in_isolation }).then(reload)}
               />
             </div>
           </div>
@@ -199,7 +199,7 @@ export const PatientClassification = () => {
                   id,
                   selected
                 }
-              })
+              }).then(reload)
             }}/>
           ))}
         </div>

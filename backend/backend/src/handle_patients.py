@@ -172,21 +172,35 @@ def get_patients_visit_type(station_id: int) -> dict:
 
 
 def get_dates_for_patient_classification(patient_id: int, station_id: int) -> list:
-    """Get the dates a patient needs a classification.
+    """Get the dates a patient needs a classification, along with the classification status.
 
     Args:
         patient_id (int): The ID of the patient.
         station_id (int): The ID of the station.
 
     Returns:
-        list: The dates the patient needs a classification.
+        list: A list of dictionaries containing dates and classification status.
     """
     dates = DailyPatientData.objects.filter(
         patient=patient_id,
         station=station_id,
-    ).values('date')
+    ).values_list('date', flat=True)
 
-    return list(dates)
+    result = []
+
+    for dateValue in dates:
+        has_classification = DailyClassification.objects.filter(
+            patient=patient_id,
+            station=station_id,
+            date=dateValue
+        ).exists()
+
+        result.append({
+            "date": dateValue,
+            "hasClassification": has_classification
+        })
+
+    return result
 
 
 def get_missing_classifications_for_patient(patient_id: int, station_id: int) -> int:
