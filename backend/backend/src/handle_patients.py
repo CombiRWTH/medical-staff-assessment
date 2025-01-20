@@ -102,7 +102,7 @@ def get_patients_with_additional_information(station_id: int) -> list:
         "lastClassificationSIndex",
         "currentRoom",
         "currentBed",
-        name=Concat(F("first_name"),Value(" "),F("last_name"))
+        name=Concat(F("first_name"), Value(" "), F("last_name"))
     )
 
     # Convert the QuerySet to a list of dictionaries
