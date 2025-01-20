@@ -95,9 +95,6 @@ def get_questions(station_id: int, patient_id: int, date: datetime.date) -> dict
         'is_in_isolation': classification['is_in_isolation'] if classification else False,
         'a_index': classification['a_index'] if classification else 0,
         's_index': classification['s_index'] if classification else 0,
-        'barthel_index': classification['barthel_index'] if classification else 0,
-        'expanded_barthel_index': classification['expanded_barthel_index'] if classification else 0,
-        'mini_mental_status': classification['mini_mental_status'] if classification else 0,
         'admission_date': admission_date,
         'discharge_date': discharge_date,
     }
@@ -217,11 +214,6 @@ def submit_selected_options(station_id: int, patient_id: int, date: datetime.dat
             a_index=0,
             s_index=0,
             station=station,
-            room_name='Test Raum',
-            bed_number=1,
-            barthel_index=0,
-            expanded_barthel_index=0,
-            mini_mental_status=0,
         )
 
     # Provide an option to update the isolation status
