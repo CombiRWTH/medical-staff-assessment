@@ -1,11 +1,11 @@
+import type { NextPage } from 'next'
+import { useRouter } from 'next/router'
 import { useStationsAPI } from '@/api/stations'
 import { Card } from '@/components/Card'
 import { LinkTiles } from '@/components/LinkTiles'
 import type { Station } from '@/data-models/station'
 import { Header } from '@/layout/Header'
 import { Page } from '@/layout/Page'
-import type { NextPage } from 'next'
-import { useRouter } from 'next/router'
 
 export const StationsPage: NextPage = () => {
   const { stations } = useStationsAPI()
