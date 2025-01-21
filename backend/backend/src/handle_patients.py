@@ -53,12 +53,33 @@ def get_patients_with_additional_information(station_id: int) -> list:
 
     # Add the date the patient was last classified on that station
     patients = patients.annotate(
-        lastClassification=Subquery(
+        lastClassificationDate=Subquery(
             DailyClassification.objects.filter(
                 patient=OuterRef("id"), date__lte=today, station=station_id
             )
             .order_by("-date")
             .values("date")[:1]
+        ),
+        lastClassificationMinutes=Subquery(
+            DailyClassification.objects.filter(
+                patient=OuterRef("id"), date__lte=today, station=station_id
+            )
+            .order_by("-date")
+            .values("result_minutes")[:1]
+        ),
+        lastClassificationAIndex=Subquery(
+            DailyClassification.objects.filter(
+                patient=OuterRef("id"), date__lte=today, station=station_id
+            )
+            .order_by("-date")
+            .values("a_index")[:1]
+        ),
+        lastClassificationSIndex=Subquery(
+            DailyClassification.objects.filter(
+                patient=OuterRef("id"), date__lte=today, station=station_id
+            )
+            .order_by("-date")
+            .values("s_index")[:1]
         ),
         currentRoom=Subquery(
             DailyPatientData.objects.filter(
@@ -74,10 +95,14 @@ def get_patients_with_additional_information(station_id: int) -> list:
         ),
     ).values(
         "id",
-        "lastClassification",
+        "name",
+        "lastClassificationDate",
+        "lastClassificationMinutes",
+        "lastClassificationAIndex",
+        "lastClassificationSIndex",
         "currentRoom",
         "currentBed",
-        name=Concat(F("first_name"), Value(" "), F("last_name")),
+        name=Concat(F("first_name"), Value(" "), F("last_name"))
     )
 
     # Convert the QuerySet to a list of dictionaries
@@ -245,7 +270,19 @@ def handle_patients(request, station_id: int) -> JsonResponse:
         JsonResponse: The response containing the calculated minutes.
     """
     if request.method == 'GET':
-        return JsonResponse(get_patients_with_additional_information(station_id), safe=False)
+        patients = get_patients_with_additional_information(station_id)
+        for patient in patients:
+            if patient.get("lastClassificationDate"):
+                patient["lastClassification"] = {
+                    "date": patient.pop("lastClassificationDate"),
+                    "minutes": patient.pop("lastClassificationMinutes"),
+                    "a_index": patient.pop("lastClassificationAIndex"),
+                    "s_index": patient.pop("lastClassificationSIndex"),
+                }
+            else:
+                patient["lastClassification"] = None
+
+        return JsonResponse(patients, safe=False)
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
