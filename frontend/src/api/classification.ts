@@ -13,6 +13,12 @@ type UpdateType = {
   isolationUpdate?: boolean
 }
 
+/**
+ * Hook for loading a patient classification
+ * @param stationId
+ * @param patientId
+ * @param date
+ */
 export const usePatientClassification = (stationId?: number, patientId?: number, date?: string) => {
   const [classification, setClassification] = useState<DailyClassification>({
     is_in_isolation: false,

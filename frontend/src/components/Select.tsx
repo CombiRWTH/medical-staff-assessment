@@ -19,6 +19,16 @@ type SelectProps<T> = {
   noneLabel?: string
 }
 
+/**
+ * A Select component
+ * @param items The items to select from
+ * @param selected The chosen item
+ * @param onChange The callback when the user changes the value
+ * @param buttonClassName The style overwrite of the button
+ * @param noneLabel The lable when no value is selected
+ * @param props Additional props for the component
+ * @constructor
+ */
 export const Select = <T, >({
   items,
   selected,

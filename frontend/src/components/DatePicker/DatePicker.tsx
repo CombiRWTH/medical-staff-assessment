@@ -7,24 +7,69 @@ import { Grid } from '@/components/Grid'
 import { noop } from '@/util/noop'
 import { tailwindChoice, tailwindCombine } from '@/util/tailwind'
 
+/**
+ * The colors for marking the dates in the DatePicker
+ */
 type ColorOptions = 'primary' | 'green' | 'orange'
 
+/**
+ * The data type for a single date event in the DatePicker
+ */
 export type TimeEvent = {
+  /**
+   * The Date of the Event
+   */
   date: Date,
+  /**
+   * The color for marking the event
+   */
   color?: ColorOptions
 }
 
+/**
+ * The data type for holding all dates in the DatePicker
+ */
 export type EventCalendarEntries = {
+  /**
+   * The list of single day events
+   */
   events?: TimeEvent[],
+  /**
+   * A function that receives a date and return the list of events on that date
+   *
+   * Used to check for arbitrary dates whether there are events on that day
+   */
   dayChecker?: ((date: Date) => (TimeEvent | undefined))[]
 }
 
 export type DatePickerProps = HTMLAttributes<HTMLDivElement> & {
+  /**
+   * The year and month to display
+   */
   yearMonth?: Date,
+  /**
+   * The events for the DatePicker
+   */
   eventList: EventCalendarEntries,
+  /**
+   * Whether today should be marked somehow
+   *
+   * default: true
+   */
   markToday?: boolean,
+  /**
+   * What day of the week the calendar should start with
+   *
+   * default: monday
+   */
   weekStart?: WeekDay,
+  /**
+   * Callback when a date is selected, it returns the date and events on that day
+   */
   onDateClick?: (events: TimeEvent[], date: Date) => void,
+  /**
+   * A className overwrite to add additional classes
+   */
   className?: string
 }
 
@@ -66,7 +111,7 @@ export const DatePicker = ({
 
             const shouldMarkToday = isToday && markToday
             // required for tailwind to write the names out
-            const colorMapping: Record<ColorOptions, {event: string, todayBorder: string}> = {
+            const colorMapping: Record<ColorOptions, { event: string, todayBorder: string }> = {
               primary: {
                 event: 'bg-primary/10 hover:bg-primary/30 hover:border-primary/80',
                 todayBorder: 'border-priamry/70'
@@ -112,7 +157,8 @@ export const DatePicker = ({
         <ChevronRight onClick={() => setDate(addDuration(date, { months: 1 }))}/>
       </div>
       <div className="flex flex-row justify-center">
-        <button onClick={() => setDate(new Date())} className="text-primary hover:text-primary/90">Zu heute springen</button>
+        <button onClick={() => setDate(new Date())} className="text-primary hover:text-primary/90">Zu heute springen
+        </button>
       </div>
     </div>
   )

@@ -6,6 +6,7 @@ export type LastClassifiedBadgeProps = {
 
 /**
  * A Badge showing when a patient was last classified
+ * @param date The date of the last classification, if undefined assume no classification exists
  */
 export const LastClassifiedBadge = ({
   date

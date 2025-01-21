@@ -16,6 +16,15 @@ type MenuProps = {
   menuContainerClassName?: string
 }
 
+/**
+ * A menu component that is opened via a button
+ * @param children The menu items to displays
+ * @param display The button to display
+ * @param containerClassName  The style overwrite of the container holding all parts including the button
+ * @param menuContainerClassName The style overwrite of the menu container
+ * @param isDisabled Whether the component should be disabled
+ * @constructor
+ */
 export const Menu = ({
   children,
   display,

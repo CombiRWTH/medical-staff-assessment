@@ -5,6 +5,12 @@ export type CardProps = PropsWithChildren<{
   className?: string
 }>
 
+/**
+ * Layout component for a card
+ * @param children The content to display
+ * @param onClick The callback on click events
+ * @param className The style overwrite
+ */
 export const Card = ({
   children,
   onClick,
