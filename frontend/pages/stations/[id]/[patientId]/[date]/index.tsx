@@ -3,7 +3,7 @@ import { ArrowRight, Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import { addDays, isSameDay, subDays } from 'date-fns'
 import Link from 'next/link'
-import { DefaultHeader, Header } from '@/layout/Header'
+import { DefaultHeaderStart, Header } from '@/layout/Header'
 import { Page } from '@/layout/Page'
 import { useStationsAPI } from '@/api/stations'
 import { usePatientsAPI } from '@/api/patients'
@@ -84,7 +84,7 @@ export const PatientClassification = () => {
         <Header
           start={(
             <div className="flex flex-row items-center gap-x-4 flex-shrink-0 flex-1">
-              <DefaultHeader/>
+              <DefaultHeaderStart/>
               <div className="bg-gray-300 rounded-full min-w-1 min-h-12"/>
               <div className="flex flex-row gap-x-1 items-center font-semibold text-lg">
                 <Link href={`/stations/${id}`}>{currentStation?.name}</Link>

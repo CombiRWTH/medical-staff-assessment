@@ -3,6 +3,10 @@ import type { Patient } from '@/data-models/patient'
 import { apiURL } from '@/config'
 import { parseDateString } from '@/util/date'
 
+/**
+ * Hook for loading all patients on Station
+ * @param stationId
+ */
 export const usePatientsAPI = (stationId?: number) => {
   const [patients, setPatients] = useState<Patient[]>([])
 

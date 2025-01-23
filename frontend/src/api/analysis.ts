@@ -4,6 +4,10 @@ import { apiURL } from '@/config'
 
 export type AnalysisFrequency = 'daily' | 'monthly'
 
+/**
+ * Hook for loading analysis data
+ * @param frequency
+ */
 export const useAnalysisAPI = (frequency: AnalysisFrequency) => {
   const [dataDaily, setDataDaily] = useState<StationDaily[]>([])
   const [dataMonthly, setDataMonthly] = useState<StationMonthly[]>([])

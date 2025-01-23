@@ -2,6 +2,9 @@ import { useCallback, useEffect, useState } from 'react'
 import type { Station } from '@/data-models/station'
 import { apiURL } from '@/config'
 
+/**
+ * Hook for loading all Stations
+ */
 export const useStationsAPI = () => {
   const [stations, setStations] = useState<Station[]>([])
 

@@ -2,6 +2,9 @@ import { useCallback } from 'react'
 import { apiURL } from '@/config'
 import { getCookie } from '@/util/getCookie'
 
+/**
+ * Hook to add a direct classification
+ */
 export const useClassificationAPI = () => {
   const addClassification = useCallback(async (stationId: number, patientId: number, date: string, category1: number, category2: number) => {
     try {

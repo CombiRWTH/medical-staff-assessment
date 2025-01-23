@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 import { useCallback, useState, useMemo, useEffect } from 'react'
 import { ArrowRight, LucideArrowDown, LucideArrowUp, Search, X } from 'lucide-react'
-import { DefaultHeader, Header } from '@/layout/Header'
+import { DefaultHeaderStart, Header } from '@/layout/Header'
 import { Card } from '@/components/Card'
 import { Page } from '@/layout/Page'
 import { useStationsAPI } from '@/api/stations'
@@ -222,7 +222,7 @@ export const StationPatientList = () => {
       header={(
         <Header start={(<></>)}>
           <div className="grid grid-cols-3 w-full">
-            <DefaultHeader/>
+            <DefaultHeaderStart/>
             <div className="flex flex-row justify-center items-center">
               <h2 className="text-4xl bold">{currentStation?.name}</h2>
             </div>

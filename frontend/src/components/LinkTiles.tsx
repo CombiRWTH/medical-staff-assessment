@@ -10,6 +10,10 @@ export type LinkTilesProps = {
   links: LinkTileType[]
 }
 
+/**
+ * A chain of links in the form of breadcrumbs e.g. /path/subpath/subsubpath
+ * @param links Links of the breadcrumb
+ */
 export const LinkTiles = ({ links }: LinkTilesProps) => {
   const router = useRouter()
 

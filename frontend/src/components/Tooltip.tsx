@@ -10,6 +10,15 @@ export type TooltipProps = PropsWithChildren<{
   position?: Position
 }>
 
+/**
+ * A tool tip component that shows a tooltip when hovered over
+ * @param tooltip The tooltip text
+ * @param children The content on which the tooltip is displayed
+ * @param tooltipClassName Style Overwrite of the tooltip
+ * @param containerClassName Style Overwrite of the container holding both tooltip and content
+ * @param position The direction in which the tooltip is displayed
+ * @constructor
+ */
 export const Tooltip = ({
   tooltip,
   children,
@@ -50,15 +59,15 @@ export const Tooltip = ({
       {children}
       {isVisible && (
         <div
-        className={`absolute z-50 bg-gray-800 text-white text-xs px-3 py-2 rounded shadow-lg whitespace-nowrap
+          className={`absolute z-50 bg-gray-800 text-white text-xs px-3 py-2 rounded shadow-lg whitespace-nowrap
             ${positionClasses[position]} ${tooltipClassName} animate-fade-in`}
-    >
-      {tooltip}
-      <div className={`absolute w-0 h-0 z-10 ${triangleClasses[position]} ${isVisible ? '' : 'hidden'}`}
-           style={triangleStyle[position]}/>
-    </div>
+        >
+          {tooltip}
+          <div className={`absolute w-0 h-0 z-10 ${triangleClasses[position]} ${isVisible ? '' : 'hidden'}`}
+               style={triangleStyle[position]}/>
+        </div>
       )
-}
-</div>
+      }
+    </div>
   )
 }

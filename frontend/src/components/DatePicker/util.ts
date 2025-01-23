@@ -3,11 +3,17 @@ import type { Duration, WeekDay } from '@/components/DatePicker/types'
 import { weekDayList } from '@/components/DatePicker/types'
 import { equalSizeGroups } from '@/util/array'
 
+/**
+ * A function to get the last day of a month for a given year and month
+ */
 export const getDaysInMonth = (year: number, month: number): number => {
   const lastDayOfMonth = new Date(year, month + 1, 0)
   return lastDayOfMonth.getDate()
 }
 
+/**
+ * Changes a date by adding or subtracting a duration
+ */
 export const changeDuration = (date: Date, duration: Duration, isAdding?: boolean): Date => {
   const {
     years = 0,
@@ -70,14 +76,23 @@ export const changeDuration = (date: Date, duration: Duration, isAdding?: boolea
   return newDate
 }
 
+/**
+ * Add a duration to a date
+ */
 export const addDuration = (date: Date, duration: Duration): Date => {
   return changeDuration(date, duration, true)
 }
 
+/**
+ * Subtract a duration to a date
+ */
 export const subtractDuration = (date: Date, duration: Duration): Date => {
   return changeDuration(date, duration, false)
 }
 
+/**
+ * Calculates the duration between two dates
+ */
 export const getBetweenDuration = (startDate: Date, endDate: Date): Duration => {
   const durationInMilliseconds = endDate.getTime() - startDate.getTime()
 
@@ -111,6 +126,9 @@ export const equalDate = (date1: Date, date2: Date) => {
     && date1.getDate() === date2.getDate()
 }
 
+/**
+ * Gets the weeks for a calendar month
+ */
 export const getWeeksForCalenderMonth = (date: Date, weekStart: WeekDay) => {
   const month = date.getMonth()
   const year = date.getFullYear()
@@ -133,10 +151,12 @@ export const getWeeksForCalenderMonth = (date: Date, weekStart: WeekDay) => {
   return equalSizeGroups(dayList, 7)
 }
 
+/** Returns the weekday for a date as a Weekday string */
 export const dateToWeekDay = (date: Date) => {
   return weekDayList[date.getDay()]
 }
 
+/** Finds all events for a date based on the eventCalendar entries */
 export const getEventsForDate = (date: Date = new Date(), timeTable: EventCalendarEntries = {}): TimeEvent[] => {
   const events: TimeEvent[] = []
   if (timeTable.events) {

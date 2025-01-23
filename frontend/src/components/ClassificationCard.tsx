@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { ChevronDown, ChevronUp, Info } from 'lucide-react'
-import { range } from '@/util/range'
+import { range } from '@/util/array'
 import type {
   DailyClassificationCategory,
   DailyClassificationField,
