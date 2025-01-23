@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowRight, Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import { addDays, isSameDay, subDays } from 'date-fns'
 import Link from 'next/link'
@@ -20,6 +20,7 @@ import {
 } from '@/util/date'
 import { DatePickerButton } from '@/components/DatePicker/DatePickerButton'
 import { usePatientDatesAPI } from '@/api/dates'
+import { useClassificationAPI } from '@/api/directClassification'
 
 export const PatientClassification = () => {
   const router = useRouter()
@@ -28,7 +29,7 @@ export const PatientClassification = () => {
   const dateString: string = (router.query.date as string | undefined) ?? ''
   const date = parseDateStringFrontend(dateString)
 
-  const { dates, reload } = usePatientDatesAPI(id, patientId)
+  const { dates, reload: reloadDates } = usePatientDatesAPI(id, patientId)
 
   const hasPreviousDay: boolean = dates.some(value => isSameDay(subDays(date, 1), value.date))
   const hasNextDay: boolean = dates.some(value => isSameDay(addDays(date, 1), value.date))
@@ -38,8 +39,11 @@ export const PatientClassification = () => {
   const currentPatient = patients.find(value => value.id === patientId)
   const {
     classification,
-    update
+    update,
+    reload: reloadClassification,
   } = usePatientClassification(id, patientId, formatDateBackend(date))
+
+  const { addClassification } = useClassificationAPI()
 
   const nextUnclassifiedPatient = useMemo(() => {
     // Start searching from the current patient's index
@@ -66,6 +70,13 @@ export const PatientClassification = () => {
   )
 
   useEffect(noop, [router.query.date]) // reload once the date can be parsed
+
+  const hasNoClassification = classification.result === undefined
+
+  const reload = async () => {
+    await reloadDates()
+    await reloadClassification()
+  }
 
   return (
     <Page
@@ -175,12 +186,26 @@ export const PatientClassification = () => {
             </div>
           </div>
           <div className="bg-primary/30 rounded-2xl px-4 py-2 flex flex-col justify-between flex-1">
-            <h2 className="font-bold text-xl">Ergebnis:</h2>
+            <div className="flex flex-row gap-x-4 justify-between">
+              <h2 className="font-bold text-xl">Ergebnis:</h2>
+              <button
+                className="flex flex-row gap-x-1 button-full-primary px-2 py-1 items-center"
+                onClick={() => {
+                  if (!id || !patientId) {
+                    return
+                  }
+                  addClassification(id, patientId, formatDateBackend(date), 1, 1).then(reload)
+                }}
+              >
+                {!hasNoClassification && (<Check size={18}/>)}
+                {hasNoClassification ? 'Auf A1/S1 setzen' : 'Gespeichert'}
+              </button>
+            </div>
             <div className="flex flex-row items-center gap-x-2 justify-between">
               Kategorie:
               <strong className="bg-white rounded-full px-2 py-1">
                 { /* TODO fix hardcoding of A and S  */}
-                A{classification?.result?.category1 ?? '-'}/S{classification?.result?.category2 ?? ''}
+                A{classification?.result?.category1 ?? '-'}/S{classification?.result?.category2 ?? '-'}
               </strong>
             </div>
             <div className="flex flex-row items-center gap-x-2 justify-between">

@@ -40,9 +40,11 @@ export const usePatientClassification = (stationId?: number, patientId?: number,
 
     try {
       const result = await (await fetch(`${apiURL}/calculate/${stationId}/${patientId}/${date}/`)).json()
+      const dailyClassificationResult: DailyClassificationResult | undefined = result['error'] === undefined ? result as DailyClassificationResult : undefined
+
       setClassification(prevState => ({
         ...prevState,
-        result: result as DailyClassificationResult
+        result: dailyClassificationResult
       }))
     } catch (e) {
       console.error(e)
@@ -77,7 +79,6 @@ export const usePatientClassification = (stationId?: number, patientId?: number,
       body.is_in_isolation = update.isolationUpdate
     }
 
-    console.log(body)
     try {
       const response = await (await fetch(`${apiURL}/questions/${stationId}/${patientId}/${date}/`, {
         method: 'PUT',
