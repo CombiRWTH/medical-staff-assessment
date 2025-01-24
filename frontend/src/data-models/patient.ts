@@ -4,6 +4,9 @@ export type PatientLastClassification = DailyClassificationResult & {
   date: Date
 }
 
+/**
+ * Data type for a patient
+ */
 export type Patient = {
   id: number,
   name: string,

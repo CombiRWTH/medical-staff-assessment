@@ -2,6 +2,9 @@ import { useCallback, useEffect, useState } from 'react'
 import { apiURL } from '@/config'
 import { formatDateBackend } from '@/util/date'
 
+/**
+ * Hook to load the analysis data for caregivers
+ */
 export const useGraphAPI = () => {
   const [data, setData] = useState<any[]>([])
   const [date, setDate] = useState<Date>(new Date())

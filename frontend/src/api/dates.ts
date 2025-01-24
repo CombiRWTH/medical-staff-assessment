@@ -14,6 +14,11 @@ type DatesData = {
   }[]
 }
 
+/**
+ * Hook for loading the days a patient is present in the hospital
+ * @param stationId
+ * @param patientId
+ */
 export const usePatientDatesAPI = (stationId?: number, patientId?: number) => {
   const [dates, setDates] = useState<PatientDateData[]>([])
 
