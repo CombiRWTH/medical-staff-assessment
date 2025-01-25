@@ -23,7 +23,12 @@ export const usePatientsAPI = (stationId?: number) => {
         name: value['name'],
         currentBed: value['currentBed'] ?? undefined,
         currentRoom: value['currentRoom'] ?? undefined,
-        lastClassification: value['lastClassification'] !== null ? parseDateString(value['lastClassification']) : undefined,
+        lastClassification: value['lastClassification'] !== null ? ({
+          date: parseDateString(value['lastClassification']['date']),
+          category1: value['lastClassification']['a_index'],
+          category2: value['lastClassification']['s_index'],
+          minutes: value['lastClassification']['minutes'],
+        }) : undefined,
         missingClassificationsLastWeek: ((value['missing_classifications_last_week'] ?? []) as string[]).map(parseDateString),
       })
     })
