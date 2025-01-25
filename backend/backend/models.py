@@ -2,17 +2,6 @@
 from django.db import models
 
 
-class CareServiceField(models.Model):
-    """General fields of care services, abbreviated with e.g. A or S."""
-
-    id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=128)  # Field name, e.g. 'Allgemeine Pflege'
-    short = models.CharField(max_length=8)  # E.g. 'A'
-
-    def __str__(self):
-        return f"{self.name} ({self.short})"
-
-
 class CareServiceCategory(models.Model):
     """Categories of care services like hygiene, nutrition or mobilisation."""
 
@@ -22,6 +11,17 @@ class CareServiceCategory(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class CareServiceField(models.Model):
+    """General fields of care services, abbreviated with e.g. A or S."""
+
+    id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=128)  # Field name, e.g. 'Allgemeine Pflege'
+    short = models.CharField(max_length=8)  # E.g. 'A'
+
+    def __str__(self):
+        return f"{self.name} ({self.short})"
 
 
 class CareServiceOption(models.Model):
@@ -58,49 +58,11 @@ class DailyClassification(models.Model):
         return f"{self.patient} ({self.date})"
 
 
-class IsCareServiceUsed(models.Model):
-    """Care service options used for a patient's daily classification on a specific date.
-    Any entry here means that the service is used"""
-
-    classification = models.ForeignKey('DailyClassification', on_delete=models.CASCADE)
-    care_service_option = models.ForeignKey('CareServiceOption', on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ('classification', 'care_service_option')  # Combined primary key
-
-    def __str__(self):
-        return f"{self.care_service_option} {self.classification}"
-
-
-class Station(models.Model):
-    """Stations in the hospital."""
-
-    id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=100)
-    is_intensive_care = models.BooleanField()
-    is_child_care_unit = models.BooleanField()
-    max_patients_per_caregiver = models.FloatField()  # Allowed ratio of patients per caregiver
-
-    def __str__(self):
-        return self.name
-
-
-class Patient(models.Model):
-    """Patients in the database."""
-
-    id = models.IntegerField(primary_key=True)
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-
-    def __str__(self):
-        return f"{self.first_name} {self.last_name}"
-
-
 class DailyPatientData(models.Model):
     """Daily patient data for all stations."""
 
-    station = models.ForeignKey('Station', on_delete=models.CASCADE)
-    patient = models.ForeignKey('Patient', on_delete=models.CASCADE)
+    station = models.ForeignKey("Station", on_delete=models.CASCADE)
+    patient = models.ForeignKey("Patient", on_delete=models.CASCADE)
     date = models.DateField()
     is_semi_stationary = models.BooleanField()
     is_fully_stationary = models.BooleanField()
@@ -118,7 +80,48 @@ class DailyPatientData(models.Model):
 
     class Meta:
         """Unique constraint for station, patient and date."""
-        unique_together = ('station', 'patient', 'date')
+
+        unique_together = ("station", "patient", "date")
+
+
+class IsCareServiceUsed(models.Model):
+    """Care service options used for a patient's daily classification on a specific date.
+    Any entry here means that the service is used"""
+
+    classification = models.ForeignKey('DailyClassification', on_delete=models.CASCADE)
+    care_service_option = models.ForeignKey('CareServiceOption', on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('classification', 'care_service_option')  # Combined primary key
+
+    def __str__(self):
+        return f"{self.care_service_option} {self.classification}"
+
+
+class Patient(models.Model):
+    """Patients in the database."""
+
+    id = models.IntegerField(primary_key=True)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
+
+
+class Station(models.Model):
+    """Stations in the hospital."""
+
+    id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=100)
+    is_intensive_care = models.BooleanField()
+    is_child_care_unit = models.BooleanField()
+    max_patients_per_caregiver = (
+        models.FloatField()
+    )  # Allowed ratio of patients per caregiver
+
+    def __str__(self):
+        return self.name
 
 
 class StationWorkloadDaily(models.Model):

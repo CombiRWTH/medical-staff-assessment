@@ -259,6 +259,33 @@ def get_missing_classifications_for_patient(patient_id: int, station_id: int) ->
     return missing_classifications
 
 
+def get_classification_for_patient(
+    patient_id: int, station_id: int, date: date
+) -> dict:
+    """Get the classification of a patient for a specific date.
+
+    Args:
+        patient_id (int): The ID of the patient.
+        station_id (int): The ID of the station.
+        date (date): The date of the classification.
+
+    Returns:
+        dict: The classification of the patient.
+    """
+    classification = DailyClassification.objects.filter(
+        patient=patient_id, station=station_id, date=date
+    ).first()
+
+    if classification is None:
+        return {"error": "No classification found for the specified date."}
+
+    return {
+        "a_value": classification.a_index,
+        "s_value": classification.s_index,
+        "minutes": classification.result_minutes,
+    }
+
+
 def handle_patients(request, station_id: int) -> JsonResponse:
     """Endpoint to retrieve all current patients for a station.
 
@@ -336,3 +363,23 @@ def handle_patient_dates(request, patient_id: int, station_id: int) -> JsonRespo
         return JsonResponse({'dates': get_dates_for_patient_classification(patient_id, station_id)})
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+
+def handle_get_classification(request, station_id: int, patient_id: int, date: date):
+    """Endpoint to get the classification of a patient.
+
+    Args:
+        request (HttpRequest): The request object.
+        station_id (int): The ID of the station.
+        patient_id (int): The ID of the patient.
+        date (str): The date of the classification ('YYYY-MM-DD').
+
+    Returns:
+        JsonResponse: The response containing the classification.
+    """
+    if request.method == "GET":
+        return JsonResponse(
+            get_classification_for_patient(patient_id, station_id, date)
+        )
+    else:
+        return JsonResponse({"error": "Method not allowed."}, status=405)
