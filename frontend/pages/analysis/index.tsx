@@ -18,7 +18,11 @@ import { Menu } from '@/components/Menu'
 import { Select } from '@/components/Select'
 import { Tooltip } from '@/components/Tooltip'
 
+/*
+*  Page for the analysis of data
+*/
 export const AnalysisPage: NextPage = () => {
+  // Show daily or monthly data for the stations
   const [viewMode, setViewMode] = useState<AnalysisFrequency>('daily')
   const { stations } = useStationsAPI()
   const { data } = useAnalysisAPI(viewMode)
@@ -35,12 +39,12 @@ export const AnalysisPage: NextPage = () => {
   const monthlyInputRef = useRef<HTMLInputElement>(null)
   const dailyInputRef = useRef<HTMLInputElement>(null)
 
-  // Special constant
+  // Special constant for the data of all stations combined
   const COMBINED_STATIONS_KEY = -1
 
   const canExport = selectedStations.length > 0
 
-  // Hide notification after 10 seconds
+  // Hide notification for import/export after 10 seconds
   useEffect(() => {
     if (showNotification) {
       const timer = setTimeout(() => {
@@ -52,6 +56,8 @@ export const AnalysisPage: NextPage = () => {
     }
   }, [showNotification])
 
+  // Upload excel file to the backend
+  // that is used to make the further analysis for the shifts
   const handleFileUpload = async (file: File, type: 'caregiver' | 'patient') => {
     const validExcelTypes = [
       'application/vnd.ms-excel',
@@ -103,6 +109,8 @@ export const AnalysisPage: NextPage = () => {
     }
   }
 
+  // Toggle the selection of a station for export
+  // by adding or removing it from the selected stations
   const toggleStationSelection = (stationId: number) => {
     setSelectedStations(prev => {
       if (prev.includes(stationId)) {
@@ -112,6 +120,7 @@ export const AnalysisPage: NextPage = () => {
     })
   }
 
+  // Use the hooks to export data for the station in an excel file
   const exportData = async () => {
     // Filter the stations
     const filteredData = data.filter(station => selectedStations.includes(station.id))
