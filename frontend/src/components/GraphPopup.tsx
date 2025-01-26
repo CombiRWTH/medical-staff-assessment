@@ -115,8 +115,10 @@ export const ComparisonGraph = ({
               </div>
             </div>
 
-            // x-axis: stations
-            // y-axis: values for the should and is data
+            {
+              // x-axis: stations
+              // y-axis: values for the should and is data
+            }
             <div className="h-96 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
