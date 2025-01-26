@@ -21,7 +21,12 @@ interface ComparisonGraphProps {
   onDateChange: (date: Date) => void,
   dates: Date[]
 }
-
+/*
+  The ComparisonGraph component is a popup that displays a comparison graph of the data provided.
+  It uses the recharts library to display the data in a line chart. The data is processed to
+  display the day and night data for each station in the provided data. The component also
+  provides a date picker to change the date of the data displayed in the graph.
+*/
 export const ComparisonGraph = ({
   data,
   date,
@@ -110,6 +115,8 @@ export const ComparisonGraph = ({
               </div>
             </div>
 
+            // x-axis: stations
+            // y-axis: values for the should and is data
             <div className="h-96 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
