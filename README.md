@@ -1,4 +1,4 @@
-# Medical Staff Patient Care Assessment
+# CarePlanner
 This app helps medical staff evaluate and document the time spent on patient care in accordance with the PPBV ("Pflegepersonalbemessungsverordnung").
 
 The highlight features are:
