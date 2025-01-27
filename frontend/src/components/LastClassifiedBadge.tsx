@@ -13,7 +13,7 @@ export const LastClassifiedBadge = ({
   classification
 }: LastClassifiedBadgeProps) => {
   const hasClassification = !!classification
-  const baseStyle = 'flex flex-row gap-x-2 rounded-xl w-32 text-center px-3 py-2 items-center'
+  const baseStyle = 'flex flex-row gap-x-2 rounded-xl text-center px-3 py-2 items-center w-min whitespace-nowrap'
   if (!hasClassification) {
     return (
       <div className={`${baseStyle} bg-orange-400/30`}>
