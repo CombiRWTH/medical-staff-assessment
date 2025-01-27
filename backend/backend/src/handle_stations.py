@@ -1,12 +1,17 @@
 """Endpoint to retrieve information per station."""
 from datetime import timedelta
 
-from django.db.models import Count, Sum, Value, Q
+from django.db.models import Count, Q, Sum, Value
 from django.db.models.functions import Coalesce, ExtractDay
 from django.http import JsonResponse
 from django.utils import timezone
 
-from ..models import Station, StationWorkloadDaily
+from ..models import (
+    DailyClassification,
+    DailyPatientData,
+    Station,
+    StationWorkloadDaily,
+)
 
 
 def get_stations_analysis(frequency: str):
@@ -89,8 +94,37 @@ def get_stations_analysis(frequency: str):
         raise ValueError("Invalid frequency. Use 'daily' or 'monthly'.")
 
 
+def get_missing_classifications_for_station(station_id: int) -> int:
+    """Get number of todays missing classifications for station.
+
+    Args:
+        station_id (int): The ID of the station in the database.
+
+    Returns:
+        int: The number of missing classifications.
+    """
+    today = timezone.now().date()
+    missing_classifications = 0
+
+    patients = (
+        DailyPatientData.objects.filter(station=station_id, date=today)
+        .values_list("patient", flat=True)
+        .distinct()
+    )
+
+    for patient_id in patients:
+        classification = DailyClassification.objects.filter(
+            patient=patient_id, date=today, station=station_id
+        ).first()
+
+        if classification is None:
+            missing_classifications += 1
+
+    return missing_classifications
+
+
 def get_all_stations() -> list:
-    """Get all stations with todays patient count.
+    """Get all stations with todays patient count and missing classifications.
 
     Returns:
         list: Stations.
@@ -106,6 +140,13 @@ def get_all_stations() -> list:
         .values("id", "name", "patientCount")
         .order_by("name")
     )
+
+    stations_list = list(stations)
+
+    for station in stations_list:
+        station_id = station["id"]
+        missing_classifications = get_missing_classifications_for_station(station_id)
+        station["missing_classifications"] = missing_classifications
 
     return list(stations)
 

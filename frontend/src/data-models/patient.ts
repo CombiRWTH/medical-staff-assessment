@@ -1,6 +1,17 @@
+import type { DailyClassificationResult } from '@/data-models/classification'
+
+export type PatientLastClassification = DailyClassificationResult & {
+  date: Date
+}
+
+/**
+ * Data type for a patient
+ */
 export type Patient = {
   id: number,
   name: string,
-  lastClassification?: string,
-  currentBed?: string
+  lastClassification?: PatientLastClassification,
+  missingClassificationsLastWeek?: Date[],
+  currentBed?: string,
+  currentRoom?: string
 }

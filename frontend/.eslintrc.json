@@ -48,6 +48,7 @@
       "arrays": "only-multiline",
       "objects": "only-multiline"
     }],
+    "dot-notation": "off",
     // if a single key requires quotes better quote all keys
     // it would be great if this was also optional additionally, meaning that
     // if one key requires quotes all other keys *can* optionally be quoted as well

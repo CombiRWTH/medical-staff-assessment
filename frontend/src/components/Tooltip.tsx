@@ -5,14 +5,25 @@ type Position = 'top' | 'bottom' | 'left' | 'right'
 
 export type TooltipProps = PropsWithChildren<{
   tooltip: string | ReactNode,
-  className?: string,
+  tooltipClassName?: string,
+  containerClassName?: string,
   position?: Position
 }>
 
+/**
+ * A tool tip component that shows a tooltip when hovered over
+ * @param tooltip The tooltip text
+ * @param children The content on which the tooltip is displayed
+ * @param tooltipClassName Style Overwrite of the tooltip
+ * @param containerClassName Style Overwrite of the container holding both tooltip and content
+ * @param position The direction in which the tooltip is displayed
+ * @constructor
+ */
 export const Tooltip = ({
   tooltip,
   children,
-  className = '',
+  tooltipClassName = '',
+  containerClassName = '',
   position = 'top'
 }: TooltipProps) => {
   const [isVisible, setIsVisible] = useState(false)
@@ -41,7 +52,7 @@ export const Tooltip = ({
 
   return (
     <div
-      className="relative inline-block w-full"
+      className={`relative inline-block w-full ${containerClassName}`}
       onMouseEnter={() => setIsVisible(true)}
       onMouseLeave={() => setIsVisible(false)}
     >
@@ -49,12 +60,14 @@ export const Tooltip = ({
       {isVisible && (
         <div
           className={`absolute z-50 bg-gray-800 text-white text-xs px-3 py-2 rounded shadow-lg whitespace-nowrap
-            ${positionClasses[position]} ${className} animate-fade-in`}
+            ${positionClasses[position]} ${tooltipClassName} animate-fade-in`}
         >
           {tooltip}
-          <div className={`absolute w-0 h-0 z-10 ${triangleClasses[position]}`} style={triangleStyle[position]}/>
+          <div className={`absolute w-0 h-0 z-10 ${triangleClasses[position]} ${isVisible ? '' : 'hidden'}`}
+               style={triangleStyle[position]}/>
         </div>
-      )}
+      )
+      }
     </div>
   )
 }

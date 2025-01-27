@@ -1,12 +1,19 @@
 """Provide questions for the frontend to display and handle the submission of answers."""
-import json
+
 import datetime as datetime
+import json
 from collections import defaultdict
 
 from django.http import JsonResponse
 
-from ..models import (CareServiceOption, DailyClassification,
-                      IsCareServiceUsed, Patient, Station, DailyPatientData)
+from ..models import (
+    CareServiceOption,
+    DailyClassification,
+    DailyPatientData,
+    IsCareServiceUsed,
+    Patient,
+    Station,
+)
 
 
 def add_selected_attribute(care_service_options: list, classification: dict) -> list:
@@ -88,9 +95,6 @@ def get_questions(station_id: int, patient_id: int, date: datetime.date) -> dict
         'is_in_isolation': classification['is_in_isolation'] if classification else False,
         'a_index': classification['a_index'] if classification else 0,
         's_index': classification['s_index'] if classification else 0,
-        'barthel_index': classification['barthel_index'] if classification else 0,
-        'expanded_barthel_index': classification['expanded_barthel_index'] if classification else 0,
-        'mini_mental_status': classification['mini_mental_status'] if classification else 0,
         'admission_date': admission_date,
         'discharge_date': discharge_date,
     }
@@ -123,7 +127,7 @@ def group_questions(questions: list) -> list:
     for field in fields:
         field_name = field[0]["field__name"]
         field_value = {
-            "id": 1,  # TODO not accessible here
+            "id": 1,
             "name": field_name,
             "short": field[0]["field__short"],
             "categories": []
@@ -134,14 +138,21 @@ def group_questions(questions: list) -> list:
         for category in categories:
             category_name = category[0]['category__name']
             category_value = {
-                "id": 1,  # TODO not accessible here
+                "id": 1,
                 "name": category_name,
-                "short": category[0]['category__short'],  # TODO not accessible here
+                "short": category[0]['category__short'],
                 "severities": []
             }
             severities = split_by_attribute(category, "severity")
 
             for severity in severities:
+                # Skip the questions that are not needed
+                if field[0]["field__short"] == 'A' and severity[0]['severity'] == 1:
+                    continue
+                if field[0]["field__short"] == 'S' and severity[0]['severity'] == 1:
+                    continue
+                if field[0]["field__short"] == 'S' and severity[0]['severity'] == 4:
+                    continue
                 severity_index = severity[0]['severity']
                 severity_value = {
                     "severity": severity_index,
@@ -185,11 +196,10 @@ def submit_selected_options(station_id: int, patient_id: int, date: datetime.dat
     Returns:
         JsonResponse: The response containing the calculated minutes, the general and the specific care group.
     """
-    # Create the classification entry if it does not exist
     patient = Patient.objects.get(id=patient_id)
     station = Station.objects.get(id=station_id)
 
-    # Check if the classification already exists
+    # Create "default" dailyClassification if it does not exist
     classification = DailyClassification.objects.filter(
         patient=patient,
         date=date,
@@ -204,11 +214,6 @@ def submit_selected_options(station_id: int, patient_id: int, date: datetime.dat
             a_index=0,
             s_index=0,
             station=station,
-            room_name='Test Raum',
-            bed_number=1,
-            barthel_index=0,
-            expanded_barthel_index=0,
-            mini_mental_status=0,
         )
 
     # Provide an option to update the isolation status
