@@ -19,22 +19,23 @@ def get_should_vs_is_analysis(start: date, end: date) -> list:
             date__lte=end,
         ).order_by('-date').values('date', 'caregivers_total', 'PPBV_suggested_caregivers', 'shift')
 
+        # The number of caregivers needed for that shift will be returned
         data = {
             'station_id': station.id,
             'station_name': station.name,
             'dataset_night': [
                 {
                     'date': entry['date'],
-                    'should': entry['PPBV_suggested_caregivers'] if entry['PPBV_suggested_caregivers'] else 0,
-                    'is': entry['caregivers_total'] if entry['caregivers_total'] else 0
+                    'should': round(entry['PPBV_suggested_caregivers'] * 38.5 / 8, 2) if entry['PPBV_suggested_caregivers'] else 0,
+                    'is': round(entry['caregivers_total'], 2) if entry['caregivers_total'] else 0
                 }
                 for entry in workload if entry['shift'] == 'NIGHT'
             ],
             'dataset_day': [
                 {
                     'date': entry['date'],
-                    'should': entry['PPBV_suggested_caregivers'],
-                    'is': entry['caregivers_total']
+                    'should': round(entry['PPBV_suggested_caregivers'] * 38.5 / 8, 2) if entry['PPBV_suggested_caregivers'] else 0,
+                    'is': round(entry['caregivers_total'], 2)
                 }
                 for entry in workload if entry['shift'] == 'DAY'
             ]
