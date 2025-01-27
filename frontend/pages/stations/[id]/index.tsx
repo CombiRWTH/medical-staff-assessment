@@ -93,9 +93,9 @@ const PatientRow = ({
       onClick={onSelect}
       className="cursor-pointer hover:bg-gray-200 rounded-xl"
     >
-      <td className="rounded-l-xl pl-2 font-semibold">{patient.name}</td>
-      <td className="py-1">{bedRoom(patient)}</td>
-      <td className="py-1">
+      <td className="rounded-l-xl pl-2 pr-4 font-semibold">{patient.name}</td>
+      <td className="py-1 pr-4">{bedRoom(patient)}</td>
+      <td className="py-1 pr-4">
         <LastClassifiedBadge
           classification={classification.result === undefined ? patient.lastClassification : classification.result}
           date={classification.result === undefined ? patient.lastClassification?.date : classification.date}
@@ -108,7 +108,7 @@ const PatientRow = ({
         </strong>
       </td>
       */}
-      <td className="py-1 px-2 min-w-[250px]" onClick={(e) => e.stopPropagation()}>
+      <td className="py-1 pr-4 min-w-[250px]" onClick={(e) => e.stopPropagation()}>
         <div className="flex flex-wrap items-center gap-2">
           <Select
             selected={category1}

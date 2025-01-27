@@ -14,19 +14,21 @@ export const LastClassifiedBadge = ({
   date,
 }: LastClassifiedBadgeProps) => {
   const hasClassification = !!classification && !!date
-  const baseStyle = 'flex flex-row gap-x-2 rounded-xl h-[48px] w-32 text-center px-3 py-2 items-center'
+  const baseStyle = 'flex flex-row gap-x-2 rounded-xl h-[48px] text-center px-3 py-2 items-center justify-between'
+  const classificationBadge = (
+    <div className="bg-white rounded-full px-2 py-1 font-bold">{`A${classification?.category1 ?? '-'}/S${classification?.category2 ?? '-'}`}</div>)
+
   if (!hasClassification) {
     return (
       <div className={`${baseStyle} bg-orange-400/30`}>
         Noch nie
+        {classificationBadge}
       </div>
     )
   }
   const today = Date.now()
   const isToday = today - date.getTime() < 24 * 60 * 60 * 1000
   const isYesterday = today - date.getTime() < 24 * 60 * 60 * 1000 * 2 && !isToday
-  const classificationBadge = (
-    <div className="bg-white rounded-full px-2 py-1 font-bold">{`A${classification?.category1}/S${classification?.category2}`}</div>)
 
   if (isYesterday || isToday) {
     return (
