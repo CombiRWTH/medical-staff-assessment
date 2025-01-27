@@ -309,7 +309,7 @@ export const StationPatientList = () => {
                       </div>
                     </button>
                   </th>
-                  <th className="min-w-[210px]">
+                  <th className="min-w-[200px]">
                     <button onClick={() => setSortingState({
                       ...sortingState,
                       hasClassificationAscending: !sortingState.hasClassificationAscending,
