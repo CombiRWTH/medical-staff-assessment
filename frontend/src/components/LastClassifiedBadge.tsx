@@ -14,9 +14,12 @@ export const LastClassifiedBadge = ({
   date,
 }: LastClassifiedBadgeProps) => {
   const hasClassification = !!classification && !!date
-  const baseStyle = 'flex flex-row gap-x-2 rounded-xl h-[48px] text-center px-3 py-2 items-center justify-between'
+  const baseStyle = 'flex flex-row gap-x-2 rounded-xl h-[48px] max-w-[210px] px-3 py-2 items-center justify-between font-medium'
   const classificationBadge = (
-    <div className="bg-white rounded-full px-2 py-1 font-bold">{`A${classification?.category1 ?? '-'}/S${classification?.category2 ?? '-'}`}</div>)
+    <div className="bg-white rounded-full px-2 py-1 font-bold">
+      {`A${classification?.category1 ?? '-'}/S${classification?.category2 ?? '-'}`}
+    </div>
+  )
 
   if (!hasClassification) {
     return (

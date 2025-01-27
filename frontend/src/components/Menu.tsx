@@ -39,7 +39,8 @@ export const Menu = ({
 }: MenuProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
-  useOutsideClick([ref], () => setIsOpen(false))
+  const menuRef = useRef<HTMLDivElement>(null)
+  useOutsideClick([ref, menuRef], () => setIsOpen(false))
   const [offset, setOffset] = useState({ x: 0, y: 0 })
 
   const bag: PropBag = {
@@ -94,6 +95,7 @@ export const Menu = ({
       {isOpen && (
         createPortal(
           <div
+            ref={menuRef}
             className={`absolute shadow-lg z-30 mt-2 flex flex-col gap-y-2 p-2 rounded-md bg-container ${menuContainerClassName} `}
             style={{
               top: (boundingRect?.y ?? 0) + (boundingRect?.height ?? 0) + offset.y,
