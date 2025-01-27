@@ -42,17 +42,16 @@ export type DailyClassificationOption = {
  * Data type for a classification
  */
 export type DailyClassification = {
-  a_index: number,
-  s_index: number,
-  admission_date: string,
-  discharge_date: string,
-  barthel_index: number,
-  expanded_barthel_index: number,
-  care_time: number,
-  mini_mental_status: number,
-  is_in_isolation: boolean,
+  date: Date,
   careServices: DailyClassificationField[],
+  patientInformation: DailyClassificationPatientInformation,
   result?: DailyClassificationResult
+}
+
+export type DailyClassificationPatientInformation = {
+  isInIsolation: boolean,
+  admissionDate: Date,
+  dischargeDate: Date
 }
 
 /**
