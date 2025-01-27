@@ -68,8 +68,8 @@ const PatientRow = ({
     patient.id,
     today
   )
-  const [category1, setCategory1] = useState(classification?.result?.category1)
-  const [category2, setCategory2] = useState(classification?.result?.category2)
+  const [category1, setCategory1] = useState(patient?.lastClassification?.category1)
+  const [category2, setCategory2] = useState(patient?.lastClassification?.category2)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const hasValidValuesForClassification = category1 !== undefined && category2 !== undefined
@@ -97,8 +97,8 @@ const PatientRow = ({
       <td className="py-1">{bedRoom(patient)}</td>
       <td className="py-1">
         <LastClassifiedBadge
-          classification={classification.result ?? patient.lastClassification}
-          date={classification.date ?? patient.lastClassification?.date}
+          classification={classification.result === undefined ? patient.lastClassification : classification.result}
+          date={classification.result === undefined ? patient.lastClassification?.date : classification.date}
         />
       </td>
       {/*

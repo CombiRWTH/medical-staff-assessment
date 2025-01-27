@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { isSameDay } from 'date-fns'
 import { apiURL } from '@/config'
 import type {
   DailyClassification, DailyClassificationField,
@@ -34,7 +35,6 @@ export const usePatientClassification = (stationId?: number, patientId?: number,
     },
     careServices: [],
   })
-  const [hasMadeInitialLoad, setHasMadeInitialLoad] = useState<boolean>(false)
   const isValid = stationId !== undefined && patientId !== undefined && date !== undefined
   const backendDateString = formatDateBackend(date)
 
@@ -144,12 +144,13 @@ export const usePatientClassification = (stationId?: number, patientId?: number,
     }
   }, [backendDateString, patientId, stationId])
 
+  const differentDay = date !== undefined && !isSameDay(date, classification.date)
+
   useEffect(() => {
-    if (!hasMadeInitialLoad && isValid) {
-      setHasMadeInitialLoad(true)
+    if (isValid) {
       load().then()
     }
-  }, [load, hasMadeInitialLoad, isValid])
+  }, [isValid, differentDay, patientId, stationId]) // reload when any of these change
 
   return {
     classification,
