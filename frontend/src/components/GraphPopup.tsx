@@ -11,6 +11,7 @@ import {
   ResponsiveContainer
 } from 'recharts'
 import { addDays, subDays } from 'date-fns'
+import type { CurveType } from 'recharts/types/shape/Curve'
 import { Tooltip as TooltipCustom } from '@/components/Tooltip'
 import { DatePickerButton } from '@/components/DatePicker/DatePickerButton'
 import { useOutsideClick } from '@/util/hooks/useOutsideClick'
@@ -21,6 +22,7 @@ interface ComparisonGraphProps {
   onDateChange: (date: Date) => void,
   dates: Date[]
 }
+
 /*
   The ComparisonGraph component is a popup that displays a comparison graph of the data provided.
   It uses the recharts library to display the data in a line chart. The data is processed to
@@ -60,6 +62,13 @@ export const ComparisonGraph = ({
       }
     ]
   }, [])
+
+  const lineProps = {
+    type: 'monotone' as CurveType,
+    dot: { r: 4 },
+    activeDot: { r: 7 },
+    strokeWidth: 4,
+  }
 
   return (
     <>
@@ -141,32 +150,28 @@ export const ComparisonGraph = ({
                   <Tooltip/>
                   <Legend/>
                   <Line
-                    type="monotone"
+                    {...lineProps}
                     dataKey="dayIs"
                     name="Tag (Ist)"
                     stroke="#8884d8"
-                    activeDot={{ r: 8 }}
                   />
                   <Line
-                    type="monotone"
+                    {...lineProps}
                     dataKey="dayShould"
                     name="Tag (Sollte)"
                     stroke="#82ca9d"
-                    activeDot={{ r: 8 }}
                   />
                   <Line
-                    type="monotone"
+                    {...lineProps}
                     dataKey="nightIs"
                     name="Nacht (Ist)"
                     stroke="#ffc658"
-                    activeDot={{ r: 8 }}
                   />
                   <Line
-                    type="monotone"
+                    {...lineProps}
                     dataKey="nightShould"
                     name="Nacht (Sollte)"
                     stroke="#ff7300"
-                    activeDot={{ r: 8 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
