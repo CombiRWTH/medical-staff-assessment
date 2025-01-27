@@ -6,7 +6,7 @@ export type AnalysisFrequency = 'daily' | 'monthly'
 
 /**
  * Hook for loading analysis data
- * @param frequency
+ * @param frequency - load daily or monthly data for the stations
  */
 export const useAnalysisAPI = (frequency: AnalysisFrequency) => {
   const [dataDaily, setDataDaily] = useState<StationDaily[]>([])
