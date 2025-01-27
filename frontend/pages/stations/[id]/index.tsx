@@ -323,10 +323,10 @@ export const StationPatientList = () => {
                     </button>
                   </th>
                   { /*
-                <th className="min-w-[110px]">
-                  <span className="text-lg">Kategorien</span>
-                </th>
-                */}
+                    <th className="min-w-[110px]">
+                      <span className="text-lg">Kategorien</span>
+                    </th>
+                  */}
                   <th className="min-w-[320px]">
                     <span className="text-lg">Klassifikation setzen</span>
                   </th>

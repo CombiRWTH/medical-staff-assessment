@@ -97,7 +97,7 @@ export const PatientClassification = () => {
                 {nextUnclassifiedPatient ? (
                   <a href={`/stations/${id}/${nextUnclassifiedPatient.id}/${formatDateFrontendURL(date)}`}>
                     <button className="flex flex-row gap-x-2 items-center">
-                      Nächsten Patienten<ArrowRight size={20}/>
+                      Nächster Patient<ArrowRight size={20}/>
                     </button>
                   </a>
                 ) : (
@@ -183,7 +183,7 @@ export const PatientClassification = () => {
           </div>
           <div className="bg-primary/30 rounded-2xl px-4 py-2 flex flex-col justify-between flex-1">
             <div className="flex flex-row gap-x-4 justify-between">
-              <h2 className="font-bold text-xl">Ergebnis:</h2>
+              <h2 className="font-bold text-xl">Ergebnis</h2>
               <button
                 className="flex flex-row gap-x-1 button-full-primary px-2 py-1 items-center"
                 onClick={() => addClassification(1, 1)}
@@ -193,14 +193,14 @@ export const PatientClassification = () => {
               </button>
             </div>
             <div className="flex flex-row items-center gap-x-2 justify-between">
-              Kategorie:
+              Kategorie
               <strong className="bg-white rounded-full px-2 py-1">
                 { /* TODO fix hardcoding of A and S  */}
                 A{classification?.result?.category1 ?? '-'}/S{classification?.result?.category2 ?? '-'}
               </strong>
             </div>
             <div className="flex flex-row items-center gap-x-2 justify-between">
-              Minutenzahl:
+              Minutenzahl
               <strong className="bg-white rounded-full px-2 py-1">
                 {classification?.result?.minutes ?? 0}min
               </strong>
