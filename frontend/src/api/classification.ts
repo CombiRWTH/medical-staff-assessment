@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
+import { isSameDay } from 'date-fns'
 import { apiURL } from '@/config'
-import type { DailyClassification, DailyClassificationResult } from '@/data-models/classification'
+import type {
+  DailyClassification, DailyClassificationField,
+  DailyClassificationPatientInformation,
+  DailyClassificationResult
+} from '@/data-models/classification'
 import { getCookie } from '@/util/getCookie'
+import { formatDateBackend, parseDateString } from '@/util/date'
 
 type QuestionUpdate = {
   id: number,
@@ -9,7 +15,7 @@ type QuestionUpdate = {
 }
 
 type UpdateType = {
-  questionUpdates?: QuestionUpdate,
+  questionUpdate?: QuestionUpdate,
   isolationUpdate?: boolean
 }
 
@@ -19,27 +25,57 @@ type UpdateType = {
  * @param patientId
  * @param date
  */
-export const usePatientClassification = (stationId?: number, patientId?: number, date?: string) => {
+export const usePatientClassification = (stationId?: number, patientId?: number, date?: Date) => {
   const [classification, setClassification] = useState<DailyClassification>({
-    is_in_isolation: false,
+    date: date ?? new Date(),
+    patientInformation: {
+      dischargeDate: new Date(),
+      admissionDate: new Date(),
+      isInIsolation: false,
+    },
     careServices: [],
-    discharge_date: '',
-    admission_date: '',
-    a_index: 0,
-    s_index: 0,
-    barthel_index: 0,
-    expanded_barthel_index: 0,
-    care_time: 0,
-    mini_mental_status: 0,
   })
+  const isValid = stationId !== undefined && patientId !== undefined && date !== undefined
+  const backendDateString = formatDateBackend(date)
 
-  const loadResult = useCallback(async () => {
-    if (!stationId || !patientId || !date) {
+  const parseAsDailyClassification = useCallback((response: any): DailyClassification => {
+    if (!date) {
+      throw new Error('Invalid date')
+    }
+    const result: DailyClassificationResult | undefined = response['care_time'] === 0 ? undefined : {
+      category1: response['a_index'],
+      category2: response['s_index'],
+      minutes: response['care_time'],
+    }
+    const patientInformation: DailyClassificationPatientInformation = {
+      dischargeDate: parseDateString(response['discharge_date']),
+      admissionDate: parseDateString(response['admission_date']),
+      isInIsolation: response['is_in_isolation'],
+    }
+    const careServices: DailyClassificationField[] = response['careServices'] as DailyClassificationField[]
+    return {
+      date,
+      careServices,
+      patientInformation,
+      result
+    }
+  }, [date])
+
+  const load = useCallback(async () => {
+    if (!isValid) {
       return
     }
-
     try {
-      const result = await (await fetch(`${apiURL}/calculate/${stationId}/${patientId}/${date}/`)).json()
+      const response = await (await fetch(`${apiURL}/questions/${stationId}/${patientId}/${backendDateString}/`)).json()
+      setClassification(parseAsDailyClassification(response))
+    } catch (e) {
+      console.error(e)
+    }
+  }, [backendDateString, isValid, parseAsDailyClassification, patientId, stationId])
+
+  const calculate = useCallback(async () => {
+    try {
+      const result = await (await fetch(`${apiURL}/calculate/${stationId}/${patientId}/${backendDateString}/`)).json()
       const dailyClassificationResult: DailyClassificationResult | undefined = result['error'] === undefined ? result as DailyClassificationResult : undefined
 
       setClassification(prevState => ({
@@ -49,38 +85,22 @@ export const usePatientClassification = (stationId?: number, patientId?: number,
     } catch (e) {
       console.error(e)
     }
-  }, [stationId, patientId, date])
-
-  const load = useCallback(async () => {
-    if (!stationId || !patientId || !date) {
-      return
-    }
-    try {
-      const response = await (await fetch(`${apiURL}/questions/${stationId}/${patientId}/${date}/`)).json()
-      setClassification(prevState => ({
-        ...response as DailyClassification,
-        result: prevState.result
-      }))
-      await loadResult()
-    } catch (e) {
-      console.error(e)
-    }
-  }, [date, loadResult, patientId, stationId])
+  }, [backendDateString, patientId, stationId])
 
   const update = useCallback(async (update: UpdateType) => {
     if (!stationId || !patientId || !date) {
       return
     }
     let body: Record<string, unknown> = {}
-    if (update.questionUpdates !== undefined) {
-      body = update.questionUpdates
+    if (update.questionUpdate !== undefined) {
+      body = update.questionUpdate
     }
     if (update.isolationUpdate !== undefined) {
       body.is_in_isolation = update.isolationUpdate
     }
 
     try {
-      const response = await (await fetch(`${apiURL}/questions/${stationId}/${patientId}/${date}/`, {
+      const response = await (await fetch(`${apiURL}/questions/${stationId}/${patientId}/${backendDateString}/`, {
         method: 'PUT',
         // TODO fix the header in production
         headers: {
@@ -90,26 +110,54 @@ export const usePatientClassification = (stationId?: number, patientId?: number,
         body: JSON.stringify(body),
         credentials: 'include'
       })).json()
-      setClassification(prevState => ({
-        ...response as DailyClassification,
-        result: prevState.result
-      }))
-      await loadResult()
+      setClassification(parseAsDailyClassification(response))
+      await calculate() // Needed to overwrite and create calculated results
     } catch (e) {
       console.error(e)
       await load()
     }
-  }, [date, load, loadResult, patientId, stationId])
+  }, [backendDateString, calculate, date, load, parseAsDailyClassification, patientId, stationId])
+
+  const updateDirect = useCallback(async (category1: number, category2: number) => {
+    try {
+      const response = await (await fetch(`${apiURL}/calculate_direct/${stationId}/${patientId}/${backendDateString}/${category1}/${category2}/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken') ?? '',
+        },
+        credentials: 'include'
+      })).json()
+      setClassification(prevState => ({
+        ...prevState,
+        result: {
+          minutes: response['minutes'],
+          // TODO backend should return this an int so now parsing should be needed
+          category1: parseInt(response['category1']),
+          category2: parseInt(response['category2']),
+        }
+      }))
+      return true
+    } catch (error) {
+      console.error('Failed to add classification:', error)
+      return false
+    }
+  }, [backendDateString, patientId, stationId])
+
+  const differentDay = date !== undefined && !isSameDay(date, classification.date)
 
   useEffect(() => {
-    load().then()
-  }, [load])
+    if (isValid) {
+      load().then()
+    }
+  }, [isValid, differentDay, patientId, stationId]) // reload when any of these change
 
   return {
     classification,
     options: classification.careServices,
     result: classification.result,
     reload: load,
+    addClassification: updateDirect,
     update
   }
 }

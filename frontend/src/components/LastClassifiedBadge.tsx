@@ -1,31 +1,34 @@
-import { formatDateFrontendURL } from '@/util/date'
-import type { PatientLastClassification } from '@/data-models/patient'
+import { formatDateVisual } from '@/util/date'
+import type { DailyClassificationResult } from '@/data-models/classification'
 
 export type LastClassifiedBadgeProps = {
-  classification?: PatientLastClassification
+  classification?: DailyClassificationResult,
+  date?: Date
 }
 
 /**
  * A Badge showing when a patient was last classified
- * @param date The date of the last classification, if undefined assume no classification exists
  */
 export const LastClassifiedBadge = ({
-  classification
+  classification,
+  date,
 }: LastClassifiedBadgeProps) => {
-  const hasClassification = !!classification
-  const baseStyle = 'flex flex-row gap-x-2 rounded-xl text-center px-3 py-2 items-center w-min whitespace-nowrap'
+  const hasClassification = !!classification && !!date
+  const baseStyle = 'flex flex-row gap-x-2 rounded-xl h-[48px] text-center px-3 py-2 items-center justify-between'
+  const classificationBadge = (
+    <div className="bg-white rounded-full px-2 py-1 font-bold">{`A${classification?.category1 ?? '-'}/S${classification?.category2 ?? '-'}`}</div>)
+
   if (!hasClassification) {
     return (
       <div className={`${baseStyle} bg-orange-400/30`}>
         Noch nie
+        {classificationBadge}
       </div>
     )
   }
   const today = Date.now()
-  const isToday = today - classification.date.getTime() < 24 * 60 * 60 * 1000
-  const isYesterday = today - classification.date.getTime() < 24 * 60 * 60 * 1000 * 2 && !isToday
-  const classificationBadge = (
-    <div className="bg-white rounded-full px-2 py-1 font-bold">{`A${classification?.category1}/S${classification?.category2}`}</div>)
+  const isToday = today - date.getTime() < 24 * 60 * 60 * 1000
+  const isYesterday = today - date.getTime() < 24 * 60 * 60 * 1000 * 2 && !isToday
 
   if (isYesterday || isToday) {
     return (
@@ -37,7 +40,7 @@ export const LastClassifiedBadge = ({
   }
   return (
     <div className={`${baseStyle} bg-orange-400/30`}>
-      {formatDateFrontendURL(classification.date)}
+      {formatDateVisual(date)}
       {classificationBadge}
     </div>
   )
