@@ -39,7 +39,7 @@ def get_should_vs_is_analysis(start: date, end: date) -> list:
                     'should': round(
                         entry['PPBV_suggested_caregivers'] * 38.5 / 8, 2
                     ) if entry['PPBV_suggested_caregivers'] else 0,
-                    'is': round(entry['caregivers_total'], 2)
+                    'is': round(entry['caregivers_total'], 2) if entry['caregivers_total'] else 0
                 }
                 for entry in workload if entry['shift'] == 'DAY'
             ]
