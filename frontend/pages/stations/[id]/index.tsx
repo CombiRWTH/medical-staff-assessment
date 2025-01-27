@@ -281,7 +281,7 @@ export const StationPatientList = () => {
             )}
           </div>
           <div className="w-full overflow-x-hidden">
-            <div className="overflow-x-auto overflow-y-visible pb-[210px]">
+            <div className="overflow-x-auto">
               <table className="w-full table-auto border-collapse">
                 <thead>
                 <tr className="text-left">
