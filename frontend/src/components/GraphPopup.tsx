@@ -85,7 +85,7 @@ export const ComparisonGraph = ({
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-20">
           <div ref={ref} className="bg-white rounded-lg p-6 w-full max-w-4xl mx-4">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Stationsvergleich - Ist- vs Soll-Werte</h2>
+              <h2 className="text-xl font-bold">{'Vollzeitäquivalente: Ist- vs. Soll-Werte'}</h2>
               <div className="flex flex-row items-center gap-x-4">
                 <div className="flex flex-row gap-x-2 items-center flex-1 justify-center">
                   <button
@@ -158,7 +158,7 @@ export const ComparisonGraph = ({
                   <Line
                     {...lineProps}
                     dataKey="dayShould"
-                    name="Tag (Sollte)"
+                    name="Tag (Soll)"
                     stroke="#82ca9d"
                   />
                   <Line
@@ -170,7 +170,7 @@ export const ComparisonGraph = ({
                   <Line
                     {...lineProps}
                     dataKey="nightShould"
-                    name="Nacht (Sollte)"
+                    name="Nacht (Soll)"
                     stroke="#ff7300"
                   />
                 </LineChart>
