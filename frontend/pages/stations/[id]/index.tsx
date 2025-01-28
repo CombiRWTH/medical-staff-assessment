@@ -68,8 +68,8 @@ const PatientRow = ({
     patient.id,
     today
   )
-  const [category1, setCategory1] = useState(patient?.lastClassification?.category1)
-  const [category2, setCategory2] = useState(patient?.lastClassification?.category2)
+  const [category1, setCategory1] = useState(classification?.result?.category1)
+  const [category2, setCategory2] = useState(classification?.result?.category2)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const hasValidValuesForClassification = category1 !== undefined && category2 !== undefined
@@ -101,13 +101,6 @@ const PatientRow = ({
           date={classification.result === undefined ? patient.lastClassification?.date : classification.date}
         />
       </td>
-      {/*
-        <td>
-        <strong className="bg-white rounded-full px-2 py-1">
-          A{classification?.result?.category1 ?? '-'}/S{classification?.result?.category2 ?? '-'}
-        </strong>
-      </td>
-      */}
       <td className="py-1 pr-4 min-w-[250px]" onClick={(e) => e.stopPropagation()}>
         <div className="flex flex-wrap items-center gap-2">
           <Select
@@ -185,8 +178,10 @@ export const StationPatientList = () => {
       const locationCompare = bedRoom(a).localeCompare(bedRoom(b)) * (sortingState.hasLocationAscending ? 1 : -1)
       if (!!a.lastClassification && !!b.lastClassification) {
         classificationCompare = classificationCompare * (a.lastClassification.date.getTime() - b.lastClassification.date.getTime())
+      } else if (a.lastClassification) {
+        classificationCompare = sortingState.hasClassificationAscending ? -1 : 1
       } else if (b.lastClassification) {
-        classificationCompare *= -1
+        classificationCompare = sortingState.hasClassificationAscending ? 1 : -1
       }
 
       for (const sortingType of sortingState.last) {
@@ -322,11 +317,6 @@ export const StationPatientList = () => {
                       </div>
                     </button>
                   </th>
-                  { /*
-                    <th className="min-w-[110px]">
-                      <span className="text-lg">Kategorien</span>
-                    </th>
-                  */}
                   <th className="min-w-[320px]">
                     <span className="text-lg">Klassifikation setzen</span>
                   </th>
