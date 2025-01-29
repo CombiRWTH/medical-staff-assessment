@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import sys
 from pathlib import Path
 from decouple import config
 
@@ -92,12 +92,22 @@ DATABASES = {
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST'),
         'PORT': config('DB_PORT'),
+        "TEST": {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': "TESTDB"
+        }
     } if config("DB_HOST") else
     {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / config('DB_NAME'),
     }
 }
+
+if 'test' in sys.argv:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'testdatabase'
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

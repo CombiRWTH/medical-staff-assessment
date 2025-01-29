@@ -9,7 +9,7 @@ function MyApp({
   return (
     <>
       <Head>
-        <title>Personalbedarfsplanung</title>
+        <title>CarePlanner</title>
       </Head>
       <Component {...pageProps} />
     </>

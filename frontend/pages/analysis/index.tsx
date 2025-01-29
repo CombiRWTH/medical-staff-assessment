@@ -183,7 +183,7 @@ export const AnalysisPage: NextPage = () => {
                     className={`flex flex-row gap-x-2 items-center ${isDisabled ? 'button-full-disabled' : 'button-full-primary'}`}
                     onClick={toggleOpen} disabled={isDisabled}>
                     <Download size={24}/>
-                    Hochladen
+                    Importieren
                   </button>
                 )}
                 isDisabled={isUploading}
