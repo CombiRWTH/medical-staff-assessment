@@ -35863,5 +35863,194 @@
       "suggested_caregivers_avg": 8.4,
       "minutes_total": 12041
     }
+  },
+  {
+    "model": "backend.DailyPatientData",
+    "pk": 5000,
+    "fields": {
+      "patient": 30,
+      "station": 1,
+      "date": "2025-01-30",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2025-01-05T00:00:00Z",
+      "day_of_discharge": "2025-02-03T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": true,
+      "day_stay": true,
+      "room_name": "Room 3",
+      "bed_number": "4",
+      "barthel_index": 13,
+      "expanded_barthel_index": 53,
+      "mini_mental_status": 0
+    }
+  },
+  {
+    "model": "backend.DailyPatientData",
+    "pk": 5001,
+    "fields": {
+      "patient": 31,
+      "station": 1,
+      "date": "2025-01-30",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2025-01-05T00:00:00Z",
+      "day_of_discharge": "2025-02-03T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": true,
+      "day_stay": true,
+      "room_name": "Room 3",
+      "bed_number": "4",
+      "barthel_index": 13,
+      "expanded_barthel_index": 53,
+      "mini_mental_status": 0
+    }
+  },
+  {
+    "model": "backend.DailyPatientData",
+    "pk": 5002,
+    "fields": {
+      "patient": 32,
+      "station": 1,
+      "date": "2025-01-30",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2025-01-05T00:00:00Z",
+      "day_of_discharge": "2025-02-03T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": true,
+      "day_stay": true,
+      "room_name": "Room 3",
+      "bed_number": "4",
+      "barthel_index": 13,
+      "expanded_barthel_index": 53,
+      "mini_mental_status": 0
+    }
+  },
+  {
+    "model": "backend.DailyPatientData",
+    "pk": 5003,
+    "fields": {
+      "patient": 33,
+      "station": 1,
+      "date": "2025-01-30",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2025-01-05T00:00:00Z",
+      "day_of_discharge": "2025-02-03T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": true,
+      "day_stay": true,
+      "room_name": "Room 3",
+      "bed_number": "4",
+      "barthel_index": 13,
+      "expanded_barthel_index": 53,
+      "mini_mental_status": 0
+    }
+  },
+  {
+    "model": "backend.DailyPatientData",
+    "pk": 5004,
+    "fields": {
+      "patient": 34,
+      "station": 1,
+      "date": "2025-01-30",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2025-01-05T00:00:00Z",
+      "day_of_discharge": "2025-02-03T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": true,
+      "day_stay": true,
+      "room_name": "Room 3",
+      "bed_number": "4",
+      "barthel_index": 13,
+      "expanded_barthel_index": 53,
+      "mini_mental_status": 0
+    }
+  },
+  {
+    "model": "backend.DailyPatientData",
+    "pk": 5005,
+    "fields": {
+      "patient": 35,
+      "station": 1,
+      "date": "2025-01-30",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2025-01-05T00:00:00Z",
+      "day_of_discharge": "2025-02-03T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": true,
+      "day_stay": true,
+      "room_name": "Room 3",
+      "bed_number": "4",
+      "barthel_index": 13,
+      "expanded_barthel_index": 53,
+      "mini_mental_status": 0
+    }
+  },
+  {
+    "model": "backend.DailyPatientData",
+    "pk": 5006,
+    "fields": {
+      "patient": 36,
+      "station": 1,
+      "date": "2025-01-30",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2025-01-05T00:00:00Z",
+      "day_of_discharge": "2025-02-03T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": true,
+      "day_stay": true,
+      "room_name": "Room 3",
+      "bed_number": "4",
+      "barthel_index": 13,
+      "expanded_barthel_index": 53,
+      "mini_mental_status": 0
+    }
+  },
+  {
+    "model": "backend.DailyPatientData",
+    "pk": 5007,
+    "fields": {
+      "patient": 37,
+      "station": 1,
+      "date": "2025-01-30",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2025-01-05T00:00:00Z",
+      "day_of_discharge": "2025-02-03T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": true,
+      "day_stay": true,
+      "room_name": "Room 3",
+      "bed_number": "4",
+      "barthel_index": 13,
+      "expanded_barthel_index": 53,
+      "mini_mental_status": 0
+    }
+  },
+  {
+    "model": "backend.DailyPatientData",
+    "pk": 5008,
+    "fields": {
+      "patient": 38,
+      "station": 1,
+      "date": "2025-01-30",
+      "is_semi_stationary": false,
+      "is_fully_stationary": true,
+      "day_of_admission": "2025-01-05T00:00:00Z",
+      "day_of_discharge": "2025-02-03T00:00:00Z",
+      "is_repeating_visit": false,
+      "night_stay": true,
+      "day_stay": true,
+      "room_name": "Room 3",
+      "bed_number": "4",
+      "barthel_index": 13,
+      "expanded_barthel_index": 53,
+      "mini_mental_status": 0
+    }
   }
 ]

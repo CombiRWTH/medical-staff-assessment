@@ -230,5 +230,77 @@
       "first_name": "Ole",
       "last_name": "Allen"
     }
+  },
+  {
+    "model": "backend.Patient",
+    "pk": 30,
+    "fields": {
+      "first_name": "Neil",
+      "last_name": "Armstrong"
+    }
+  },
+  {
+    "model": "backend.Patient",
+    "pk": 31,
+    "fields": {
+      "first_name": "Buzz",
+      "last_name": "Aldrin"
+    }
+  },
+  {
+    "model": "backend.Patient",
+    "pk": 32,
+    "fields": {
+      "first_name": "Yuri",
+      "last_name": "Gagarin"
+    }
+  },
+  {
+    "model": "backend.Patient",
+    "pk": 33,
+    "fields": {
+      "first_name": "Sally",
+      "last_name": "Ride"
+    }
+  },
+  {
+    "model": "backend.Patient",
+    "pk": 34,
+    "fields": {
+      "first_name": "John",
+      "last_name": "Glenn"
+    }
+  },
+  {
+    "model": "backend.Patient",
+    "pk": 35,
+    "fields": {
+      "first_name": "Chris",
+      "last_name": "Hadfield"
+    }
+  },
+  {
+    "model": "backend.Patient",
+    "pk": 36,
+    "fields": {
+      "first_name": "Valentina",
+      "last_name": "Tereshkova"
+    }
+  },
+  {
+    "model": "backend.Patient",
+    "pk": 37,
+    "fields": {
+      "first_name": "Alan",
+      "last_name": "Shepard"
+    }
+  },
+  {
+    "model": "backend.Patient",
+    "pk": 38,
+    "fields": {
+      "first_name": "Mae",
+      "last_name": "Jemison"
+    }
   }
 ]
