@@ -5,7 +5,7 @@ class MyDocument extends Document {
     return (
       <Html>
         <Head>
-          <meta name="og:title" property="og:title" content="CarePlanner"/>
+          <meta name="og:title" property="og:title" content="CareTracker"/>
           <link rel="icon" href="/favicon.png"/>
         </Head>
         <body>
