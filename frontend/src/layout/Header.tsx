@@ -9,7 +9,7 @@ export const DefaultHeaderStart = () => {
   return (
     <Link className="flex flex-row gap-x-2 items-center" href="/">
       <Image alt="logo" src="/favicon.png" width={64} height={64} className="min-w-[64px] min-h-[64px]"/>
-      <span className="font-bold text-3xl">CarePlanner</span>
+      <span className="font-bold text-3xl">CareTracker</span>
     </Link>
   )
 }
