@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { ChevronDown, ChevronUp, Info } from 'lucide-react'
-import { range } from '@/util/range'
+import { range } from '@/util/array'
 import type {
   DailyClassificationCategory,
   DailyClassificationField,
@@ -140,7 +140,7 @@ export const ClassificationCard = ({
           onClick={() => setOnlySelected(!onlySelected)}
           className="px-2 py-1 rounded-lg border-2 border-primary hover:border-primary/80"
         >
-          {onlySelected ? 'Alle Anzeigen' : 'Nur zutreffende anzeigen'}
+          {onlySelected ? 'Ausklappen' : 'Nur zutreffende anzeigen'}
         </button>
       </div>
       <table className="table-fixed w-full border-separate border-2 border-black rounded-xl border-spacing-0">

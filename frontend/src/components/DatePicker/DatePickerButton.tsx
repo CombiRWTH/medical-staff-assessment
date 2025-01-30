@@ -7,11 +7,14 @@ import { tailwindCombine } from '@/util/tailwind'
 import { useOutsideClick } from '@/util/hooks/useOutsideClick'
 
 export type DatePickerButtonProps = Omit<DatePickerProps, 'yearMonth'> & {
+  /**
+   * The date that determines the year and month that are displayed first
+   */
   date: Date
 }
 
 /**
- * A component for showing days of a month with events
+ * A component for picking a date while showing days of a month with events
  */
 export const DatePickerButton = ({
   date = new Date(),

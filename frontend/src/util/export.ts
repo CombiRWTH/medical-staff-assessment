@@ -1,29 +1,41 @@
 import ExcelJS from 'exceljs'
+import { formatDateFull } from '@/util/date'
 
+/**
+ * Data type for Station daily data
+ */
 export type StationDaily = {
+  /** The identifier of the Station */
   id: number,
+  /** The name of the Station */
   name: string,
+  /** The minutes of work for the Station */
   minutes: number
 }
 
+/**
+ * Data type for Station monthly data
+ */
 export type StationMonthly = {
+  /** The identifier of the Station */
   id: number,
+  /** The name of the Station */
   name: string,
+  /**
+   * The monthly date by date
+   */
   data: { day: number, minutes: number }[],
+  /**
+   * Sum of all minutes
+   */
   sum: number
 }
 
-const getFormattedDate = (): string => {
-  const now = new Date()
-  const day = String(now.getDate()).padStart(2, '0')
-  const month = String(now.getMonth() + 1).padStart(2, '0')
-  const year = now.getFullYear()
-  const hours = String(now.getHours()).padStart(2, '0')
-  const minutes = String(now.getMinutes()).padStart(2, '0')
-
-  return `${day}-${month}-${year}-${hours}:${minutes}`
-}
-
+/**
+ * Saves the data to an Excel file
+ * @param buffer The data to save
+ * @param fileName The file name to use
+ */
 export const saveAsExcelFile = (buffer: ArrayBuffer, fileName: string): void => {
   const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
   const url = URL.createObjectURL(blob)
@@ -38,20 +50,40 @@ export const saveAsExcelFile = (buffer: ArrayBuffer, fileName: string): void => 
   URL.revokeObjectURL(url)
 }
 
+/**
+ * Exports the daily Station data to an Excel file
+ * @param stations The stations to use
+ */
 export const exportDailyAnalysis = async (stations: StationDaily[]): Promise<void> => {
   const workbook = new ExcelJS.Workbook()
   const worksheet = workbook.addWorksheet('Analyse')
 
   worksheet.columns = [
-    { header: 'ID', key: 'id', width: 10 },
-    { header: 'Name', key: 'name', width: 30 },
-    { header: 'Minuten', key: 'minutes', width: 15 }
+    {
+      header: 'ID',
+      key: 'id',
+      width: 10
+    },
+    {
+      header: 'Name',
+      key: 'name',
+      width: 30
+    },
+    {
+      header: 'Minuten',
+      key: 'minutes',
+      width: 15
+    }
   ]
 
   const totalSum = stations.reduce((total, station) => total + station.minutes, 0)
 
   stations.forEach((station) => {
-    worksheet.addRow({ id: station.id, name: station.name, minutes: station.minutes })
+    worksheet.addRow({
+      id: station.id,
+      name: station.name,
+      minutes: station.minutes
+    })
   })
 
   const totalRow = worksheet.addRow({
@@ -61,7 +93,10 @@ export const exportDailyAnalysis = async (stations: StationDaily[]): Promise<voi
   })
 
   totalRow.eachCell((cell) => {
-    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }
+    cell.font = {
+      bold: true,
+      color: { argb: 'FFFFFFFF' }
+    }
     cell.fill = {
       type: 'pattern',
       pattern: 'solid',
@@ -70,18 +105,38 @@ export const exportDailyAnalysis = async (stations: StationDaily[]): Promise<voi
   })
 
   const buffer = await workbook.xlsx.writeBuffer()
-  saveAsExcelFile(buffer, `${getFormattedDate()}_Tägliche_Analyse.xlsx`)
+  saveAsExcelFile(buffer, `${formatDateFull(new Date())}_Tägliche_Analyse.xlsx`)
 }
 
+/**
+ * Exports the monthly Station data to an Excel file
+ * @param stations The stations to use
+ */
 export const exportMonthlyAnalysis = async (stations: StationMonthly[]): Promise<void> => {
   const workbook = new ExcelJS.Workbook()
   const worksheet = workbook.addWorksheet('Analyse')
 
   worksheet.columns = [
-    { header: 'ID', key: 'id', width: 10 },
-    { header: 'Name', key: 'name', width: 30 },
-    { header: 'Tag', key: 'day', width: 10 },
-    { header: 'Minuten', key: 'minutes', width: 15 }
+    {
+      header: 'ID',
+      key: 'id',
+      width: 10
+    },
+    {
+      header: 'Name',
+      key: 'name',
+      width: 30
+    },
+    {
+      header: 'Tag',
+      key: 'day',
+      width: 10
+    },
+    {
+      header: 'Minuten',
+      key: 'minutes',
+      width: 15
+    }
   ]
 
   const totalSum = stations.reduce((total, station) => total + station.sum, 0)
@@ -123,7 +178,10 @@ export const exportMonthlyAnalysis = async (stations: StationMonthly[]): Promise
   })
 
   totalRow.eachCell((cell) => {
-    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }
+    cell.font = {
+      bold: true,
+      color: { argb: 'FFFFFFFF' }
+    }
     cell.fill = {
       type: 'pattern',
       pattern: 'solid',
@@ -133,5 +191,5 @@ export const exportMonthlyAnalysis = async (stations: StationMonthly[]): Promise
 
   // Generate the Excel file and trigger download
   const buffer = await workbook.xlsx.writeBuffer()
-  saveAsExcelFile(buffer, `${getFormattedDate()}_Monatliche_Analyse.xlsx`)
+  saveAsExcelFile(buffer, `${formatDateFull(new Date())}_Monatliche_Analyse.xlsx`)
 }

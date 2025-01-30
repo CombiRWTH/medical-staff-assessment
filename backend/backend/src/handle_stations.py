@@ -18,7 +18,7 @@ def get_stations_analysis(frequency: str):
     """Get station workload analysis based on frequency.
 
     Args:
-        frequency (str): The frequency for the analysis, 'daily' or 'monthly'.
+        frequency (str): The frequency for the analysis, 'daily', 'monthly' or 'quarterly'.
 
     Returns:
         list: A list of station workload data.
@@ -33,6 +33,8 @@ def get_stations_analysis(frequency: str):
             .values('station__id', 'station__name', 'date')
             .annotate(minutes=Sum('minutes_total'))
         )
+        if len(daily_workload) == 0:
+            return []
         return [
             {
                 "id": item['station__id'],
@@ -88,8 +90,54 @@ def get_stations_analysis(frequency: str):
         }
         return list(stations.values())
 
+    elif frequency == "quarterly":
+        # Calculate the current quarter's date range
+        today = timezone.now()
+        start_month = today.replace(day=1) - timedelta(days=32)
+        start_date = start_month.replace(day=1)
+        next_month = (today.replace(day=28) + timedelta(days=4)).replace(day=1)
+        end_date = next_month - timedelta(days=1)
+
+        # Query daily data for the current quater
+        daily_data = (
+            StationWorkloadDaily.objects
+            .filter(date__gte=start_date, date__lte=end_date)
+            .annotate(day=ExtractDay('date'))
+            .values('station__id', 'station__name', 'day')
+            .annotate(minutes=Coalesce(Sum('minutes_total'), Value(0)))
+            .order_by('station__id', 'day')
+        )
+
+        # Structure the data for the desired output
+        stations = {}
+        total_sum = 0
+        for item in daily_data:
+            station_id = item['station__id']
+            if station_id not in stations:
+                stations[station_id] = {
+                    "id": station_id,
+                    "name": item['station__name'],
+                    "sum": 0,
+                    "data": []
+                }
+            stations[station_id]["data"].append({
+                "day": item['day'],
+                "minutes": item['minutes']
+            })
+            stations[station_id]["sum"] += item['minutes']
+            total_sum += item['minutes']
+
+        # Add one entry for the sum over all stations
+        stations["total"] = {
+            "id": "",
+            "name": "",
+            "sum": total_sum,
+            "data": []
+        }
+        return list(stations.values())
+
     else:
-        raise ValueError("Invalid frequency. Use 'daily' or 'monthly'.")
+        raise ValueError("Invalid frequency. Use 'daily', 'monthly' or 'quarterly'.")
 
 
 def get_missing_classifications_for_station(station_id: int) -> int:

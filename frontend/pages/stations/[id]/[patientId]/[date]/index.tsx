@@ -1,9 +1,9 @@
 import { useRouter } from 'next/router'
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowRight, Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import { addDays, isSameDay, subDays } from 'date-fns'
 import Link from 'next/link'
-import { DefaultHeader, Header } from '@/layout/Header'
+import { DefaultHeaderStart, Header } from '@/layout/Header'
 import { Page } from '@/layout/Page'
 import { useStationsAPI } from '@/api/stations'
 import { usePatientsAPI } from '@/api/patients'
@@ -12,10 +12,8 @@ import { ClassificationCard } from '@/components/ClassificationCard'
 import { usePatientClassification } from '@/api/classification'
 import { Tooltip } from '@/components/Tooltip'
 import {
-  formatDateBackend,
   formatDateFrontendURL,
   formatDateVisual,
-  parseDateString,
   parseDateStringFrontend
 } from '@/util/date'
 import { DatePickerButton } from '@/components/DatePicker/DatePickerButton'
@@ -28,7 +26,7 @@ export const PatientClassification = () => {
   const dateString: string = (router.query.date as string | undefined) ?? ''
   const date = parseDateStringFrontend(dateString)
 
-  const { dates, reload } = usePatientDatesAPI(id, patientId)
+  const { dates, reload: reloadDates } = usePatientDatesAPI(id, patientId)
 
   const hasPreviousDay: boolean = dates.some(value => isSameDay(subDays(date, 1), value.date))
   const hasNextDay: boolean = dates.some(value => isSameDay(addDays(date, 1), value.date))
@@ -38,8 +36,10 @@ export const PatientClassification = () => {
   const currentPatient = patients.find(value => value.id === patientId)
   const {
     classification,
-    update
-  } = usePatientClassification(id, patientId, formatDateBackend(date))
+    update,
+    reload: reloadClassification,
+    addClassification,
+  } = usePatientClassification(id, patientId, date)
 
   const nextUnclassifiedPatient = useMemo(() => {
     // Start searching from the current patient's index
@@ -67,13 +67,20 @@ export const PatientClassification = () => {
 
   useEffect(noop, [router.query.date]) // reload once the date can be parsed
 
+  const hasNoClassification = classification.result === undefined
+
+  const reload = async () => {
+    await reloadDates()
+    await reloadClassification()
+  }
+
   return (
     <Page
       header={(
         <Header
           start={(
             <div className="flex flex-row items-center gap-x-4 flex-shrink-0 flex-1">
-              <DefaultHeader/>
+              <DefaultHeaderStart/>
               <div className="bg-gray-300 rounded-full min-w-1 min-h-12"/>
               <div className="flex flex-row gap-x-1 items-center font-semibold text-lg">
                 <Link href={`/stations/${id}`}>{currentStation?.name}</Link>
@@ -90,7 +97,7 @@ export const PatientClassification = () => {
                 {nextUnclassifiedPatient ? (
                   <a href={`/stations/${id}/${nextUnclassifiedPatient.id}/${formatDateFrontendURL(date)}`}>
                     <button className="flex flex-row gap-x-2 items-center">
-                      Nächsten Patienten<ArrowRight size={20}/>
+                      Nächster Patient<ArrowRight size={20}/>
                     </button>
                   </a>
                 ) : (
@@ -159,32 +166,41 @@ export const PatientClassification = () => {
             <h2 className="font-bold text-xl">Tagesdaten</h2>
             <div className="flex flex-row gap-x-1 justify-between">
               <span>Tag der Aufnahme</span>
-              <span>{classification.admission_date ? formatDateVisual(parseDateString(classification.admission_date)) : '-'}</span>
+              <span>{formatDateVisual(classification.patientInformation.admissionDate)}</span>
             </div>
             <div className="flex flex-row gap-x-1 justify-between">
               <span>Tag der Entlassung</span>
-              <span>{classification.discharge_date ? formatDateVisual(parseDateString(classification.discharge_date)) : '-'}</span>
+              <span>{formatDateVisual(classification.patientInformation.dischargeDate)}</span>
             </div>
             <div className="flex flex-row gap-x-1 justify-between">
               <span>In Isolation</span>
               <input
                 type="checkbox"
-                checked={classification.is_in_isolation}
-                onChange={() => update({ isolationUpdate: !classification.is_in_isolation }).then(reload)}
+                checked={classification.patientInformation.isInIsolation}
+                onChange={() => update({ isolationUpdate: !classification.patientInformation.isInIsolation }).then(reload)}
               />
             </div>
           </div>
           <div className="bg-primary/30 rounded-2xl px-4 py-2 flex flex-col justify-between flex-1">
-            <h2 className="font-bold text-xl">Ergebnis:</h2>
+            <div className="flex flex-row gap-x-4 justify-between">
+              <h2 className="font-bold text-xl">Ergebnis</h2>
+              <button
+                className="flex flex-row gap-x-1 button-full-primary px-2 py-1 items-center"
+                onClick={() => addClassification(1, 1)}
+              >
+                {!hasNoClassification && (<Check size={18}/>)}
+                {hasNoClassification ? 'Auf A1/S1 setzen' : 'Gespeichert'}
+              </button>
+            </div>
             <div className="flex flex-row items-center gap-x-2 justify-between">
-              Kategorie:
+              Kategorie
               <strong className="bg-white rounded-full px-2 py-1">
                 { /* TODO fix hardcoding of A and S  */}
-                A{classification?.result?.category1 ?? '-'}/S{classification?.result?.category2 ?? ''}
+                A{classification?.result?.category1 ?? '-'}/S{classification?.result?.category2 ?? '-'}
               </strong>
             </div>
             <div className="flex flex-row items-center gap-x-2 justify-between">
-              Minutenzahl:
+              Minutenzahl
               <strong className="bg-white rounded-full px-2 py-1">
                 {classification?.result?.minutes ?? 0}min
               </strong>
@@ -195,7 +211,7 @@ export const PatientClassification = () => {
           {classification.careServices.map((list, index) => (
             <ClassificationCard key={index} classification={list} onUpdate={(id, selected) => {
               update({
-                questionUpdates: {
+                questionUpdate: {
                   id,
                   selected
                 }

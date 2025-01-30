@@ -6,6 +6,14 @@ export type GridProps = HTMLAttributes<HTMLDivElement> & {
   colCount?: number
 }
 
+/**
+ * @param children The content
+ * @param className Overwrite of the Styling
+ * @param rowCount The number of rows
+ * @param colCount The number of columns
+ * @param restProps Overwrites for HTMLDivElement Props
+ * @constructor
+ */
 export const Grid = ({
   children,
   className,

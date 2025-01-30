@@ -11,6 +11,7 @@ import {
   ResponsiveContainer
 } from 'recharts'
 import { addDays, subDays } from 'date-fns'
+import type { CurveType } from 'recharts/types/shape/Curve'
 import { Tooltip as TooltipCustom } from '@/components/Tooltip'
 import { DatePickerButton } from '@/components/DatePicker/DatePickerButton'
 import { useOutsideClick } from '@/util/hooks/useOutsideClick'
@@ -22,6 +23,12 @@ interface ComparisonGraphProps {
   dates: Date[]
 }
 
+/*
+  The ComparisonGraph component is a popup that displays a comparison graph of the data provided.
+  It uses the recharts library to display the data in a line chart. The data is processed to
+  display the day and night data for each station in the provided data. The component also
+  provides a date picker to change the date of the data displayed in the graph.
+*/
 export const ComparisonGraph = ({
   data,
   date,
@@ -56,6 +63,13 @@ export const ComparisonGraph = ({
     ]
   }, [])
 
+  const lineProps = {
+    type: 'monotone' as CurveType,
+    dot: { r: 4 },
+    activeDot: { r: 7 },
+    strokeWidth: 4,
+  }
+
   return (
     <>
       <TooltipCustom tooltip="Vergleichsdiagramm" containerClassName="!w-auto" position="bottom">
@@ -68,10 +82,10 @@ export const ComparisonGraph = ({
       </TooltipCustom>
 
       {isOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-20">
           <div ref={ref} className="bg-white rounded-lg p-6 w-full max-w-4xl mx-4">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Stationsvergleich - Ist- vs Soll-Werte</h2>
+              <h2 className="text-xl font-bold">{'Vollzeitäquivalente: Ist- vs. Soll-Werte'}</h2>
               <div className="flex flex-row items-center gap-x-4">
                 <div className="flex flex-row gap-x-2 items-center flex-1 justify-center">
                   <button
@@ -110,6 +124,10 @@ export const ComparisonGraph = ({
               </div>
             </div>
 
+            {
+              // x-axis: stations
+              // y-axis: values for the should and is data
+            }
             <div className="h-96 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
@@ -132,32 +150,28 @@ export const ComparisonGraph = ({
                   <Tooltip/>
                   <Legend/>
                   <Line
-                    type="monotone"
+                    {...lineProps}
                     dataKey="dayIs"
                     name="Tag (Ist)"
                     stroke="#8884d8"
-                    activeDot={{ r: 8 }}
                   />
                   <Line
-                    type="monotone"
+                    {...lineProps}
                     dataKey="dayShould"
-                    name="Tag (Sollte)"
+                    name="Tag (Soll)"
                     stroke="#82ca9d"
-                    activeDot={{ r: 8 }}
                   />
                   <Line
-                    type="monotone"
+                    {...lineProps}
                     dataKey="nightIs"
                     name="Nacht (Ist)"
                     stroke="#ffc658"
-                    activeDot={{ r: 8 }}
                   />
                   <Line
-                    type="monotone"
+                    {...lineProps}
                     dataKey="nightShould"
-                    name="Nacht (Sollte)"
+                    name="Nacht (Soll)"
                     stroke="#ff7300"
-                    activeDot={{ r: 8 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
