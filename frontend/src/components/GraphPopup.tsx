@@ -73,8 +73,8 @@ export const ComparisonGraph = ({
 
   // Colors for Ist and Soll
   const colors = {
-    ist: '#8884d8', // Purple for "Ist"
-    soll: '#82ca9d' // Green for "Soll"
+    night: '#8884d8', // Purple for "Ist"
+    day: '#82ca9d' // Green for "Soll"
   }
 
   return (
@@ -160,29 +160,29 @@ export const ComparisonGraph = ({
                     {...baseLineProps}
                     dataKey="dayIs"
                     name="Tag (Ist)"
-                    stroke={colors.ist}
+                    stroke={colors.day}
                     strokeWidth={3}
                   />
                   <Line
                     {...baseLineProps}
                     dataKey="dayShould"
                     name="Tag (Soll)"
-                    stroke={colors.soll}
+                    stroke={colors.day}
+                    strokeDasharray="5 5"
                     strokeWidth={3}
                   />
                   <Line
                     {...baseLineProps}
                     dataKey="nightIs"
                     name="Nacht (Ist)"
-                    stroke={colors.ist}
-                    strokeDasharray="5 5"
+                    stroke={colors.night}
                     strokeWidth={3}
                   />
                   <Line
                     {...baseLineProps}
                     dataKey="nightShould"
                     name="Nacht (Soll)"
-                    stroke={colors.soll}
+                    stroke={colors.night}
                     strokeDasharray="5 5"
                     strokeWidth={3}
                   />
