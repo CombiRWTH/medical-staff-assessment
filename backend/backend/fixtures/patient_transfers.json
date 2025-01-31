@@ -35870,7 +35870,7 @@
     "fields": {
       "patient": 30,
       "station": 1,
-      "date": "2025-01-30",
+      "date": "2025-01-31",
       "is_semi_stationary": false,
       "is_fully_stationary": true,
       "day_of_admission": "2025-01-05T00:00:00Z",
@@ -35891,7 +35891,7 @@
     "fields": {
       "patient": 31,
       "station": 1,
-      "date": "2025-01-30",
+      "date": "2025-01-31",
       "is_semi_stationary": false,
       "is_fully_stationary": true,
       "day_of_admission": "2025-01-05T00:00:00Z",
@@ -35912,7 +35912,7 @@
     "fields": {
       "patient": 32,
       "station": 1,
-      "date": "2025-01-30",
+      "date": "2025-01-31",
       "is_semi_stationary": false,
       "is_fully_stationary": true,
       "day_of_admission": "2025-01-05T00:00:00Z",
@@ -35933,7 +35933,7 @@
     "fields": {
       "patient": 33,
       "station": 1,
-      "date": "2025-01-30",
+      "date": "2025-01-31",
       "is_semi_stationary": false,
       "is_fully_stationary": true,
       "day_of_admission": "2025-01-05T00:00:00Z",
@@ -35954,7 +35954,7 @@
     "fields": {
       "patient": 34,
       "station": 1,
-      "date": "2025-01-30",
+      "date": "2025-01-31",
       "is_semi_stationary": false,
       "is_fully_stationary": true,
       "day_of_admission": "2025-01-05T00:00:00Z",
@@ -35975,7 +35975,7 @@
     "fields": {
       "patient": 35,
       "station": 1,
-      "date": "2025-01-30",
+      "date": "2025-01-31",
       "is_semi_stationary": false,
       "is_fully_stationary": true,
       "day_of_admission": "2025-01-05T00:00:00Z",
@@ -35996,7 +35996,7 @@
     "fields": {
       "patient": 36,
       "station": 1,
-      "date": "2025-01-30",
+      "date": "2025-01-31",
       "is_semi_stationary": false,
       "is_fully_stationary": true,
       "day_of_admission": "2025-01-05T00:00:00Z",
@@ -36017,7 +36017,7 @@
     "fields": {
       "patient": 37,
       "station": 1,
-      "date": "2025-01-30",
+      "date": "2025-01-31",
       "is_semi_stationary": false,
       "is_fully_stationary": true,
       "day_of_admission": "2025-01-05T00:00:00Z",
@@ -36038,7 +36038,7 @@
     "fields": {
       "patient": 38,
       "station": 1,
-      "date": "2025-01-30",
+      "date": "2025-01-31",
       "is_semi_stationary": false,
       "is_fully_stationary": true,
       "day_of_admission": "2025-01-05T00:00:00Z",
