@@ -162,6 +162,7 @@ export const ComparisonGraph = ({
                     name="Tag (Ist)"
                     stroke={colors.day}
                     strokeWidth={3}
+                    legendType="plainline"
                   />
                   <Line
                     {...baseLineProps}
@@ -170,6 +171,7 @@ export const ComparisonGraph = ({
                     stroke={colors.day}
                     strokeDasharray="5 5"
                     strokeWidth={3}
+                    legendType="plainline"
                   />
                   <Line
                     {...baseLineProps}
@@ -177,6 +179,7 @@ export const ComparisonGraph = ({
                     name="Nacht (Ist)"
                     stroke={colors.night}
                     strokeWidth={3}
+                    legendType="plainline"
                   />
                   <Line
                     {...baseLineProps}
@@ -185,6 +188,7 @@ export const ComparisonGraph = ({
                     stroke={colors.night}
                     strokeDasharray="5 5"
                     strokeWidth={3}
+                    legendType="plainline"
                   />
                 </LineChart>
               </ResponsiveContainer>
