@@ -1,4 +1,6 @@
 # CareTracker
+[![de](https://img.shields.io/badge/lang-de-red.svg)](https://github.com/CombiRWTH/CareTracker/blob/main/README.md)
+
 CareTracker helps medical staff to assess and document the time required for patient care in accordance with the PPBV (["Pflegepersonalbemessungsverordnung"](https://www.bundesgesundheitsministerium.de/service/gesetze-und-verordnungen/detail/pflegepersonalbemessungsverordnung-ppbv.html)).
 
 ## Background and Motivation
