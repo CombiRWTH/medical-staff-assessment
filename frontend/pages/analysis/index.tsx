@@ -246,6 +246,10 @@ export const AnalysisPage: NextPage = () => {
                   value: 'monthly',
                   label: 'Monatlich',
                 },
+                {
+                  value: 'quarterly',
+                  label: 'Quartalsweise',
+                },
                 ]}
                 onChange={value => setViewMode(value)}
               />
