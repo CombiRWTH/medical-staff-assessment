@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import type { StationDaily, StationMonthly } from '@/util/export'
 import { apiURL } from '@/config'
 
-export type AnalysisFrequency = 'daily' | 'monthly'
+export type AnalysisFrequency = 'daily' | 'monthly' | 'quarterly'
 
 /**
  * Hook for loading analysis data
@@ -28,14 +28,14 @@ export const useAnalysisAPI = (frequency: AnalysisFrequency) => {
       }
       if (frequency === 'daily') {
         setDataDaily(data as StationDaily[])
-      } else if (frequency === 'monthly') {
+      } else if (frequency === 'monthly' || frequency === 'quarterly') {
         setDataMonthly(data as StationMonthly[])
       }
     } catch (e) {
       setError((e as Error).message)
       if (frequency === 'daily') {
         setDataDaily([])
-      } else if (frequency === 'monthly') {
+      } else if (frequency === 'monthly' || frequency === 'quarterly') {
         setDataMonthly([])
       }
     } finally {
