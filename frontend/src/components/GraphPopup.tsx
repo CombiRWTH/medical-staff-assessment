@@ -63,11 +63,18 @@ export const ComparisonGraph = ({
     ]
   }, [])
 
-  const lineProps = {
+  // Define common line properties
+  const baseLineProps = {
     type: 'monotone' as CurveType,
     dot: { r: 4 },
     activeDot: { r: 7 },
     strokeWidth: 4,
+  }
+
+  // Colors for Ist and Soll
+  const colors = {
+    night: '#8884d8', // Purple for "Ist"
+    day: '#82ca9d' // Green for "Soll"
   }
 
   return (
@@ -150,28 +157,38 @@ export const ComparisonGraph = ({
                   <Tooltip/>
                   <Legend/>
                   <Line
-                    {...lineProps}
+                    {...baseLineProps}
                     dataKey="dayIs"
                     name="Tag (Ist)"
-                    stroke="#8884d8"
+                    stroke={colors.day}
+                    strokeWidth={3}
+                    legendType="plainline"
                   />
                   <Line
-                    {...lineProps}
+                    {...baseLineProps}
                     dataKey="dayShould"
                     name="Tag (Soll)"
-                    stroke="#82ca9d"
+                    stroke={colors.day}
+                    strokeDasharray="5 5"
+                    strokeWidth={3}
+                    legendType="plainline"
                   />
                   <Line
-                    {...lineProps}
+                    {...baseLineProps}
                     dataKey="nightIs"
                     name="Nacht (Ist)"
-                    stroke="#ffc658"
+                    stroke={colors.night}
+                    strokeWidth={3}
+                    legendType="plainline"
                   />
                   <Line
-                    {...lineProps}
+                    {...baseLineProps}
                     dataKey="nightShould"
                     name="Nacht (Soll)"
-                    stroke="#ff7300"
+                    stroke={colors.night}
+                    strokeDasharray="5 5"
+                    strokeWidth={3}
+                    legendType="plainline"
                   />
                 </LineChart>
               </ResponsiveContainer>
