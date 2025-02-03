@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router'
 import { useCallback, useState, useMemo, useEffect } from 'react'
 import { ArrowRight, LucideArrowDown, LucideArrowUp, Search, X } from 'lucide-react'
+import { isSameDay } from 'date-fns'
 import { DefaultHeaderStart, Header } from '@/layout/Header'
 import { Card } from '@/components/Card'
 import { Page } from '@/layout/Page'
@@ -179,9 +180,9 @@ export const StationPatientList = () => {
       if (!!a.lastClassification && !!b.lastClassification) {
         classificationCompare = classificationCompare * (a.lastClassification.date.getTime() - b.lastClassification.date.getTime())
       } else if (a.lastClassification) {
-        classificationCompare = sortingState.hasClassificationAscending ? -1 : 1
+        // It is correct already don't do anything
       } else if (b.lastClassification) {
-        classificationCompare = sortingState.hasClassificationAscending ? 1 : -1
+        classificationCompare = classificationCompare * (-1)
       }
 
       for (const sortingType of sortingState.last) {
@@ -209,7 +210,7 @@ export const StationPatientList = () => {
     router.push(`/stations/${id}/${patientId}/${formatDateFrontendURL()}`)
   }, [router, id])
 
-  const missingEntriesCount = patients.filter(patient => !patient.lastClassification).length
+  const missingEntriesCount = patients.filter(patient => !patient.lastClassification || !isSameDay(patient.lastClassification.date, new Date())).length
   const missingEntriesWeek = patients.reduce((cur, patient) => (patient.missingClassificationsLastWeek ?? []).length + cur, 0)
   const shouldShowMissingEntries = (missingEntriesCount > 0 || missingEntriesWeek > 0) && !hasDismissedMissingEntries
 
