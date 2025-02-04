@@ -13,6 +13,7 @@ import { exportMonthlyAnalysis, exportDailyAnalysis } from '@/util/export'
 import { apiURL } from '@/config'
 import { getCookie } from '@/util/getCookie'
 import { ComparisonGraph } from '@/components/GraphPopup'
+import { StationTimeGraph } from '@/components/GraphForSingleStation'
 import { Menu } from '@/components/Menu'
 import { Select } from '@/components/Select'
 import { MultiSelect } from '@/components/MultiSelect'
@@ -270,6 +271,14 @@ export const AnalysisPage: NextPage = () => {
         <div className="p-6">
           <div className="bg-white rounded-xl shadow-md p-6">
             <ComparisonGraph data={graphData} />
+          </div>
+        </div>
+        <div className="p-6">
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <StationTimeGraph
+              viewMode={viewMode}
+              stations={stations}
+            />
           </div>
         </div>
       </div>
