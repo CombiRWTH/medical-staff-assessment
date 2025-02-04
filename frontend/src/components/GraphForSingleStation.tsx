@@ -92,6 +92,7 @@ export const StationTimeGraph = ({ viewMode, stations }: StationTimeGraphProps) 
             selected={selectedStation}
             items={stationOptions}
             onChange={setSelectedStation}
+            noneLabel="Station auswählen"
           />
         </div>
         <div className="h-96">
