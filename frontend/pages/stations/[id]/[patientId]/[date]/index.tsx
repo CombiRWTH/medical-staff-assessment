@@ -106,11 +106,11 @@ export const PatientClassification = () => {
                     tooltip={
                       allPatientsClassified
                         ? 'Alle Patienten sind klassifiziert'
-                        : 'Kein unklassifizierter Patient gefunden'
+                        : 'Nächsten Patienten klassifizieren'
                     }
                   >
                     <button
-                      disabled={true}
+                      disabled={allPatientsClassified}
                       className="flex flex-row gap-x-2 items-center opacity-50 cursor-not-allowed text-primary hover:text-primary/90"
                     >
                       Nächsten Patienten<ArrowRight size={20}/>
@@ -186,7 +186,11 @@ export const PatientClassification = () => {
               <h2 className="font-bold text-xl">Ergebnis</h2>
               <button
                 className="flex flex-row gap-x-1 button-full-primary px-2 py-1 items-center"
-                onClick={() => addClassification(1, 1)}
+                onClick={() => {
+                  if (hasNoClassification) {
+                    addClassification(1, 1)
+                  }
+                }}
               >
                 {!hasNoClassification && (<Check size={18}/>)}
                 {hasNoClassification ? 'Auf A1/S1 setzen' : 'Gespeichert'}
