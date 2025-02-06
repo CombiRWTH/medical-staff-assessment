@@ -56,7 +56,7 @@ export const MultiSelect = <T, >({
         disabled={isDisabled}
         className={`relative flex flex-row justify-between gap-x-2 min-w-[120px] ${isDisabled ? 'button-full-disabled' : 'button-full-primary'} ${buttonClassName}`}
       >
-        {icon && <div className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</div>}
+        {icon && icon}
         {selectedItemsLabel}
         {isOpen ? <ChevronUp size={24}/> : <ChevronDown size={24}/>}
       </button>

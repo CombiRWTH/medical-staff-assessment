@@ -233,11 +233,11 @@ export const AnalysisPage: NextPage = () => {
                   items={stationOptions}
                   noneLabel="Exportieren"
                   icon={<Upload size={24}/>}
-                  buttonClassName="!flex !flex-row !items-center gap-x-2"
                 />
               </Tooltip>
 
               <Select<AnalysisFrequency>
+                buttonClassName="!min-w-[150px]"
                 selected={viewMode}
                 items={[{
                   value: 'daily',
