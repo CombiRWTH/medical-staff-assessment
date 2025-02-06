@@ -60,7 +60,10 @@ def get_station_specific_analysis(station_id: int, start: date, end: date) -> di
     Returns:
         dict: The data for the specific station.
     """
-    analysis_data = next((data for data in get_should_vs_is_analysis(start, end) if data['station_id'] == station_id), None)
+    analysis_data = next(
+        (data for data in get_should_vs_is_analysis(start, end) if data['station_id'] == station_id),
+        None
+    )
     # Add dates which are not in the database
     for analysis_date in (start + timedelta(n) for n in range(int((end - start).days) + 1)):
         if not any(entry['date'] == analysis_date for entry in analysis_data['dataset_day']):
