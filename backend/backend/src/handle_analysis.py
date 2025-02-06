@@ -1,7 +1,7 @@
 """This contains endpoints to return analysis data for the frontend."""
 from django.http import JsonResponse
 from ..models import StationWorkloadDaily, Station
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 
 def get_should_vs_is_analysis(start: date, end: date) -> list:
@@ -50,7 +50,7 @@ def get_should_vs_is_analysis(start: date, end: date) -> list:
 
 
 def get_station_specific_analysis(station_id: int, start: date, end: date) -> dict:
-    """Method to retrieve data for a specific station.
+    """Retrieve data for a specific station.
 
     Args:
         station_id (int): The id of the station.
@@ -60,7 +60,18 @@ def get_station_specific_analysis(station_id: int, start: date, end: date) -> di
     Returns:
         dict: The data for the specific station.
     """
-    return next((data for data in get_should_vs_is_analysis(start, end) if data['station_id'] == station_id), None)
+    analysis_data = next((data for data in get_should_vs_is_analysis(start, end) if data['station_id'] == station_id), None)
+    # Add dates which are not in the database
+    for analysis_date in (start + timedelta(n) for n in range(int((end - start).days) + 1)):
+        if not any(entry['date'] == analysis_date for entry in analysis_data['dataset_day']):
+            analysis_data['dataset_day'].append({'date': analysis_date, 'should': 0, 'is': 0})
+        if not any(entry['date'] == analysis_date for entry in analysis_data['dataset_night']):
+            analysis_data['dataset_night'].append({'date': analysis_date, 'should': 0, 'is': 0})
+
+    # Sort the data by date
+    analysis_data['dataset_day'] = sorted(analysis_data['dataset_day'], key=lambda x: x['date'])
+    analysis_data['dataset_night'] = sorted(analysis_data['dataset_night'], key=lambda x: x['date'])
+    return analysis_data
 
 
 def handle_should_vs_is_analysis(request, start: str, end: str) -> JsonResponse:
