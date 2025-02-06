@@ -52,42 +52,45 @@ const bedRoom = (patient: Patient) => {
 type PatientRowProps = {
   patient: Patient,
   stationId?: number,
-  onSelect: () => void
+  onSelect: () => void,
+  onUpdatedClassification: () => void
 }
 
 const PatientRow = ({
   patient,
   stationId,
-  onSelect
+  onSelect,
+  onUpdatedClassification
 }: PatientRowProps) => {
   const today = new Date()
   const {
-    classification,
     addClassification
   } = usePatientClassification(
     stationId,
     patient.id,
     today
   )
-  const [category1, setCategory1] = useState(classification?.result?.category1)
-  const [category2, setCategory2] = useState(classification?.result?.category2)
+  const [category1, setCategory1] = useState(patient?.lastClassification?.category1)
+  const [category2, setCategory2] = useState(patient?.lastClassification?.category2)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const hasValidValuesForClassification = category1 !== undefined && category2 !== undefined
 
-  const handleClassificationUpdate = async (e: React.MouseEvent) => {
-    e.stopPropagation()
+  const handleClassificationUpdate = async () => {
     if (!stationId || isSubmitting || !hasValidValuesForClassification || category1 === undefined || category2 === undefined) return
 
     setIsSubmitting(true)
     await addClassification(category1, category2)
+    onUpdatedClassification()
     setIsSubmitting(false)
   }
 
   useEffect(() => {
-    setCategory1(classification?.result?.category1)
-    setCategory2(classification?.result?.category2)
-  }, [classification?.result?.category1, classification?.result?.category2])
+    if (patient.lastClassification?.date && isSameDay(patient.lastClassification?.date, new Date())) {
+      setCategory1(patient.lastClassification?.category1)
+      setCategory2(patient.lastClassification?.category2)
+    }
+  }, [patient.lastClassification?.category1, patient.lastClassification?.category2, patient.lastClassification?.date])
 
   return (
     <tr
@@ -98,11 +101,11 @@ const PatientRow = ({
       <td className="py-1 pr-4">{bedRoom(patient)}</td>
       <td className="py-1 pr-4">
         <LastClassifiedBadge
-          classification={classification.result === undefined ? patient.lastClassification : classification.result}
-          date={classification.result === undefined ? patient.lastClassification?.date : classification.date}
+          classification={patient.lastClassification}
+          date={patient.lastClassification?.date}
         />
       </td>
-      <td className="py-1 pr-4 min-w-[250px]" onClick={(e) => e.stopPropagation()}>
+      <td className="py-1 pr-4 min-w-[250px]">
         <div className="flex flex-wrap items-center gap-2">
           <Select
             selected={category1}
@@ -129,7 +132,10 @@ const PatientRow = ({
             menuContainerClassName="w-full"
           />
           <button
-            onClick={handleClassificationUpdate}
+            onClick={(event) => {
+              event.stopPropagation()
+              handleClassificationUpdate()
+            }}
             disabled={isSubmitting}
             className={`${hasValidValuesForClassification ? 'button-full-primary' : 'button-full-disabled'}`}
           >
@@ -162,9 +168,17 @@ export const StationPatientList = () => {
   })
   const { stations } = useStationsAPI()
   const currentStation = stations.find(value => value.id === id)
-  const { patients } = usePatientsAPI(currentStation?.id)
+  const { patients, reload } = usePatientsAPI(currentStation?.id)
 
-  const patientMinuteSum = patients.reduce((cur, patient) => (patient.lastClassification?.minutes ?? 0) + cur, 0)
+  const patientMinuteSum = patients.reduce((cur, patient) => {
+    if (!patient.lastClassification) {
+      return cur
+    }
+    if (isSameDay(patient.lastClassification.date, new Date())) {
+      return patient.lastClassification.minutes + cur
+    }
+    return cur
+  }, 0)
 
   const sortedAndFilteredPatients = useMemo(() => {
     // First filter by search term
@@ -331,6 +345,7 @@ export const StationPatientList = () => {
                     patient={patient}
                     stationId={id}
                     onSelect={() => handleSelectPatient(patient.id)}
+                    onUpdatedClassification={reload}
                   />
                 ))}
                 </tbody>
