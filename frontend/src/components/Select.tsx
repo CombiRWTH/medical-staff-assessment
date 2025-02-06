@@ -46,7 +46,10 @@ export const Select = <T, >({
       isDisabled
     }) => (
       <button
-        onClick={toggleOpen}
+        onClick={(event) => {
+          event.stopPropagation()
+          toggleOpen()
+        }}
         disabled={isDisabled}
         className={`flex flex-row justify-between gap-x-2 min-w-[120px] ${isDisabled ? 'button-full-disabled' : 'button-full-primary'} ${buttonClassName}`}
       >
@@ -57,7 +60,8 @@ export const Select = <T, >({
       {({ toggleOpen }) => items.map((item, index) => (
         <button
           key={index}
-          onClick={() => {
+          onClick={(event) => {
+            event.stopPropagation()
             toggleOpen()
             onChange(item.value)
           }}
