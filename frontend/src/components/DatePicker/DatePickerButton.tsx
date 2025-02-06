@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { CalendarDays } from 'lucide-react'
 import { noop } from '@/util/noop'
 import type { DatePickerProps } from '@/components/DatePicker/DatePicker'
 import { DatePicker } from '@/components/DatePicker/DatePicker'
@@ -32,8 +33,9 @@ export const DatePickerButton = ({
   const triangleSize = 6
   return (
     <div className={tailwindCombine('relative', className)} ref={ref}>
-      <button onClick={() => setIsOpen(!isOpen)} >
+      <button onClick={() => setIsOpen(!isOpen)} className="flex flex-row gap-x-2 items-center">
         <span className="font-bold text-3xl">{formatDateVisual(currentDate)}</span>
+        <CalendarDays size={28}/>
       </button>
       {isOpen && (
         <div
