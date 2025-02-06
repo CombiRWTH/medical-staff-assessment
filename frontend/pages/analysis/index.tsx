@@ -267,13 +267,13 @@ export const AnalysisPage: NextPage = () => {
         </Header>
       )}
     >
-      <div className="flex flex-col w-full p-10 gap-y-10 content-start">
-        <div className="p-6">
+      <div className="flex flex-col w-full p-10 gap-y-4 content-start">
+        <div className="p-4">
           <div className="bg-white rounded-xl shadow-md p-6">
             <ComparisonGraph data={graphData} />
           </div>
         </div>
-        <div className="p-6">
+        <div className="p-4">
           <div className="bg-white rounded-xl shadow-md p-6">
             <StationTimeGraph
               viewMode={viewMode}

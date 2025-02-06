@@ -6,7 +6,6 @@ import {
   YAxis,
   CartesianGrid,
   Legend,
-  Tooltip,
   ResponsiveContainer
 } from 'recharts'
 import type { CurveType } from 'recharts/types/shape/Curve'
@@ -36,7 +35,6 @@ export const StationTimeGraph = ({ viewMode, stations }: StationTimeGraphProps) 
     processedData = data.dataset_day.map((dayData, index) => {
       const nightData = data.dataset_night[index] || { is: 0, should: 0 }
       return {
-        date: dayData.date,
         displayDate: new Date(dayData.date).getDate().toString(),
         dayIs: dayData.is || 0,
         dayShould: dayData.should || 0,
@@ -109,12 +107,15 @@ export const StationTimeGraph = ({ viewMode, stations }: StationTimeGraphProps) 
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis
                 dataKey="displayDate"
-                label={{ value: 'Tag', position: 'bottom' }}
+                tickLine={false}
+                label={{
+                  value: 'Tag',
+                  position: 'outsideBottom',
+                  offset: 20,
+                  dy: 10
+                }}
               />
               <YAxis />
-              <Tooltip
-                labelFormatter={(label) => `Datum: ${processedData[label as number]?.date}`}
-              />
               <Legend />
               <Line
                 {...baseLineProps}
